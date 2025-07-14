@@ -104,7 +104,7 @@ searchBar?.addEventListener('input', () =>
          suggestion.textContent = match;
          suggestion.addEventListener('click', () =>
          {
-            window.location.href = `products?search=${encodeURIComponent(match)}`;
+            window.location.href = `products.html?search=${encodeURIComponent(match)}`;
          });
          suggestionsBox.appendChild(suggestion);
       });
