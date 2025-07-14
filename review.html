@@ -3,13 +3,20 @@
 <head>
   <meta charset="UTF-8">
   <title>Redirecting...</title>
-  <meta http-equiv="refresh" content="0; URL='https://g.page/r/CXQdMEWP3OqZEBE/review'">
+  <!-- Wait 3 seconds before redirecting -->
+  <meta http-equiv="refresh" content="3; URL='https://g.page/r/CXQdMEWP3OqZEBE/review'">
   <script>
-    // Extra JavaScript redirect as a backup
-    window.location.href = "https://g.page/r/CXQdMEWP3OqZEBE/review";
+    // JavaScript backup: redirect after 3 seconds
+    setTimeout(function() {
+      window.location.href = "https://g.page/r/CXQdMEWP3OqZEBE/review";
+    }, 3000);
   </script>
 </head>
 <body>
-  <p>Redirecting you to the review page...</p>
+  <p aria-live="polite">
+    Redirecting you to the review page...<br>
+    If you are not redirected in a few seconds, 
+    <a href="https://g.page/r/CXQdMEWP3OqZEBE/review" rel="noopener" target="_blank">click here</a>.
+  </p>
 </body>
 </html>
