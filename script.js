@@ -192,27 +192,53 @@ function filterCakes(retryCount = 10)
    }
 }
 
-document.addEventListener("DOMContentLoaded", () =>
-{
-   filterCakes();
+document.querySelectorAll('.cake-card').forEach(card => {
+    const cakeName = card.querySelector('.cake-name').textContent;
+    const buttonContainer = card.querySelector('.button-container');
+    buttonContainer.innerHTML = '';
+
+    const orderBtn = document.createElement('a');
+    orderBtn.className = 'order-btn';
+    orderBtn.textContent = 'Order Now';
+    orderBtn.href = `https://wa.me/918301088697?text=I%20would%20like%20to%20order%20${encodeURIComponent(cakeName)}`;
+    orderBtn.target = '_blank';
+
+    // Detect if in cakes section
+    let isCakeMenu = false;
+    // Check if any previous sibling is a heading with "Cakes"
+    let prev = card;
+    while (prev = prev.previousElementSibling) {
+        if (prev.classList && prev.classList.contains('content')) {
+            if (prev.textContent.includes('Cakes')) isCakeMenu = true;
+            break;
+        }
+    }
+    // Or, fallback: if card is in the first menu-grid
+    if (!isCakeMenu) {
+        const allGrids = document.querySelectorAll('.menu-grid');
+        isCakeMenu = allGrids[0].contains(card);
+    }
+
+    let searchQuery;
+    if (isCakeMenu) {
+        if (cakeName.toLowerCase().includes('cake')) {
+            searchQuery = cakeName;
+        } else {
+            searchQuery = cakeName + ' cake';
+        }
+    } else {
+        searchQuery = cakeName;
+    }
+
+    const viewBtn = document.createElement('a');
+    viewBtn.className = 'view-btn';
+    viewBtn.textContent = 'View More Images';
+    viewBtn.href = `https://www.google.com/search?q=${encodeURIComponent(searchQuery)}&tbm=isch`;
+    viewBtn.target = '_blank';
+
+    buttonContainer.appendChild(orderBtn);
+    buttonContainer.appendChild(viewBtn);
 });
-
-// Add buttons to cake cards
-document.addEventListener('DOMContentLoaded', function ()
-{
-   document.querySelectorAll('.cake-card').forEach(card =>
-   {
-      const cakeName = card.querySelector('.cake-name').textContent;
-      const buttonContainer = card.querySelector('.button-container');
-
-      // Clear existing buttons (to prevent duplicates if script runs more than once)
-      buttonContainer.innerHTML = '';
-
-      const orderBtn = document.createElement('a');
-      orderBtn.className = 'order-btn';
-      orderBtn.textContent = 'Order Now';
-      orderBtn.href = `https://wa.me/918301088697?text=I%20would%20like%20to%20order%20${encodeURIComponent(cakeName)}`;
-      orderBtn.target = '_blank';
 
       const viewBtn = document.createElement('a');
       viewBtn.className = 'view-btn';
