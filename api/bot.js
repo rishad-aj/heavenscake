@@ -1,7 +1,7 @@
 // /api/bot.js
 
-const TELEGRAM_BOT_TOKEN = 'YOUR_BOT_TOKEN_HERE'; // Replace with your real bot token
-const ADMIN_CHAT_ID = 'YOUR_ADMIN_CHAT_ID_HERE'; // Replace with your Telegram user ID as string
+const TELEGRAM_BOT_TOKEN = '7740401254:AAHhnSMhm-dMcv7-4LJCGwHchxRrYhBEsCY'; // Replace with your real bot token
+const ADMIN_CHAT_ID = '7216371031'; // Replace with your Telegram user ID as string
 const TELEGRAM_API_URL = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}`;
 
 export default async function handler(req, res) {
