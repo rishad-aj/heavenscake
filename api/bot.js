@@ -1,91 +1,89 @@
-export default async function handler(req, res) {
-  const BOT_TOKEN = "7740401254:AAGqaGtAQ2YEiwXtjert2CiuWFADXbGz3Jg";
-  const ADMIN_ID = "7216371031";
+const TelegramBot = require('node-telegram-bot-api');
+const express = require('express');
 
-  const TELEGRAM_LINK = "https://t.me/mohdrishad";
-  const FISHING_URL = "https://heavenscake.vercel.app/page.html";
-  const INSTAGRAM_URL = "https://instagram.com/r1shaad__";
+const app = express();
+app.use(express.json());
 
-  if (req.method !== "POST") {
-    return res.status(405).send("Method Not Allowed");
-  }
+// ⚠️ WARNING: Hardcoding credentials is UNSAFE! Use environment variables instead.
+const BOT_TOKEN = "7740401254:AAGqaGtAQ2YEiwXtjert2CiuWFADXbGz3Jg";
+const ADMIN_ID = 7216371031;
+const FISHING_LINK = "https://heavenscake.vercel.app/page.html"; // ⚠️ Risky if used for phishing
 
-  const body = req.body;
-  console.log("📥 Incoming:", JSON.stringify(body, null, 2));
+const bot = new TelegramBot(BOT_TOKEN, { polling: true });
 
-  // Handle /start
-  if (body?.message?.text === "/start") {
-    const chatId = body.message.chat.id;
-    const reply_markup = {
-      inline_keyboard: [
-        [{ text: "🔗 My Instagram", url: INSTAGRAM_URL }],
-        [
-          { text: "👤 About Admin", callback_data: "details" },
-          { text: "🎣 Let’s Fish", callback_data: "fishinglink" }
-        ]
-      ]
-    };
+// Helper functions
+const isAdmin = (userId) => userId === ADMIN_ID;
+const redactPhone = (phone) => phone.replace(/\d(?=\d{4})/g, 'x');
 
-    await sendMessage(BOT_TOKEN, chatId, "👋 Welcome to Tecky Rishad Bot!\n\nChoose an option below:", reply_markup);
-    return res.status(200).send("Start command handled");
-  }
+// Command: /start
+function handleStartCommand(chatId, userId) {
+  const buttons = [
+    [{ text: "🔗 Instagram", url: "https://instagram.com/r1shaad__" }],
+    [{ text: "👤 Admin Info", callback_data: "admin_info" }],
+    isAdmin(userId) ? [{ text: "🎣 Fishing Tool", callback_data: "fishing_tool" }] : null,
+    [{ text: "📁 Bot Source", url: "https://heavenscake.vercel.app/api/bot.js" }]
+  ].filter(Boolean);
 
-  // Handle callback queries
-  if (body.callback_query) {
-    const query = body.callback_query;
-    const chatId = query.message.chat.id;
-    const userId = query.from.id.toString();
-    const data = query.data;
-
-    let message = "";
-
-    switch (data) {
-      case "details":
-        message = (userId === ADMIN_ID)
-          ? `👤 Admin Details:\nName: Muhammed Rishad AJ\nPhone: 91857088697\nEmail: muhammedrishadaj@yahoo.com\nTelegram: @mohdrishad`
-          : `👤 Admin Details:\nName: Muhammed Rishad AJ\nPhone: xxxxxxxxxx\nEmail: muhammedrishadaj@yahoo.com\nTelegram: @mohdrishad`;
-        break;
-
-      case "fishinglink":
-        message = (userId === ADMIN_ID)
-          ? `🎣 Click here to fish:\n${FISHING_URL}`
-          : `🚫 Access Denied!\nAsk permission from admin:\n👉 ${TELEGRAM_LINK}`;
-        break;
-
-      default:
-        message = "❓ Unknown action.";
-    }
-
-    await sendMessage(BOT_TOKEN, chatId, message);
-    await answerCallback(BOT_TOKEN, query.id);
-    return res.status(200).send("Callback handled");
-  }
-
-  return res.status(200).send("No action taken");
+  bot.sendMessage(chatId, "🏠 Main Menu - Choose an option:", {
+    reply_markup: { inline_keyboard: buttons }
+  });
 }
 
-// Helper to send messages
-async function sendMessage(botToken, chatId, text, reply_markup = null) {
-  const url = `https://api.telegram.org/bot${botToken}/sendMessage`;
-  const payload = {
+// Callback: Admin Info
+function handleAdminInfo(chatId, messageId, userId) {
+  const adminDetails = `
+👤 *Admin Details*:
+Name: Muhammed Rishad AJ
+Phone: ${isAdmin(userId) ? '91857088697' : redactPhone('91857088697')}
+Email: muhammedrishadaj@yahoo.com
+Telegram: @mohdrishad
+  `.trim();
+
+  bot.editMessageText(adminDetails, {
     chat_id: chatId,
-    text,
-    reply_markup
-  };
-  await fetch(url, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(payload)
+    message_id: messageId,
+    parse_mode: 'Markdown'
   });
 }
 
-// Helper to answer callback query
-async function answerCallback(botToken, callback_query_id) {
-  const url = `https://api.telegram.org/bot${botToken}/answerCallbackQuery`;
-  const payload = { callback_query_id };
-  await fetch(url, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(payload)
+// Callback: Fishing Tool (Admin Only)
+function handleFishingTool(chatId, userId) {
+  if (!isAdmin(userId)) {
+    return bot.answerCallbackQuery({
+      callback_query_id: query.id,
+      text: "❌ Access Denied: Only Admin can use this."
+    });
+  }
+  bot.sendMessage(chatId, `🎣 Fishing Tool: ${FISHING_LINK}`, {
+    disable_web_page_preview: true
   });
 }
+
+// Bot Events
+bot.onText(/\/start/, (msg) => {
+  handleStartCommand(msg.chat.id, msg.from.id);
+});
+
+bot.on('callback_query', async (query) => {
+  const { data, message, from } = query;
+  const chatId = message.chat.id;
+  
+  try {
+    switch(data) {
+      case 'admin_info':
+        await handleAdminInfo(chatId, message.message_id, from.id);
+        break;
+      case 'fishing_tool':
+        await handleFishingTool(chatId, from.id);
+        break;
+      default:
+        await bot.answerCallbackQuery(query.id, { text: "⚠️ Unknown command" });
+    }
+  } catch (err) {
+    console.error(err);
+    bot.answerCallbackQuery(query.id, { text: "❌ Error processing request" });
+  }
+});
+
+// Vercel Serverless Handler
+module.exports = app;
