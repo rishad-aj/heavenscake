@@ -31,29 +31,17 @@ export default async function handler(req, res) {
 
       if (data === 'details') {
         if (isAdmin) {
-          await sendMessage(fromChatId, `👑 *Admin Details*
-Name: Muhammed Rishad AJ
-Phone: 91857088697
-Email: muhammedrishadaj@yahoo.com
-Telegram: @mohdrishad
-Instagram: [@r1shaad__](https://instagram.com/r1shaad__)`);
+          await sendMessage(fromChatId, `👑 *Admin Details*\nName: Muhammed Rishad AJ\nPhone: 91857088697\nEmail: muhammedrishadaj@yahoo.com\nTelegram: @mohdrishad\nInstagram: [@r1shaad\\_\\_](https://instagram.com/r1shaad__)`);
         } else {
-          await sendMessage(fromChatId, `👤 *Admin Info*
-Name: Muhammed Rishad AJ
-Phone: xxx-xxx-xxxx
-Email: muhammedrishadaj@yahoo.com
-Telegram: @mohdrishad
-Instagram: @r1shaad__`);
+          await sendMessage(fromChatId, `👤 *Admin Info*\nName: Muhammed Rishad AJ\nPhone: xxx-xxx-xxxx\nEmail: muhammedrishadaj@yahoo.com\nTelegram: @mohdrishad\nInstagram: @r1shaad__`);
         }
       }
 
       else if (data === 'fishing') {
         if (isAdmin) {
-          await sendMessage(fromChatId, `🎣 *Fishing Link (Private)*  
-🔗 ||https://heavenscake.vercel.app/page.html||`);
+          await sendMessage(fromChatId, `🎣 *Fishing Link \\(Private\\)*\n🔗 ||https://heavenscake\\.vercel\\.app/page\\.html||`);
         } else {
-          await sendMessage(fromChatId, `🚫 *This feature is for admins only.*  
-For enquiries, contact: @mohdrishad`);
+          await sendMessage(fromChatId, `🚫 *This feature is for admins only.*\nFor enquiries, contact: @mohdrishad`);
         }
       }
 
@@ -101,7 +89,7 @@ async function sendWelcomeWithButtons(chatId) {
   });
 }
 
-// Send plain message
+// Send plain message with MarkdownV2 (for spoiler + links)
 async function sendMessage(chatId, message) {
   return fetch(`${TELEGRAM_API_URL}/sendMessage`, {
     method: 'POST',
@@ -109,7 +97,7 @@ async function sendMessage(chatId, message) {
     body: JSON.stringify({
       chat_id: chatId,
       text: message,
-      parse_mode: 'Markdown',
+      parse_mode: 'MarkdownV2',
     }),
   });
 }
@@ -121,4 +109,4 @@ async function answerCallback(callbackQueryId) {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ callback_query_id: callbackQueryId }),
   });
-}
+            }
