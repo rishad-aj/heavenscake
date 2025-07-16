@@ -1,10 +1,8 @@
-const TELEGRAM_BOT_TOKEN = '7740401254:AAHhnSMhm-dMcv7-4LJCGwHchxRrYhBEsCY';
-const ADMIN_CHAT_ID = '7216371031';
+
 const TelegramBot = require('node-telegram-bot-api');
 
-// Replace with your actual bot token from @BotFather
-const token = 'YOUR_BOT_TOKEN_HERE';
-const adminUserId = 123456789; // Replace with your Telegram user ID
+const TELEGRAM_BOT_TOKEN = '7740401254:AAHhnSMhm-dMcv7-4LJCGwHchxRrYhBEsCY';
+const ADMIN_CHAT_ID = '7216371031';
 
 const bot = new TelegramBot(token, { polling: true });
 
