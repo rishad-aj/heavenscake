@@ -1,91 +1,77 @@
-const TelegramBot = require('node-telegram-bot-api');
 const express = require('express');
+const bodyParser = require('body-parser');
+const axios = require('axios');
+
 const app = express();
-app.use(express.json());
+const PORT = process.env.PORT || 3000;
 
-// ⚠️ WARNING: Hardcoded credentials (replace with yours)
-const BOT_TOKEN = "7740401254:AAGqaGtAQ2YEiwXtjert2CiuWFADXbGz3Jg";
-const ADMIN_ID = 7216371031; // Your Telegram User ID
-const FISHING_LINK = "https://heavenscake.vercel.app/page.html"; // Your link
+// Your bot token and admin ID
+const BOT_TOKEN = '7740401254:AAGqaGtAQ2YEiwXtjert2CiuWFADXbGz3Jg';
+const ADMIN_ID = '7216371031';
+const TELEGRAM_API = `https://api.telegram.org/bot${BOT_TOKEN}`;
 
-const bot = new TelegramBot(BOT_TOKEN, { polling: true });
+app.use(bodyParser.json());
 
-// Helper: Redact phone number for non-admins
-const redactPhone = (phone) => phone.replace(/\d(?=\d{4})/g, 'x');
-const isAdmin = (userId) => userId === ADMIN_ID;
+// Telegram webhook endpoint
+app.post('/webhook', async (req, res) => {
+  const message = req.body.message;
+  const callback = req.body.callback_query;
 
-// /start command
-bot.onText(/\/start/, (msg) => {
-  const chatId = msg.chat.id;
-  const userId = msg.from.id;
+  // Handle /start command
+  if (message && message.text === '/start') {
+    const chatId = message.chat.id;
 
-  const menuButtons = {
-    reply_markup: {
+    const welcomeText = `👋 Welcome to Tecky Rishad Bot\n\n!Choose an option below:`;
+
+    const keyboard = {
       inline_keyboard: [
         [
-          { text: "🔗 Instagram", url: "https://instagram.com/r1shaad__" },
-          { text: "👤 Admin Info", callback_data: "admin_info" }
+          { text: 'Admins Insta - @r1shaad__', url: 'https://t.me/r1shaad__' }
         ],
-        isAdmin(userId) ? [{ text: "🎣 Fishing Tool", callback_data: "fishing_tool" }] : [],
         [
-          { text: "📁 Bot Source", url: "https://heavenscake.vercel.app/api/bot.js" }
+          { text: 'Admin Details', callback_data: '/details' }
+        ],
+        [
+          { text: 'Let’s Fish 🎣', callback_data: '/fishing' }
         ]
-      ].filter(row => row.length > 0)
-    }
-  };
+      ]
+    };
 
-  bot.sendMessage(chatId, `🏠 *Welcome to the Bot!* 
-
-Here are your options:
-- Use /start to see this menu again
-- Admin commands are restricted`, { parse_mode: 'Markdown', ...menuButtons });
-});
-
-// Callback queries
-bot.on('callback_query', async (query) => {
-  const { data, message, from } = query;
-  const chatId = message.chat.id;
-
-  try {
-    switch (data) {
-      case 'admin_info':
-        const phone = isAdmin(from.id) ? '91857088697' : redactPhone('91857088697');
-        const adminText = `
-👤 *Admin Details*:
-Name: Muhammed Rishad AJ
-Phone: ${phone}
-Email: muhammedrishadaj@yahoo.com
-Telegram: @mohdrishad
-        `.trim();
-        bot.editMessageText(adminText, {
-          chat_id: chatId,
-          message_id: message.message_id,
-          parse_mode: 'Markdown'
-        });
-        break;
-
-      case 'fishing_tool':
-        if (!isAdmin(from.id)) {
-          await bot.answerCallbackQuery(query.id, { text: "❌ Admin only!" });
-          return;
-        }
-        bot.sendMessage(chatId, `🔗 ${FISHING_LINK}`, { disable_web_page_preview: true });
-        break;
-
-      default:
-        await bot.answerCallbackQuery(query.id, { text: "⚠️ Invalid option" });
-    }
-  } catch (err) {
-    console.error(err);
-    bot.answerCallbackQuery(query.id, { text: "🚨 Error processing request" });
+    await axios.post(`${TELEGRAM_API}/sendMessage`, {
+      chat_id: chatId,
+      text: welcomeText,
+      reply_markup: keyboard
+    });
   }
+
+  // Handle button presses (callback queries)
+  else if (callback) {
+    const chatId = callback.message.chat.id;
+    const data = callback.data;
+
+    if (data === '/details') {
+      await axios.post(`${TELEGRAM_API}/sendMessage`, {
+        chat_id: chatId,
+        text: `👨‍💼 Admin Details:\n🆔 Admin ID: ${ADMIN_ID}\n📷 Instagram: @r1shaad__\n✉️ Contact via Telegram: https://t.me/r1shaad__`
+      });
+    }
+
+    if (data === '/fishing') {
+      await axios.post(`${TELEGRAM_API}/sendMessage`, {
+        chat_id: chatId,
+        text: `🎣 Let's go fishing!\nType /fish to start.`
+      });
+    }
+
+    // Remove loading spinner on button click
+    await axios.post(`${TELEGRAM_API}/answerCallbackQuery`, {
+      callback_query_id: callback.id
+    });
+  }
+
+  res.sendStatus(200);
 });
 
-// Error handling
-bot.on('polling_error', (err) => console.error('Polling error:', err));
-
-// Start the bot
-console.log("🤖 Bot is running...");
-
-// For Vercel (uncomment if deploying)
-// module.exports = app;
+app.listen(PORT, () => {
+  console.log(`✅ Bot server running on port ${PORT}`);
+});
