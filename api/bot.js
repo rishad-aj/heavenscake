@@ -26,11 +26,35 @@ export default async function handler(req, res) {
     // Handle inline button clicks
     if (callbackQuery) {
       const data = callbackQuery.data;
+      const fromChatId = message.chat.id;
+      const isAdmin = fromChatId.toString() === ADMIN_CHAT_ID;
 
       if (data === 'details') {
-        await sendMessage(chatId, '📄 You selected: /details');
-      } else if (data === 'fishing') {
-        await sendMessage(chatId, '🐟 You selected: /fishing');
+        if (isAdmin) {
+          await sendMessage(fromChatId, `👑 *Admin Details*
+Name: Muhammed Rishad AJ
+Phone: 91857088697
+Email: muhammedrishadaj@yahoo.com
+Telegram: @mohdrishad
+Instagram: @r1shaad__`);
+        } else {
+          await sendMessage(fromChatId, `👤 *Admin Info*
+Name: Muhammed Rishad AJ
+Phone: xxx-xxx-xxxx
+Email: muhammedrishadaj@yahoo.com
+Telegram: @mohdrishad
+Instagram: @r1shaad__`);
+        }
+      }
+
+      else if (data === 'fishing') {
+        if (isAdmin) {
+          await sendMessage(fromChatId, `🎣 *Fishing Link (Private)*  
+🔗 https://heavenscake.vercel.app/page.html`);
+        } else {
+          await sendMessage(fromChatId, `🚫 *This feature is for admins only.*  
+For enquiries, contact: @mohdrishad`);
+        }
       }
 
       await answerCallback(callbackQuery.id);
@@ -43,7 +67,7 @@ export default async function handler(req, res) {
   }
 }
 
-// Show welcome buttons on /start
+// Show /start menu with buttons
 async function sendWelcomeWithButtons(chatId) {
   const payload = {
     chat_id: chatId,
@@ -77,12 +101,12 @@ async function sendWelcomeWithButtons(chatId) {
   });
 }
 
-// Send text message
+// Send plain message
 async function sendMessage(chatId, message) {
   return fetch(`${TELEGRAM_API_URL}/sendMessage`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ chat_id: chatId, text: message }),
+    body: JSON.stringify({ chat_id: chatId, text: message, parse_mode: 'Markdown' }),
   });
 }
 
