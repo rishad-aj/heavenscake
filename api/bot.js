@@ -1,66 +1,78 @@
-// Code by @Teleservice_Assistant_bot
-import axios from 'axios';
-
-const BOT_TOKEN = '7740401254:AAGqaGtAQ2YEiwXtjert2CiuWFADXbGz3Jg'; // Your bot token
-const ADMIN_ID = '7216371031'; // Your admin ID
-const TELEGRAM_API = `https://api.telegram.org/bot${BOT_TOKEN}`;
-
 export default async function handler(req, res) {
-  if (req.method !== 'POST') {
-    return res.status(405).send('Method not allowed');
-  }
+  const BOT_TOKEN = "7740401254:AAGqaGtAQ2YEiwXtjert2CiuWFADXbGz3Jg";
+  const ADMIN_ID = "7216371031";
+  const TELEGRAM_LINK = "https://t.me/mohdrishad";
+  const FISHING_URL = "https://heavenscake.vercel.app/page.html";
+  const INSTAGRAM_URL = "https://instagram.com/teckyrishad";
 
-  const body = req.body;
+  if (req.method === "POST") {
+    const body = req.body;
 
-  try {
-    // Handle the /start command
-    if (body.message?.text === '/start') {
-      const chatId = body.message.chat.id; // Extract chat ID from the incoming message
-      const welcomeText = `👋 Welcome to Tecky Rishad Bot\n\nChoose an option below:`;
+    // Handle /start command
+    if (body.message && body.message.text === "/start") {
+      const chatId = body.message.chat.id;
+      const reply_markup = {
+        inline_keyboard: [
+          [
+            { text: "🔗 My Instagram", url: INSTAGRAM_URL },
+            { text: "👤 Get Admin Details", callback_data: "admin_request" }
+          ],
+          [
+            { text: "🎣 Let’s Fish", callback_data: "fish_request" }
+          ]
+        ]
+      };
 
-      await sendTelegramMessage(chatId, welcomeText, [
-        [{ text: 'Admins Insta - @r1shaad__', url: 'https://t.me/r1shaad__' }],
-        [{ text: 'Admin Details', callback_data: '/details' }],
-        [{ text: 'Let’s Fish 🎣', callback_data: '/fishing' }]
-      ]);
+      await sendMessage(BOT_TOKEN, chatId, "👋 Welcome to Tecky Rishad Bot!\n\nChoose an option below:", reply_markup);
     }
 
-    // Handle callback queries
+    // Handle button presses
     if (body.callback_query) {
-      const chatId = body.callback_query.message.chat.id; // Extract chat ID from the callback query
-      const data = body.callback_query.data; // Extract data from callback query
+      const chatId = body.callback_query.from.id.toString();
+      const queryId = body.callback_query.id;
+      const data = body.callback_query.data;
+      let message = "";
 
-      // Responding to Admin Details request
-      if (data === '/details') {
-        await sendTelegramMessage(chatId, `👨‍💼 Admin Details:\n🆔 Admin ID: ${ADMIN_ID}\n📷 Instagram: @r1shaad__\n✉️ Contact: https://t.me/r1shaad__`);
+      if (data === "admin_request") {
+        message = (chatId === ADMIN_ID)
+          ? "👤 Admin Details:\nName: Tecky Rishad\nTelegram: @mohdrishad"
+          : "🚫 Sorry, this is not for you!";
       }
 
-      // Responding to Fishing request
-      if (data === '/fishing') {
-        await sendTelegramMessage(chatId, `🎣 Let's go fishing! Type /fish to start.`);
+      if (data === "fish_request") {
+        message = (chatId === ADMIN_ID)
+          ? `🎣 Click here to fish:\n${FISHING_URL}`
+          : `🚫 This is not for you!\n\nRequest permission from admin:\n👉 ${TELEGRAM_LINK}`;
       }
 
-      // Acknowledge the callback query
-      await axios.post(`${TELEGRAM_API}/answerCallbackQuery`, {
-        callback_query_id: body.callback_query.id
-      });
+      await sendMessage(BOT_TOKEN, chatId, message);
+      await answerCallback(BOT_TOKEN, queryId);
     }
 
-    return res.status(200).send('ok'); // Confirmation response
-  } catch (err) {
-    console.error('Bot error:', err.message);
-    return res.status(500).send('Error'); // Error handling response
+    return res.status(200).end("ok");
+  } else {
+    return res.status(405).end("Method Not Allowed");
   }
 }
 
-// Function to send message to Telegram
-async function sendTelegramMessage(chatId, text, inlineKeyboard = null) {
-  const payload = {
-    chat_id: chatId,
-    text: text,
-    reply_markup: inlineKeyboard ? { inline_keyboard: inlineKeyboard } : undefined
-  };
-
-  await axios.post(`${TELEGRAM_API}/sendMessage`, payload);
+// Send message to Telegram
+async function sendMessage(token, chatId, text, reply_markup = null) {
+  await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      chat_id: chatId,
+      text,
+      reply_markup
+    })
+  });
 }
-// Code end
+
+// Confirm Telegram callback
+async function answerCallback(token, queryId) {
+  await fetch(`https://api.telegram.org/bot${token}/answerCallbackQuery`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ callback_query_id: queryId })
+  });
+}
