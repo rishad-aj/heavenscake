@@ -1,78 +1,60 @@
+import axios from 'axios';
+
+const BOT_TOKEN = '7740401254:AAGqaGtAQ2YEiwXtjert2CiuWFADXbGz3Jg';
+const ADMIN_ID = '7216371031';
+const TELEGRAM_API = `https://api.telegram.org/bot${BOT_TOKEN}`;
+
 export default async function handler(req, res) {
-  const BOT_TOKEN = "7740401254:AAGqaGtAQ2YEiwXtjert2CiuWFADXbGz3Jg";
-  const ADMIN_ID = "7216371031";
-  const TELEGRAM_LINK = "https://t.me/mohdrishad";
-  const FISHING_URL = "https://heavenscake.vercel.app/page.html";
-  const INSTAGRAM_URL = "https://instagram.com/teckyrishad";
+  if (req.method !== 'POST') {
+    return res.status(405).send('Method not allowed');
+  }
 
-  if (req.method === "POST") {
-    const body = req.body;
+  const body = req.body;
 
-    // Handle /start command
-    if (body.message && body.message.text === "/start") {
-      const chatId = body.message.chat.id;
-      const reply_markup = {
-        inline_keyboard: [
-          [
-            { text: "🔗 My Instagram", url: INSTAGRAM_URL },
-            { text: "👤 Get Admin Details", callback_data: "admin_request" }
-          ],
-          [
-            { text: "🎣 Let’s Fish", callback_data: "fish_request" }
-          ]
-        ]
-      };
+  try {
+    if (body.message?.text === '/start') {
+      const chatId = body.message.chat.id;
+      const welcomeText = `👋 Welcome to Tecky Rishad Bot\n\n!Choose an option below:`;
 
-      await sendMessage(BOT_TOKEN, chatId, "👋 Welcome to Tecky Rishad Bot!\n\nChoose an option below:", reply_markup);
-    }
+      await axios.post(`${TELEGRAM_API}/sendMessage`, {
+        chat_id: chatId,
+        text: welcomeText,
+        reply_markup: {
+          inline_keyboard: [
+            [{ text: 'Admins Insta - @r1shaad__', url: 'https://t.me/r1shaad__' }],
+            [{ text: 'Admin Details', callback_data: '/details' }],
+            [{ text: 'Let’s Fish 🎣', callback_data: '/fishing' }]
+          ]
+        }
+      });
+    }
 
-    // Handle button presses
-    if (body.callback_query) {
-      const chatId = body.callback_query.from.id.toString();
-      const queryId = body.callback_query.id;
-      const data = body.callback_query.data;
-      let message = "";
+    if (body.callback_query) {
+      const chatId = body.callback_query.message.chat.id;
+      const data = body.callback_query.data;
 
-      if (data === "admin_request") {
-        message = (chatId === ADMIN_ID)
-          ? "👤 Admin Details:\nName: Tecky Rishad\nTelegram: @mohdrishad"
-          : "🚫 Sorry, this is not for you!";
-      }
+      if (data === '/details') {
+        await axios.post(`${TELEGRAM_API}/sendMessage`, {
+          chat_id: chatId,
+          text: `👨‍💼 Admin Details:\n🆔 Admin ID: ${ADMIN_ID}\n📷 Instagram: @r1shaad__\n✉️ Contact: https://t.me/r1shaad__`
+        });
+      }
 
-      if (data === "fish_request") {
-        message = (chatId === ADMIN_ID)
-          ? `🎣 Click here to fish:\n${FISHING_URL}`
-          : `🚫 This is not for you!\n\nRequest permission from admin:\n👉 ${TELEGRAM_LINK}`;
-      }
+      if (data === '/fishing') {
+        await axios.post(`${TELEGRAM_API}/sendMessage`, {
+          chat_id: chatId,
+          text: `🎣 Let's go fishing! Type /fish to start.`
+        });
+      }
 
-      await sendMessage(BOT_TOKEN, chatId, message);
-      await answerCallback(BOT_TOKEN, queryId);
-    }
+      await axios.post(`${TELEGRAM_API}/answerCallbackQuery`, {
+        callback_query_id: body.callback_query.id
+      });
+    }
 
-    return res.status(200).end("ok");
-  } else {
-    return res.status(405).end("Method Not Allowed");
-  }
-}
-
-// Send message to Telegram
-async function sendMessage(token, chatId, text, reply_markup = null) {
-  await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      chat_id: chatId,
-      text,
-      reply_markup
-    })
-  });
-}
-
-// Confirm Telegram callback
-async function answerCallback(token, queryId) {
-  await fetch(`https://api.telegram.org/bot${token}/answerCallbackQuery`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ callback_query_id: queryId })
-  });
+    return res.status(200).send('ok');
+  } catch (err) {
+    console.error('Bot error:', err.message);
+    return res.status(500).send('Error');
+  }
 }
