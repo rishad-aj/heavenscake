@@ -74,11 +74,11 @@ export default async function handler(req, res) {
       }
 
       else if (data === 'fishing') {
-        // Use plain text first (no Markdown) for debugging
+        // Spoiler formatting for Telegram MarkdownV2
         const fishingMessage = isAdmin
-          ? '🎣 Fishing Link (Private): https://heavenscake.vercel.app/page.html'
+          ? '🎣 Fishing Link (Private): ||https://heavenscake.vercel.app/page.html||'
           : '🚫 This feature is not for you. Access is restricted.';
-        await sendMessageNoMarkdown(fromChatId, fishingMessage);
+        await sendMessage(fromChatId, fishingMessage); // Use sendMessage for MarkdownV2 spoiler
       }
 
       else if (data === 'police') {
@@ -90,7 +90,13 @@ export default async function handler(req, res) {
         const targetChatId = data.split('_')[1];
 
         await sendMessage(targetChatId,
-          `✅ *You have been verified as a police officer\\!*\n\nHere are the confidential details:\n\n👤 *Admin Name:* Muhammed Rishad\n🎂 *DOB:* 01\\/01\\/1990\n📞 *Phone:* +91 98765 43210\n📧 *Email:* secret\\@r1shaad\\.com\n🤖 *Bot Scripts:* Access granted\n🔐 *API Token:* demo\\_token\\_123456\n🧰 *Tools:* Hidden admin panel activated`);
+          `✅ *You have been verified as a police officer\\!*\n\nHere are the confidential details:\n\n` +
+          `👤 *Admin Name:* Muhammed Rishad\n` +
+          `🎂 *DOB:* 01\\/01\\/1990\n` +
+          `📞 *Phone:* +91 98765 43210\n` +
+          `📧 *Email:* muhammedrishadaj\\@yahoo\\.com\n` +
+          `🤖 *Bot Scripts, API & Internal Access: Provided*\n`
+        );
 
         await sendMessage(ADMIN_CHAT_ID, `✅ Police verified: ${targetChatId}`);
       }
