@@ -15,28 +15,30 @@ export default async function handler(req, res) {
   const text = body.message?.text;
   const callbackQuery = body.callback_query;
 
-  // Handle /start
+  // If a /start command is received
   if (text === '/start') {
     await sendWelcomeWithButtons(chatId);
   }
 
-  // Handle inline button clicks
+  // If a button is clicked (callback query)
   if (callbackQuery) {
     const data = callbackQuery.data;
 
+    // Simulate sending commands like /details or /fishing
     if (data === 'details') {
       await sendMessage(chatId, 'You selected: /details');
     } else if (data === 'fishing') {
       await sendMessage(chatId, 'You selected: /fishing');
     }
 
+    // Answer callback to remove loading
     await answerCallback(callbackQuery.id);
   }
 
   res.status(200).send('OK');
 }
 
-// 🔘 Send /start menu with inline buttons
+// Welcome message with inline keyboard
 async function sendWelcomeWithButtons(chatId) {
   const payload = {
     chat_id: chatId,
@@ -45,17 +47,17 @@ async function sendWelcomeWithButtons(chatId) {
       inline_keyboard: [
         [
           {
-            text: '🔗 Get my Instagram',
+            text: 'My Insta @r1shaad__',
             url: 'https://instagram.com/r1shaad__',
           }
         ],
         [
           {
-            text: '👤 Admin Details',
+            text: 'Admin Details',
             callback_data: 'details'
           },
           {
-            text: '🎣 Let’s Fish',
+            text: 'Let’s Fish',
             callback_data: 'fishing'
           }
         ]
@@ -70,7 +72,7 @@ async function sendWelcomeWithButtons(chatId) {
   });
 }
 
-// 📤 Send plain message
+// Simple message sender
 async function sendMessage(chatId, message) {
   return fetch(`${TELEGRAM_API_URL}/sendMessage`, {
     method: 'POST',
@@ -79,7 +81,7 @@ async function sendMessage(chatId, message) {
   });
 }
 
-// ✅ Acknowledge button click
+// Answer the button click (so it doesn’t show “loading…”)
 async function answerCallback(callbackQueryId) {
   return fetch(`${TELEGRAM_API_URL}/answerCallbackQuery`, {
     method: 'POST',
