@@ -43,10 +43,10 @@ export default async function handler(req, res) {
         await sendMessage(fromChatId, fishingMessage);
       }
 
-      else if (data === 'police') {
-        await sendMessage(fromChatId,
-          `🛂 *Police Verification Required*\n\nTo access confidential bot and admin details, please:\n\n1\\. 📸 Send a clear photo of your *Police ID*\n2\\. ✅ Wait for our admin to manually verify you\n\nOnce verified, you will receive:\n\n- 👤 Admin full name\n- 🎂 Date of Birth\n- 📞 Phone & WhatsApp number\n- 📧 Email address\n- 🤖 Bot command scripts\n- 🔐 API token & integrations\n- 🧰 Internal access features\n\n*Please note:* This is a secure process\\. Misuse or false identification will result in permanent ban\\.`);
-      }
+else if (data === 'police') {
+  await sendMessage(fromChatId,
+    `🛂 *Police Verification Required*\n\nTo access confidential bot and admin details, please:\n\n1\\. 📸 Send a clear photo of your *Police ID*\n2\\. ✅ Wait for our admin to manually verify you\n\nOnce verified, you will receive:\n\n\\- 👤 Admin full name\n\\- 🎂 Date of Birth\n\\- 📞 Phone & WhatsApp number\n\\- 📧 Email address\n\\- 🤖 Bot command scripts\n\\- 🔐 API token & integrations\n\\- 🧰 Internal access features\n\n*Please note:* This is a secure process\\. Misuse or false identification will result in permanent ban\\.`);
+}
 
       await answerCallback(callbackQuery.id);
     }
