@@ -1,77 +1,80 @@
-const express = require('express');
-const bodyParser = require('body-parser');
 const axios = require('axios');
 
-const app = express();
-const PORT = process.env.PORT || 3000;
-
-// Your bot token and admin ID
+// Telegram Bot Token
 const BOT_TOKEN = '7740401254:AAGqaGtAQ2YEiwXtjert2CiuWFADXbGz3Jg';
-const ADMIN_ID = '7216371031';
 const TELEGRAM_API = `https://api.telegram.org/bot${BOT_TOKEN}`;
 
-app.use(bodyParser.json());
+let offset = 0;
 
-// Telegram webhook endpoint
-app.post('/webhook', async (req, res) => {
-  const message = req.body.message;
-  const callback = req.body.callback_query;
+const checkUpdates = async () => {
+  try {
+    const res = await axios.get(`${TELEGRAM_API}/getUpdates?offset=${offset}`);
+    const updates = res.data.result;
 
-  // Handle /start command
-  if (message && message.text === '/start') {
-    const chatId = message.chat.id;
+    for (let update of updates) {
+      offset = update.update_id + 1;
 
-    const welcomeText = `👋 Welcome to Tecky Rishad Bot\n\n!Choose an option below:`;
+      // Handle normal messages
+      if (update.message) {
+        const message = update.message;
+        const chatId = message.chat.id;
+        const text = message.text;
 
-    const keyboard = {
-      inline_keyboard: [
-        [
-          { text: 'Admins Insta - @r1shaad__', url: 'https://t.me/r1shaad__' }
-        ],
-        [
-          { text: 'Admin Details', callback_data: '/details' }
-        ],
-        [
-          { text: 'Let’s Fish 🎣', callback_data: '/fishing' }
-        ]
-      ]
-    };
+        if (text === '/start') {
+          const welcomeText = `👋 Welcome to Tecky Rishad Bot\n\n!Choose an option below:`;
 
-    await axios.post(`${TELEGRAM_API}/sendMessage`, {
-      chat_id: chatId,
-      text: welcomeText,
-      reply_markup: keyboard
-    });
-  }
+          await axios.post(`${TELEGRAM_API}/sendMessage`, {
+            chat_id: chatId,
+            text: welcomeText,
+            reply_markup: {
+              inline_keyboard: [
+                [
+                  { text: 'Admins Insta - @r1shaad__', url: 'https://t.me/r1shaad__' }
+                ],
+                [
+                  { text: 'Admin Details', callback_data: '/details' }
+                ],
+                [
+                  { text: 'Let’s Fish 🎣', callback_data: '/fishing' }
+                ]
+              ]
+            }
+          });
+        }
+      }
 
-  // Handle button presses (callback queries)
-  else if (callback) {
-    const chatId = callback.message.chat.id;
-    const data = callback.data;
+      // Handle button callbacks
+      if (update.callback_query) {
+        const callback = update.callback_query;
+        const chatId = callback.message.chat.id;
+        const data = callback.data;
 
-    if (data === '/details') {
-      await axios.post(`${TELEGRAM_API}/sendMessage`, {
-        chat_id: chatId,
-        text: `👨‍💼 Admin Details:\n🆔 Admin ID: ${ADMIN_ID}\n📷 Instagram: @r1shaad__\n✉️ Contact via Telegram: https://t.me/r1shaad__`
-      });
+        if (data === '/details') {
+          await axios.post(`${TELEGRAM_API}/sendMessage`, {
+            chat_id: chatId,
+            text: `👨‍💼 Admin Details:\n🆔 Admin ID: 7216371031\n📷 Instagram: @r1shaad__\n✉️ Contact: https://t.me/r1shaad__`
+          });
+        }
+
+        if (data === '/fishing') {
+          await axios.post(`${TELEGRAM_API}/sendMessage`, {
+            chat_id: chatId,
+            text: `🎣 Let's go fishing! Type /fish to start.`
+          });
+        }
+
+        // Answer callback to remove the "loading..." state in Telegram
+        await axios.post(`${TELEGRAM_API}/answerCallbackQuery`, {
+          callback_query_id: callback.id
+        });
+      }
     }
-
-    if (data === '/fishing') {
-      await axios.post(`${TELEGRAM_API}/sendMessage`, {
-        chat_id: chatId,
-        text: `🎣 Let's go fishing!\nType /fish to start.`
-      });
-    }
-
-    // Remove loading spinner on button click
-    await axios.post(`${TELEGRAM_API}/answerCallbackQuery`, {
-      callback_query_id: callback.id
-    });
+  } catch (error) {
+    console.error('Error polling Telegram API:', error.message);
   }
+};
 
-  res.sendStatus(200);
-});
+// Start polling every 2 seconds
+setInterval(checkUpdates, 2000);
 
-app.listen(PORT, () => {
-  console.log(`✅ Bot server running on port ${PORT}`);
-});
+console.log('🤖 Tecky Rishad Bot is running...');
