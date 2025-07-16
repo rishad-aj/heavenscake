@@ -12,52 +12,56 @@ export default async function handler(req, res) {
   const body = req.body;
   console.log("📥 Incoming:", JSON.stringify(body, null, 2));
 
-  // Handle text commands
-  if (body.message) {
-    const chatId = body.message.chat.id.toString();
-    const text = body.message.text;
+  // Handle /start command
+  if (body.message?.text === "/start") {
+    const chatId = body.message.chat.id;
 
-    // /start command — show buttons
-    if (text === "/start") {
-      const reply_markup = {
-        inline_keyboard: [
-          [
-            { text: "🔗 My Instagram", url: INSTAGRAM_URL }
-          ],
-          [
-            { text: "👤 About Admin", switch_inline_query_current_chat: "/details" },
-            { text: "🎣 Let’s Fish", switch_inline_query_current_chat: "/fishinglink" }
-          ]
+    const reply_markup = {
+      inline_keyboard: [
+        [
+          { text: "🔗 My Instagram", url: INSTAGRAM_URL }
+        ],
+        [
+          { text: "👤 About Admin", callback_data: "details" },
+          { text: "🎣 Let’s Fish", callback_data: "fishinglink" }
         ]
-      };
+      ]
+    };
 
-      await sendMessage(chatId, "👋 Welcome to Tecky Rishad Bot!\n\nChoose an option below:", reply_markup);
-      return res.status(200).send("start handled");
-    }
-
-    // /details command
-    if (text === "/details") {
-      const msg = (chatId === ADMIN_ID)
-        ? `👤 Admin Details:\nName: Muhammed Rishad AJ\nPhone: 91857088697\nEmail: muhammedrishadaj@yahoo.com\nTelegram: @mohdrishad`
-        : `👤 Admin Details:\nName: Muhammed Rishad AJ\nPhone: xxxxxxxxxx\nEmail: muhammedrishadaj@yahoo.com\nTelegram: @mohdrishad`;
-      await sendMessage(chatId, msg);
-      return res.status(200).send("details sent");
-    }
-
-    // /fishinglink command
-    if (text === "/fishinglink") {
-      const msg = (chatId === ADMIN_ID)
-        ? `🎣 Click here to fish:\n${FISHING_URL}`
-        : `🚫 This is not for you!\nAsk admin permission:\n👉 ${TELEGRAM_LINK}`;
-      await sendMessage(chatId, msg);
-      return res.status(200).send("fishing link sent");
-    }
+    await sendMessage(chatId, "👋 Welcome to Tecky Rishad Bot!\n\nChoose an option below:", reply_markup);
+    return res.status(200).send("start handled");
   }
 
-  return res.status(200).send("no command matched");
+  // Handle button presses (callback queries)
+  if (body.callback_query) {
+    const query = body.callback_query;
+    const chatId = query.message.chat.id.toString();
+    const userId = query.from.id.toString();
+    const data = query.data;
+
+    let message = "";
+
+    if (data === "details") {
+      message = (userId === ADMIN_ID)
+        ? `👤 Admin Details:\nName: Muhammed Rishad AJ\nPhone: 91857088697\nEmail: muhammedrishadaj@yahoo.com\nTelegram: @mohdrishad`
+        : `👤 Admin Details:\nName: Muhammed Rishad AJ\nPhone: xxxxxxxxxx\nEmail: muhammedrishadaj@yahoo.com\nTelegram: @mohdrishad`;
+    }
+
+    if (data === "fishinglink") {
+      message = (userId === ADMIN_ID)
+        ? `🎣 Click here to fish:\n${FISHING_URL}`
+        : `🚫 This is not for you!\nAsk permission from admin:\n👉 ${TELEGRAM_LINK}`;
+    }
+
+    await sendMessage(chatId, message);
+    await answerCallback(query.id);
+    return res.status(200).send("callback_query handled");
+  }
+
+  return res.status(200).send("no action taken");
 }
 
-// Send Telegram message
+// Send message
 async function sendMessage(chatId, text, reply_markup = null) {
   await fetch(`https://api.telegram.org/bot7740401254:AAGqaGtAQ2YEiwXtjert2CiuWFADXbGz3Jg/sendMessage`, {
     method: "POST",
@@ -68,4 +72,13 @@ async function sendMessage(chatId, text, reply_markup = null) {
       reply_markup
     })
   });
-  }
+}
+
+// Acknowledge callback
+async function answerCallback(callback_query_id) {
+  await fetch(`https://api.telegram.org/bot7740401254:AAGqaGtAQ2YEiwXtjert2CiuWFADXbGz3Jg/answerCallbackQuery`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ callback_query_id })
+  });
+}
