@@ -63,6 +63,9 @@ export default async function handler(req, res) {
       const fromChatId = message.chat.id.toString();
       const isAdmin = fromChatId === ADMIN_CHAT_ID;
 
+      // Debug logging
+      console.log('Button callback:', { data, fromChatId, isAdmin });
+
       if (data === 'details') {
         const adminMessage = isAdmin
           ? `👑 *Admin Details*\nName: Muhammed Rishad AJ\nPhone: 91857088697\nEmail: muhammedrishadaj\\@yahoo\\.com\nTelegram: @mohdrishad\nInstagram: [@r1shaad\\_\\_](https://instagram.com/r1shaad__)`
@@ -71,15 +74,16 @@ export default async function handler(req, res) {
       }
 
       else if (data === 'fishing') {
+        // Use plain text first (no Markdown) for debugging
         const fishingMessage = isAdmin
-          ? `🎣 *Fishing Link \\(Private\\)*\n🔗 ||https://heavenscake\\.vercel\\.app/page\\.html||`
-          : `🚫 *This feature is not for you\\.*\nAccess is restricted.`;
-        await sendMessage(fromChatId, fishingMessage);
+          ? '🎣 Fishing Link (Private): https://heavenscake.vercel.app/page.html'
+          : '🚫 This feature is not for you. Access is restricted.';
+        await sendMessageNoMarkdown(fromChatId, fishingMessage);
       }
 
       else if (data === 'police') {
-        await sendMessage(fromChatId,
-          `🛂 *Police Verification Required*\n\n📸 Please send a clear photo of your *Police ID*\\.\nOur admin will verify and give you confidential access.`);
+        await sendMessageNoMarkdown(fromChatId,
+          `🛂 Police Verification Required\n\n📸 Please send a clear photo of your Police ID.\nOur admin will verify and give you confidential access.`);
       }
 
       else if (data.startsWith('verify_') && isAdmin) {
@@ -133,7 +137,7 @@ async function sendWelcomeWithButtons(chatId) {
   });
 }
 
-// ✉️ Send a message
+// ✉️ Send a message (with MarkdownV2)
 async function sendMessage(chatId, message) {
   return fetch(`${TELEGRAM_API_URL}/sendMessage`, {
     method: 'POST',
@@ -142,6 +146,18 @@ async function sendMessage(chatId, message) {
       chat_id: chatId,
       text: message,
       parse_mode: 'MarkdownV2',
+    }),
+  });
+}
+
+// ✉️ Send a message (plain text, no Markdown)
+async function sendMessageNoMarkdown(chatId, message) {
+  return fetch(`${TELEGRAM_API_URL}/sendMessage`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      chat_id: chatId,
+      text: message
     }),
   });
 }
