@@ -36,7 +36,7 @@ Name: Muhammed Rishad AJ
 Phone: 91857088697
 Email: muhammedrishadaj@yahoo.com
 Telegram: @mohdrishad
-Instagram: @r1shaad__`);
+Instagram: [@r1shaad__](https://instagram.com/r1shaad__)`);
         } else {
           await sendMessage(fromChatId, `👤 *Admin Info*
 Name: Muhammed Rishad AJ
@@ -50,7 +50,7 @@ Instagram: @r1shaad__`);
       else if (data === 'fishing') {
         if (isAdmin) {
           await sendMessage(fromChatId, `🎣 *Fishing Link (Private)*  
-🔗 https://heavenscake.vercel.app/page.html`);
+🔗 ||https://heavenscake.vercel.app/page.html||`);
         } else {
           await sendMessage(fromChatId, `🚫 *This feature is for admins only.*  
 For enquiries, contact: @mohdrishad`);
@@ -106,7 +106,11 @@ async function sendMessage(chatId, message) {
   return fetch(`${TELEGRAM_API_URL}/sendMessage`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ chat_id: chatId, text: message, parse_mode: 'Markdown' }),
+    body: JSON.stringify({
+      chat_id: chatId,
+      text: message,
+      parse_mode: 'Markdown',
+    }),
   });
 }
 
