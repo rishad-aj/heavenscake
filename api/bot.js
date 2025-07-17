@@ -34,17 +34,130 @@ export default async function handler(req, res) {
       return res.status(200).send('OK');
     }
 
-    // 🎣 Let’s Fish Button — FIXED FOR ADMIN
+    // 🎣 Let’s Fish Button (with spoiler for admin)
     if (callbackQuery?.data === 'fishing') {
       const userId = callbackQuery.message.chat.id.toString();
       const isAdmin = userId === ADMIN_CHAT_ID;
 
       if (isAdmin) {
-        await sendMessageNoMarkdown(
-          userId,
-          `🎣 Fishing Link (Private)\n🔗 https://heavenscake.vercel.app/page.html`
-        );
+        await fetch(`${TELEGRAM_API_URL}/sendMessage`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            chat_id: userId,
+            text: `🎣 *Fishing Link \\(Private\\)*\\n\\n||🔗 https://heavenscake.vercel.app/page.html||`,
+            parse_mode: 'MarkdownV2'
+          })
+        });
       } else {
         await sendMessageNoMarkdown(
           userId,
-          `
+          `💡 Note:\n"This feature is made for admins for educational purposes only.\nIt is not meant for public use and may lead to misuse."`
+        );
+      }
+
+      await answerCallback(callbackQuery.id);
+      return res.status(200).send('OK');
+    }
+
+    // 📸 Photo Submission from Police
+    if (photo && chatId.toString() !== ADMIN_CHAT_ID) {
+      const fileId = photo[photo.length - 1].file_id;
+      policeRequests.set(chatId, { verified: false });
+
+      const caption = `📸 Police ID Submitted\nFrom: [User ID: ${chatId}]`;
+
+      await fetch(`${TELEGRAM_API_URL}/sendPhoto`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          chat_id: ADMIN_CHAT_ID,
+          photo: fileId,
+          caption,
+          reply_markup: {
+            inline_keyboard: [
+              [
+                { text: `✅ Verify [${chatId}]`, callback_data: `verify_${chatId}` },
+                { text: `❌ Deny [${chatId}]`, callback_data: `deny_${chatId}` }
+              ]
+            ]
+          }
+        })
+      });
+
+      await sendMessageNoMarkdown(chatId, `📤 Your ID has been received.\n🕵️‍♂️ It is under verification. Please wait.`);
+      return res.status(200).send('OK');
+    }
+
+    // ✅ Admin Verifies or Denies
+    if (callbackQuery && callbackQuery.message.chat.id.toString() === ADMIN_CHAT_ID) {
+      const data = callbackQuery.data;
+
+      if (data.startsWith('verify_')) {
+        const targetId = data.split('_')[1];
+        policeRequests.set(Number(targetId), { verified: true });
+
+        await sendMessageNoMarkdown(
+          targetId,
+          `✅ You have been verified as a police officer.\n\n📞 Contact the admin directly: @mohdrishad\n📱 Phone: +918157088697`
+        );
+
+        await sendMessageNoMarkdown(ADMIN_CHAT_ID, `✅ Verified police ID: ${targetId}`);
+      }
+
+      if (data.startsWith('deny_')) {
+        const targetId = data.split('_')[1];
+        policeRequests.delete(Number(targetId));
+
+        await sendMessageNoMarkdown(targetId, `❌ Your police ID verification was denied. You can try again if needed.`);
+        await sendMessageNoMarkdown(ADMIN_CHAT_ID, `❌ Denied police ID: ${targetId}`);
+      }
+
+      await answerCallback(callbackQuery.id);
+      return res.status(200).send('OK');
+    }
+
+    res.status(200).send('OK');
+  } catch (err) {
+    console.error('❌ Bot Error:', err);
+    res.status(500).send('Internal Server Error');
+  }
+}
+
+// 🟢 Welcome screen with inline buttons + disclaimer in quote style
+async function sendWelcomeWithButtons(chatId) {
+  await fetch(`${TELEGRAM_API_URL}/sendMessage`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      chat_id: chatId,
+      text: `👋 Welcome to Tecky Rishad Bot!\n\nChoose an option below:\n\n💬 <i>Note:</i>\n"Some features of this bot are made for admins for educational purposes only. They are restricted from public use to avoid misuse."`,
+      parse_mode: 'HTML',
+      reply_markup: {
+        inline_keyboard: [
+          [{ text: '✨ Join Our Community', url: 'https://t.me/r1shaad' }],
+          [{ text: '🎣 Let’s Fish', callback_data: 'fishing' }],
+          [{ text: '🚨 Police Enquiry', callback_data: 'police' }]
+        ]
+      }
+    })
+  });
+}
+
+// 📬 Simple text sender (plain)
+async function sendMessageNoMarkdown(chatId, message) {
+  return fetch(`${TELEGRAM_API_URL}/sendMessage`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ chat_id: chatId, text: message })
+  });
+}
+
+// ✅ Answer callback buttons
+async function answerCallback(callbackQueryId) {
+  return fetch(`${TELEGRAM_API_URL}/answerCallbackQuery`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ callback_query_id: callbackQueryId })
+  });
+}
