@@ -12,7 +12,7 @@ export default async function handler(req, res) {
   const body = req.body;
   const message = body.message || body.callback_query?.message;
   const chatId = message?.chat?.id;
-  const text = message?.text;
+  const text = body.message?.text; // ✅ Fix: only use text from real message
   const callbackQuery = body.callback_query;
   const photo = message?.photo;
 
@@ -26,7 +26,7 @@ export default async function handler(req, res) {
     // 🛂 Police Enquiry Button
     if (callbackQuery?.data === 'police') {
       await sendMessageNoMarkdown(
-        callbackQuery.message.chat.id,
+        chatId,
         `🛂 Police Verification Required\n\n📸 Please send a clear photo of your Police ID.\nOur admin will verify and give you access to confidential resources.`
       );
       await answerCallback(callbackQuery.id);
@@ -115,9 +115,9 @@ export default async function handler(req, res) {
   }
 }
 
-// 🟢 Welcome screen with inline buttons + disclaimer (quoted)
+// 🟢 Welcome screen with inline buttons + quoted disclaimer
 async function sendWelcomeWithButtons(chatId) {
-  const disclaimer = `> Some features of this bot are made for admins for educational purposes only.\n> They are restricted from public use to avoid misuse.`;
+  const disclaimer = '> Some features of this bot are made for admins for educational purposes only.\n> They are restricted from public use to avoid misuse.';
 
   await fetch(`${TELEGRAM_API_URL}/sendMessage`, {
     method: 'POST',
