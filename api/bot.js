@@ -19,13 +19,11 @@ export default async function handler(req, res) {
   const photo = message?.photo;
 
   try {
-    // ✅ /start command
     if (text === '/start') {
       await sendWelcomeWithButtons(chatId);
       return res.status(200).send('OK');
     }
 
-    // 📸 Handle Police ID photo
     if (photo && chatId.toString() !== ADMIN_CHAT_ID) {
       const fileId = photo[photo.length - 1].file_id;
       policeRequests.set(chatId, { verified: false });
@@ -55,7 +53,6 @@ export default async function handler(req, res) {
       return res.status(200).send('OK');
     }
 
-    // 🟢 Handle callback buttons
     if (callbackQuery) {
       const data = callbackQuery.data;
       const fromChatId = message.chat.id.toString();
@@ -103,7 +100,6 @@ export default async function handler(req, res) {
       return res.status(200).send('OK');
     }
 
-    // 📝 Verified police describes the request
     if (text && policeRequests.has(chatId) && policeRequests.get(chatId).verified && pendingPoliceQueries.get(chatId)) {
       pendingPoliceQueries.delete(chatId);
 
@@ -130,7 +126,7 @@ export default async function handler(req, res) {
       return res.status(200).send('OK');
     }
 
-    // 📨 Admin replies (updated block)
+    // 🔄 UPDATED: Admin replies + follow-up message with contact
     if (
       text &&
       chatId.toString() === ADMIN_CHAT_ID &&
@@ -157,7 +153,6 @@ export default async function handler(req, res) {
   }
 }
 
-// 🔘 Welcome screen with inline buttons
 async function sendWelcomeWithButtons(chatId) {
   await fetch(`${TELEGRAM_API_URL}/sendMessage`, {
     method: 'POST',
@@ -180,7 +175,6 @@ async function sendWelcomeWithButtons(chatId) {
   });
 }
 
-// 📬 Message senders
 async function sendMessage(chatId, message) {
   return fetch(`${TELEGRAM_API_URL}/sendMessage`, {
     method: 'POST',
