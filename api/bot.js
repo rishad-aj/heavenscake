@@ -126,7 +126,7 @@ export default async function handler(req, res) {
       return res.status(200).send('OK');
     }
 
-    // 📨 Admin replies — forward + reply message
+    // ✅ Admin replies to police
     if (
       text &&
       chatId.toString() === ADMIN_CHAT_ID &&
@@ -136,17 +136,10 @@ export default async function handler(req, res) {
       awaitingAdminResponse.delete(chatId);
 
       if (targetChatId) {
-        // Forward original admin reply
-        await fetch(`${TELEGRAM_API_URL}/sendMessage`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            chat_id: targetChatId,
-            text: message.text
-          })
-        });
+        // 1. Send admin's message to police officer
+        await sendMessageNoMarkdown(targetChatId, `📨 *Admin has responded:*\n\n${text}`);
 
-        // Send follow-up with admin contact
+        // 2. Follow-up message with contact
         await sendMessage(
           targetChatId,
           `📬 *For more details, please contact the admin directly:* [@mohdrishad](https://t.me/mohdrishad)`
@@ -164,6 +157,7 @@ export default async function handler(req, res) {
   }
 }
 
+// UI helpers
 async function sendWelcomeWithButtons(chatId) {
   await fetch(`${TELEGRAM_API_URL}/sendMessage`, {
     method: 'POST',
