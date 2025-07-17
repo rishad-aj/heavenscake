@@ -1,21 +1,15 @@
+// 🔐 Replace with your real values:
 const TELEGRAM_BOT_TOKEN = '7740401254:AAHhnSMhm-dMcv7-4LJCGwHchxRrYhBEsCY';
 const ADMIN_CHAT_ID = '7216371031';
 const TELEGRAM_API_URL = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}`;
 
-// In-memory trackers
 const policeRequests = new Map();
 const pendingPoliceQueries = new Map();
+const awaitingAdminResponse = new Map();
 
 export default async function handler(req, res) {
-  console.log('📩 Telegram Webhook Received:', JSON.stringify(req.body, null, 2));
-
-  if (req.method === 'GET') {
-    return res.status(200).send('🟢 Bot is alive!');
-  }
-
-  if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'Method Not Allowed' });
-  }
+  if (req.method === 'GET') return res.status(200).send('🟢 Bot is alive!');
+  if (req.method !== 'POST') return res.status(405).json({ error: 'Method Not Allowed' });
 
   const body = req.body;
   const message = body.message || body.callback_query?.message;
@@ -25,13 +19,13 @@ export default async function handler(req, res) {
   const photo = message?.photo;
 
   try {
-    // 🟡 Start command
+    // 1️⃣ /start command
     if (text === '/start') {
       await sendWelcomeWithButtons(chatId);
       return res.status(200).send('OK');
     }
 
-    // 🟢 Handle photo (police ID)
+    // 2️⃣ Handle police ID photo
     if (photo && chatId.toString() !== ADMIN_CHAT_ID) {
       const fileId = photo[photo.length - 1].file_id;
       policeRequests.set(chatId, { verified: false });
@@ -57,93 +51,81 @@ export default async function handler(req, res) {
         })
       });
 
-      await sendMessage(chatId, `🕵️‍♂️ Your Police ID has been submitted.\nPlease wait while our admin reviews it.`);
+      await sendMessage(chatId, `🕵️‍♂️ Your ID is under verification.\nPlease be patient while our admin reviews it.`);
       return res.status(200).send('OK');
     }
 
-    // 📨 Handle verified police requesting details
-    if (text && policeRequests.has(chatId) && policeRequests.get(chatId).verified && pendingPoliceQueries.get(chatId)) {
-      pendingPoliceQueries.delete(chatId);
-
-      const forwardMsg = `📤 *Police Request Forwarded*\nFrom: [User ID: ${chatId}]\n\n📄 Message:\n${text}`;
-      await sendMessage(ADMIN_CHAT_ID, forwardMsg);
-      await sendMessage(chatId, `📡 Your request has been forwarded to the admin.\nPlease wait for a response.`);
-      return res.status(200).send('OK');
-    }
-
-    // 📤 Admin replies to police request
-    if (
-      text &&
-      chatId.toString() === ADMIN_CHAT_ID &&
-      message?.reply_to_message?.text?.includes('Police Request Forwarded')
-    ) {
-      const match = message.reply_to_message.text.match(/User ID: (\d+)/);
-      const targetChatId = match?.[1];
-
-      if (targetChatId) {
-        await sendMessage(
-          targetChatId,
-          `📨 *Admin has responded:*\n\n${text}\n\n🔗 [Contact Admin](https://t.me/mohdrishad)`
-        );
-      }
-
-      return res.status(200).send('OK');
-    }
-
-    // 🔁 Handle button callbacks
+    // 3️⃣ Handle callback buttons
     if (callbackQuery) {
       const data = callbackQuery.data;
       const fromChatId = message.chat.id.toString();
       const isAdmin = fromChatId === ADMIN_CHAT_ID;
 
-      console.log('Button callback:', { data, fromChatId, isAdmin });
-
-      if (data === 'details') {
-        const adminMessage = isAdmin
-          ? `👑 *Admin Details*\nName: Muhammed Rishad AJ\nPhone: 91857088697\nEmail: muhammedrishadaj\\@yahoo\\.com\nTelegram: @mohdrishad\nInstagram: [@r1shaad\\_\\_](https://instagram.com/r1shaad__)`
-          : `👤 *Admin Info*\nName: Muhammed Rishad AJ\nPhone: xxx\-xxx\-xxxx\nEmail: muhammedrishadaj\\@yahoo\\.com\nTelegram: @mohdrishad\nInstagram: @r1shaad\\_\\_`;
-        await sendMessage(fromChatId, adminMessage);
-      } else if (data === 'fishing') {
-        const fishingMessage = isAdmin
-          ? '🎣 Fishing Link Private: ||https\\:\\/\\/heavenscake\\.vercel\\.app\\/page\\.html||'
-          : '🚫 This feature is not for you\\. Access is restricted\\.';
-        await sendMessage(fromChatId, fishingMessage);
-      } else if (data === 'police') {
-        await sendMessageNoMarkdown(
-          fromChatId,
-          `🛂 Police Verification Required\n\n📸 Please send a clear photo of your Police ID.\nOur admin will verify and give you confidential access.`
-        );
-      } else if (data.startsWith('verify_') && isAdmin) {
+      if (data.startsWith('verify_') && isAdmin) {
         const targetChatId = data.split('_')[1];
-
         policeRequests.set(Number(targetChatId), { verified: true });
 
         await sendMessage(
           targetChatId,
-          `✅ *You have been verified as a police officer\\!*\n\nHere are the confidential details:\n\n` +
-          `👤 *Admin Name:* Muhammed Rishad\n` +
-          `🎂 *DOB:* 01\\/01\\/1990\n` +
-          `📞 *Phone:* +91 98765 43210\n` +
-          `📧 *Email:* muhammedrishadaj\\@yahoo\\.com\n` +
-          `🤖 *Bot Scripts, API & Internal Access: Provided*`
+          `✅ *You have been verified as a police officer\\!*\n\nNow, please *describe the details* you need.\n\nExample: "Need admin’s contact and bot access info."`
         );
 
         await sendMessage(ADMIN_CHAT_ID, `✅ Police verified: ${targetChatId}`);
-        await sendMessage(targetChatId, `📥 *Describe what details you need:*\n\nExample: "Need admin's contact and bot API."`);
-
         pendingPoliceQueries.set(Number(targetChatId), true);
       } else if (data.startsWith('deny_') && isAdmin) {
         const targetChatId = data.split('_')[1];
+        await sendMessage(targetChatId, `❌ Your police verification was denied.\nYou may try again if needed.`);
+        await sendMessage(ADMIN_CHAT_ID, `❌ Denied verification for user: ${targetChatId}`);
+      } else if (data.startsWith('answer_') && isAdmin) {
+        const targetChatId = data.split('_')[1];
+        awaitingAdminResponse.set(fromChatId, targetChatId);
 
-        await sendMessage(
-          targetChatId,
-          `❌ *Your police verification request has been denied.*\n\nYou can try again if you believe this was a mistake.`
+        await sendForceReply(
+          ADMIN_CHAT_ID,
+          `✍️ Leave your answer for [${targetChatId}] below.`
         );
-
-        await sendMessage(ADMIN_CHAT_ID, `❌ Police verification denied for user: ${targetChatId}`);
       }
 
       await answerCallback(callbackQuery.id);
+      return res.status(200).send('OK');
+    }
+
+    // 4️⃣ Verified police sends request
+    if (text && policeRequests.has(chatId) && policeRequests.get(chatId).verified && pendingPoliceQueries.get(chatId)) {
+      pendingPoliceQueries.delete(chatId);
+
+      const forwardMsg = `📤 *Police Request Forwarded*\nFrom: [User ID: ${chatId}]\n\n📄 Message:\n${text}`;
+
+      await fetch(`${TELEGRAM_API_URL}/sendMessage`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          chat_id: ADMIN_CHAT_ID,
+          text: forwardMsg,
+          parse_mode: 'MarkdownV2',
+          reply_markup: {
+            inline_keyboard: [
+              [{ text: '✍️ Answer', callback_data: `answer_${chatId}` }]
+            ]
+          }
+        })
+      });
+
+      await sendMessage(chatId, `📡 Your message has been forwarded to the admin.\nPlease wait for a response.`);
+      return res.status(200).send('OK');
+    }
+
+    // 5️⃣ Admin replies with answer
+    if (text && chatId.toString() === ADMIN_CHAT_ID && message?.reply_to_message?.text?.includes('Leave your answer')) {
+      const targetChatId = awaitingAdminResponse.get(chatId);
+      if (targetChatId) {
+        awaitingAdminResponse.delete(chatId);
+        await sendMessage(
+          targetChatId,
+          `📨 *Admin has responded:*\n\n${text}\n\n🔗 [Contact Admin](https://t.me/mohdrishad)`
+        );
+        await sendMessage(chatId, `✅ Message delivered to [${targetChatId}]`);
+      }
       return res.status(200).send('OK');
     }
 
@@ -154,32 +136,30 @@ export default async function handler(req, res) {
   }
 }
 
-// 🎛️ Start command buttons
-async function sendWelcomeWithButtons(chatId) {
-  const payload = {
-    chat_id: chatId,
-    text: '👋 Welcome to *Tecky Rishad Bot*\\!\n\nChoose an option below:',
-    parse_mode: 'MarkdownV2',
-    reply_markup: {
-      inline_keyboard: [
-        [{ text: '✨ Join Our Community', url: 'https://t.me/r1shaad' }],
-        [
-          { text: '👤 Admin Details', callback_data: 'details' },
-          { text: '🎣 Let’s Fish', callback_data: 'fishing' }
-        ],
-        [{ text: '🚨 Police Enquiry', callback_data: 'police' }]
-      ]
-    }
-  };
+// ➕ Helpers
 
+async function sendWelcomeWithButtons(chatId) {
   await fetch(`${TELEGRAM_API_URL}/sendMessage`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(payload)
+    body: JSON.stringify({
+      chat_id: chatId,
+      text: '👋 Welcome to *Tecky Rishad Bot*\\!\n\nChoose an option below:',
+      parse_mode: 'MarkdownV2',
+      reply_markup: {
+        inline_keyboard: [
+          [{ text: '✨ Join Our Community', url: 'https://t.me/r1shaad' }],
+          [
+            { text: '👤 Admin Details', callback_data: 'details' },
+            { text: '🎣 Let’s Fish', callback_data: 'fishing' }
+          ],
+          [{ text: '🚨 Police Enquiry', callback_data: 'police' }]
+        ]
+      }
+    })
   });
 }
 
-// ✉️ Send a message (MarkdownV2)
 async function sendMessage(chatId, message) {
   return fetch(`${TELEGRAM_API_URL}/sendMessage`, {
     method: 'POST',
@@ -192,25 +172,23 @@ async function sendMessage(chatId, message) {
   });
 }
 
-// ✉️ Send plain message
-async function sendMessageNoMarkdown(chatId, message) {
+async function sendForceReply(chatId, message) {
   return fetch(`${TELEGRAM_API_URL}/sendMessage`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
       chat_id: chatId,
-      text: message
+      text: message,
+      parse_mode: 'MarkdownV2',
+      reply_markup: { force_reply: true }
     })
   });
 }
 
-// ✅ Remove callback spinner
 async function answerCallback(callbackQueryId) {
   return fetch(`${TELEGRAM_API_URL}/answerCallbackQuery`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      callback_query_id: callbackQueryId
-    })
+    body: JSON.stringify({ callback_query_id: callbackQueryId })
   });
 }
