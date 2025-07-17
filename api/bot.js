@@ -130,7 +130,7 @@ export default async function handler(req, res) {
       return res.status(200).send('OK');
     }
 
-    // 📨 Admin replies (now always works)
+    // 📨 Admin replies (updated block)
     if (
       text &&
       chatId.toString() === ADMIN_CHAT_ID &&
@@ -142,7 +142,7 @@ export default async function handler(req, res) {
       if (targetChatId) {
         const escapedReply = text.replace(/([_*[\]()~`>#+\-=|{}.!\\])/g, '\\$1');
 
-        const fullReply = `📨 *Admin has responded:*\n\n${escapedReply}\n\n📬 *Direct contact to the admin may help your enquiry better:* @mohdrishad\n\n🙏 *Thank you!*`;
+        const fullReply = `📨 *Admin has responded:*\n\n${escapedReply}\n\n📬 *For more details, please contact the admin directly:* [@mohdrishad](https://t.me/mohdrishad)\n\n🙏 *Thank you!*`;
 
         await sendMessage(targetChatId, fullReply);
         await sendMessage(chatId, `✅ Message delivered to [${targetChatId}]`);
