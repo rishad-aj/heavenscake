@@ -33,14 +33,15 @@ export default async function handler(req, res) {
       return res.status(200).send('OK');
     }
 
-    // 🎣 Let’s Fish Button — with spoiler
+    // 🎣 Let’s Fish Button — now working for admin with MarkdownV2 spoiler
     if (callbackQuery?.data === 'fishing') {
       const userId = callbackQuery.message.chat.id.toString();
       const isAdmin = userId === ADMIN_CHAT_ID;
 
       if (isAdmin) {
-        const spoilerLink = '||https://heavenscake.vercel.app/page.html||';
-        await sendSpoilerMessage(userId, `🎣 Fishing Link \\(Private\\)\n🔗 ${spoilerLink}`);
+        const spoilerLink = '||https://heavenscake\\.vercel\\.app/page\\.html||';
+        const message = `🎣 Fishing Link \\(Private\\)\n🔗 ${spoilerLink}`;
+        await sendSpoilerMessage(userId, message);
       } else {
         await sendMessageNoMarkdown(
           userId,
