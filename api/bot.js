@@ -5,7 +5,7 @@ const TELEGRAM_API_URL = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}`;
 
 const policeRequests = new Map();
 const pendingPoliceQueries = new Map();
-const awaitingAdminResponse = new Map();
+let lastPoliceUser = null;
 
 export default async function handler(req, res) {
   if (req.method === 'GET') return res.status(200).send('🟢 Bot is alive!');
@@ -15,7 +15,6 @@ export default async function handler(req, res) {
   const message = body.message || body.callback_query?.message;
   const chatId = message?.chat?.id;
   const text = message?.text;
-  const callbackQuery = body.callback_query;
   const photo = message?.photo;
 
   try {
@@ -37,15 +36,7 @@ export default async function handler(req, res) {
           chat_id: ADMIN_CHAT_ID,
           photo: fileId,
           caption,
-          parse_mode: 'MarkdownV2',
-          reply_markup: {
-            inline_keyboard: [
-              [
-                { text: `✅ Verify [${chatId}]`, callback_data: `verify_${chatId}` },
-                { text: `❌ Deny [${chatId}]`, callback_data: `deny_${chatId}` }
-              ]
-            ]
-          }
+          parse_mode: 'MarkdownV2'
         })
       });
 
@@ -53,116 +44,23 @@ export default async function handler(req, res) {
       return res.status(200).send('OK');
     }
 
-    if (callbackQuery) {
-      const data = callbackQuery.data;
-      const fromChatId = message.chat.id.toString();
-      const isAdmin = fromChatId === ADMIN_CHAT_ID;
+    // Handle police message
+    if (text && chatId.toString() !== ADMIN_CHAT_ID) {
+      // Store last police user
+      lastPoliceUser = chatId;
 
-      if (data === 'police') {
-        await sendMessageNoMarkdown(
-          fromChatId,
-          `🛂 Police Verification Required\n\n📸 Please send a clear photo of your Police ID.\nOur admin will verify and give you access to confidential resources.`
-        );
-      } else if (data === 'details') {
-        await sendMessageNoMarkdown(
-          fromChatId,
-          `👤 Admin Contact:\n\nTelegram: @mohdrishad\nWebsite: https://teckybot.vercel.app`
-        );
-      } else if (data === 'fishing') {
-        await sendMessageNoMarkdown(
-          fromChatId,
-          `🎣 Let’s Fish!\n\nWelcome to fishing mode! You’ll soon unlock hidden resources 🐟`
-        );
-      } else if (data.startsWith('verify_') && isAdmin) {
-        const targetChatId = data.split('_')[1];
-        policeRequests.set(Number(targetChatId), { verified: true });
-        pendingPoliceQueries.set(Number(targetChatId), true);
+      const forwardMsg = `📤 Police Request Forwarded\nFrom: [User ID: ${chatId}]\nMessage: ${text}`;
 
-        const safeText = `✅ You have been verified as a police officer!\n\nNow, please describe the details you need.\n\nExample: "Need admin’s contact and bot access info."`;
-
-        await sendMessageNoMarkdown(targetChatId, safeText);
-        await sendMessageNoMarkdown(ADMIN_CHAT_ID, `✅ Police verified: ${targetChatId}`);
-      } else if (data.startsWith('deny_') && isAdmin) {
-        const targetChatId = data.split('_')[1];
-        await sendMessageNoMarkdown(targetChatId, `❌ Your police verification was denied.\nYou may try again if needed.`);
-        await sendMessageNoMarkdown(ADMIN_CHAT_ID, `❌ Denied verification for user: ${targetChatId}`);
-      } else if (data.startsWith('answer_') && isAdmin) {
-        const targetChatId = data.split('_')[1];
-        awaitingAdminResponse.set(fromChatId, targetChatId);
-
-        await sendMessageNoMarkdown(
-          ADMIN_CHAT_ID,
-          `✍️ Describe your answer below for [User ID: ${targetChatId}]`
-        );
-      }
-
-      await answerCallback(callbackQuery.id);
-      return res.status(200).send('OK');
-    }
-
-    if (text && policeRequests.has(chatId) && policeRequests.get(chatId).verified && pendingPoliceQueries.get(chatId)) {
-      pendingPoliceQueries.delete(chatId);
-
-      const forwardMsg = `📤 Police Request Forwarded\nFrom: [User ID: ${chatId}]\n\nMessage:\n${text}`;
-
-      await fetch(`${TELEGRAM_API_URL}/sendMessage`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          chat_id: ADMIN_CHAT_ID,
-          text: forwardMsg,
-          reply_markup: {
-            inline_keyboard: [
-              [{ text: '✍️ Answer', callback_data: `answer_${chatId}` }]
-            ]
-          }
-        })
-      });
-
+      await sendMessageNoMarkdown(ADMIN_CHAT_ID, forwardMsg);
       await sendMessageNoMarkdown(chatId, `✅ Your enquiry has been received.\nThe admin will reply shortly.`);
       return res.status(200).send('OK');
     }
 
-    // 📨 Admin replies (basic version - no Markdown)
-    if (
-      text &&
-      chatId.toString() === ADMIN_CHAT_ID &&
-      awaitingAdminResponse.has(chatId)
-    ) {
-      const targetChatId = awaitingAdminResponse.get(chatId);
-      awaitingAdminResponse.delete(chatId);
-
-      if (targetChatId) {
-        // 1. Send plain text answer to the police
-        await fetch(`${TELEGRAM_API_URL}/sendMessage`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            chat_id: targetChatId,
-            text: `Admin has responded:\n\n${text}`
-          })
-        });
-
-        // 2. Follow-up contact message
-        await fetch(`${TELEGRAM_API_URL}/sendMessage`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            chat_id: targetChatId,
-            text: `📬 For more help, contact the admin directly: @mohdrishad`
-          })
-        });
-
-        // 3. Confirm to admin
-        await fetch(`${TELEGRAM_API_URL}/sendMessage`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            chat_id: ADMIN_CHAT_ID,
-            text: `✅ Your message has been delivered to the police.`
-          })
-        });
-      }
+    // Handle admin reply
+    if (text && chatId.toString() === ADMIN_CHAT_ID && lastPoliceUser) {
+      await sendMessageNoMarkdown(lastPoliceUser, `📨 Admin has responded:\n\n${text}`);
+      await sendMessageNoMarkdown(lastPoliceUser, `📬 For more help, contact the admin directly: @mohdrishad`);
+      await sendMessageNoMarkdown(ADMIN_CHAT_ID, `✅ Your message has been sent to the police.`);
       return res.status(200).send('OK');
     }
 
@@ -173,6 +71,7 @@ export default async function handler(req, res) {
   }
 }
 
+// 🔘 Welcome screen with inline buttons
 async function sendWelcomeWithButtons(chatId) {
   await fetch(`${TELEGRAM_API_URL}/sendMessage`, {
     method: 'POST',
@@ -194,18 +93,11 @@ async function sendWelcomeWithButtons(chatId) {
   });
 }
 
+// 📬 Basic sender
 async function sendMessageNoMarkdown(chatId, message) {
   return fetch(`${TELEGRAM_API_URL}/sendMessage`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ chat_id: chatId, text: message })
-  });
-}
-
-async function answerCallback(callbackQueryId) {
-  return fetch(`${TELEGRAM_API_URL}/answerCallbackQuery`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ callback_query_id: callbackQueryId })
   });
 }
