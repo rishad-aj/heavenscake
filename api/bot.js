@@ -34,21 +34,16 @@ export default async function handler(req, res) {
       return res.status(200).send('OK');
     }
 
-    // 🎣 Let’s Fish Button (with spoiler for admin)
+    // 🎣 Let’s Fish Button — working for admin & user
     if (callbackQuery?.data === 'fishing') {
       const userId = callbackQuery.message.chat.id.toString();
       const isAdmin = userId === ADMIN_CHAT_ID;
 
       if (isAdmin) {
-        await fetch(`${TELEGRAM_API_URL}/sendMessage`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            chat_id: userId,
-            text: `🎣 *Fishing Link \\(Private\\)*\\n\\n||🔗 https://heavenscake.vercel.app/page.html||`,
-            parse_mode: 'MarkdownV2'
-          })
-        });
+        await sendMessageNoMarkdown(
+          userId,
+          `🎣 Fishing Link (Private)\n🔗 https://heavenscake.vercel.app/page.html`
+        );
       } else {
         await sendMessageNoMarkdown(
           userId,
@@ -124,7 +119,7 @@ export default async function handler(req, res) {
   }
 }
 
-// 🟢 Welcome screen with inline buttons + disclaimer in quote style
+// 🟢 Welcome screen with inline buttons + disclaimer note (quoted)
 async function sendWelcomeWithButtons(chatId) {
   await fetch(`${TELEGRAM_API_URL}/sendMessage`, {
     method: 'POST',
@@ -144,7 +139,7 @@ async function sendWelcomeWithButtons(chatId) {
   });
 }
 
-// 📬 Simple text sender (plain)
+// 📨 Text without formatting
 async function sendMessageNoMarkdown(chatId, message) {
   return fetch(`${TELEGRAM_API_URL}/sendMessage`, {
     method: 'POST',
@@ -153,7 +148,7 @@ async function sendMessageNoMarkdown(chatId, message) {
   });
 }
 
-// ✅ Answer callback buttons
+// ✅ Callback button answer
 async function answerCallback(callbackQueryId) {
   return fetch(`${TELEGRAM_API_URL}/answerCallbackQuery`, {
     method: 'POST',
