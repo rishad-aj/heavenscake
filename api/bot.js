@@ -12,7 +12,7 @@ export default async function handler(req, res) {
   const body = req.body;
   const message = body.message || body.callback_query?.message;
   const chatId = message?.chat?.id;
-  const text = body.message?.text; // ✅ Fix: only use text from real message
+  const text = message?.text;
   const callbackQuery = body.callback_query;
   const photo = message?.photo;
 
@@ -26,14 +26,14 @@ export default async function handler(req, res) {
     // 🛂 Police Enquiry Button
     if (callbackQuery?.data === 'police') {
       await sendMessageNoMarkdown(
-        chatId,
+        callbackQuery.message.chat.id,
         `🛂 Police Verification Required\n\n📸 Please send a clear photo of your Police ID.\nOur admin will verify and give you access to confidential resources.`
       );
       await answerCallback(callbackQuery.id);
       return res.status(200).send('OK');
     }
 
-    // 🎣 Let’s Fish Button — with spoiler & quoted disclaimer
+    // 🎣 Let’s Fish Button — now working for admin with MarkdownV2 spoiler
     if (callbackQuery?.data === 'fishing') {
       const userId = callbackQuery.message.chat.id.toString();
       const isAdmin = userId === ADMIN_CHAT_ID;
@@ -43,8 +43,10 @@ export default async function handler(req, res) {
         const message = `🎣 Fishing Link \\(Private\\)\n🔗 ${spoilerLink}`;
         await sendSpoilerMessage(userId, message);
       } else {
-        const disclaimer = '> This feature is made for admins for educational purposes only.\n> It is not meant for public use and may lead to misuse.';
-        await sendQuoteMessage(userId, disclaimer);
+        await sendMessageNoMarkdown(
+          userId,
+          `💡 Note:\n"This feature is made for admins for educational purposes only.\nIt is not meant for public use and may lead to misuse."`
+        );
       }
 
       await answerCallback(callbackQuery.id);
@@ -115,17 +117,15 @@ export default async function handler(req, res) {
   }
 }
 
-// 🟢 Welcome screen with inline buttons + quoted disclaimer
+// 🟢 Welcome screen with inline buttons + disclaimer note (quoted)
 async function sendWelcomeWithButtons(chatId) {
-  const disclaimer = '> Some features of this bot are made for admins for educational purposes only.\n> They are restricted from public use to avoid misuse.';
-
   await fetch(`${TELEGRAM_API_URL}/sendMessage`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
       chat_id: chatId,
-      text: `👋 Welcome to Tecky Rishad Bot!\n\nChoose an option below:\n\n${disclaimer}`,
-      parse_mode: 'MarkdownV2',
+      text: `👋 Welcome to Tecky Rishad Bot!\n\nChoose an option below:\n\n💬 <i>Note:</i>\n"Some features of this bot are made for admins for educational purposes only. They are restricted from public use to avoid misuse."`,
+      parse_mode: 'HTML',
       reply_markup: {
         inline_keyboard: [
           [{ text: '✨ Join Our Community', url: 'https://t.me/r1shaad' }],
@@ -146,20 +146,7 @@ async function sendMessageNoMarkdown(chatId, message) {
   });
 }
 
-// 📛 Quoted message using MarkdownV2
-async function sendQuoteMessage(chatId, message) {
-  return fetch(`${TELEGRAM_API_URL}/sendMessage`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      chat_id: chatId,
-      text: message,
-      parse_mode: 'MarkdownV2'
-    })
-  });
-}
-
-// 🤫 Spoiler message using MarkdownV2
+// 🕵️ Send spoiler message (MarkdownV2)
 async function sendSpoilerMessage(chatId, message) {
   return fetch(`${TELEGRAM_API_URL}/sendMessage`, {
     method: 'POST',
