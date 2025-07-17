@@ -1,7 +1,5 @@
 // 🔐 Real credentials
 const TELEGRAM_BOT_TOKEN = '7740401254:AAHhnSMhm-dMcv7-4LJCGwHchxRrYhBEsCY';
-// 🔐 Real credentials
-const TELEGRAM_BOT_TOKEN = 'YOUR_REAL_BOT_TOKEN';
 const ADMIN_CHAT_ID = '7216371031';
 const TELEGRAM_API_URL = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}`;
 
