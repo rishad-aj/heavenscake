@@ -1,5 +1,7 @@
 // 🔐 Real credentials
 const TELEGRAM_BOT_TOKEN = '7740401254:AAHhnSMhm-dMcv7-4LJCGwHchxRrYhBEsCY';
+// 🔐 Real credentials
+const TELEGRAM_BOT_TOKEN = 'YOUR_REAL_BOT_TOKEN';
 const ADMIN_CHAT_ID = '7216371031';
 const TELEGRAM_API_URL = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}`;
 
@@ -49,10 +51,15 @@ export default async function handler(req, res) {
           })
         });
       } else {
-        await sendMessageNoMarkdown(
-          userId,
-          `💡 Note:\n"This feature is made for admins for educational purposes only.\nIt is not meant for public use and may lead to misuse."`
-        );
+        await fetch(`${TELEGRAM_API_URL}/sendMessage`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            chat_id: userId,
+            text: `> This feature is made for admins for educational purposes only.\n> It is not meant for public use and may lead to misuse.`,
+            parse_mode: 'MarkdownV2'
+          })
+        });
       }
 
       await answerCallback(callbackQuery.id);
@@ -123,15 +130,16 @@ export default async function handler(req, res) {
   }
 }
 
-// 🟢 Welcome screen with inline buttons + disclaimer in quote style
+// 🟢 Welcome screen with inline buttons + quoted disclaimer
 async function sendWelcomeWithButtons(chatId) {
+  const quote = '> This bot was created for educational purposes only.\\n> Some features are restricted to admins to prevent misuse.';
   await fetch(`${TELEGRAM_API_URL}/sendMessage`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
       chat_id: chatId,
-      text: `👋 Welcome to Tecky Rishad Bot!\n\nChoose an option below:\n\n💬 <i>Note:</i>\n"Some features of this bot are made for admins for educational purposes only. They are restricted from public use to avoid misuse."`,
-      parse_mode: 'HTML',
+      text: `👋 *Welcome to Tecky Rishad Bot!*\n\nChoose an option below:\n\n${quote}`,
+      parse_mode: 'MarkdownV2',
       reply_markup: {
         inline_keyboard: [
           [{ text: '✨ Join Our Community', url: 'https://t.me/r1shaad' }],
