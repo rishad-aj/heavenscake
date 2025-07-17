@@ -51,7 +51,8 @@ export default async function handler(req, res) {
         })
       });
 
-      await sendMessage(chatId, `🕵️‍♂️ Your ID is under verification.\nPlease be patient while our admin reviews it.`);
+      // Confirmation to police that ID was received
+      await sendMessage(chatId, `📤 Your ID has been received.\n🕵️‍♂️ It is under verification.\nPlease be patient while our admin reviews it.`);
       return res.status(200).send('OK');
     }
 
@@ -64,17 +65,17 @@ export default async function handler(req, res) {
       if (data === 'police') {
         await sendMessageNoMarkdown(
           fromChatId,
-          `🛂 Police Verification Required\n\n📸 Please send a clear photo of your Police ID.\nOur admin will verify and give you access to confidential resources.`
+          `🛂 *Police Verification Required*\n\n📸 Please send a clear photo of your Police ID.\nOur admin will verify and give you access to confidential resources.`
         );
       } else if (data === 'details') {
         await sendMessageNoMarkdown(
           fromChatId,
-          `👤 Admin Details\n\nTelegram: @mohdrishad\nBot Website: https://teckybot.vercel.app`
+          `👤 Admin Contact:\n\n📨 Telegram: @mohdrishad\n🌐 Website: https://teckybot.vercel.app`
         );
       } else if (data === 'fishing') {
         await sendMessageNoMarkdown(
           fromChatId,
-          `🎣 Let’s Fish!\n\nHere you’ll find our secret stash of useful tools soon!`
+          `🎣 Let’s Fish!\n\nWelcome to fishing mode! You’ll soon unlock hidden resources 🐟`
         );
       } else if (data.startsWith('verify_') && isAdmin) {
         const targetChatId = data.split('_')[1];
