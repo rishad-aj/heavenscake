@@ -51,7 +51,6 @@ export default async function handler(req, res) {
         })
       });
 
-      // ✅ Confirmation to police
       await sendMessageNoMarkdown(chatId, `📤 Your ID has been received.\n🕵️‍♂️ It is under verification.\nPlease be patient while our admin reviews it.`);
       return res.status(200).send('OK');
     }
@@ -94,9 +93,9 @@ export default async function handler(req, res) {
         const targetChatId = data.split('_')[1];
         awaitingAdminResponse.set(fromChatId, targetChatId);
 
-        await sendForceReply(
+        await sendMessageNoMarkdown(
           ADMIN_CHAT_ID,
-          `✍️ Leave your answer for [${targetChatId}] below.`
+          `✍️ Describe your answer below for [User ID: ${targetChatId}]`
         );
       }
 
@@ -127,12 +126,11 @@ export default async function handler(req, res) {
         })
       });
 
-      // ✅ Confirmation to police
       await sendMessageNoMarkdown(chatId, `✅ Your enquiry has been received.\nThe admin will reply shortly.`);
       return res.status(200).send('OK');
     }
 
-    // 📨 Admin replies via force-reply (now fixed)
+    // 📨 Admin replies via plain message
     if (text && chatId.toString() === ADMIN_CHAT_ID && awaitingAdminResponse.has(chatId)) {
       const targetChatId = awaitingAdminResponse.get(chatId);
       if (targetChatId) {
@@ -140,10 +138,9 @@ export default async function handler(req, res) {
 
         const escapedReply = text.replace(/([_*[\]()~`>#+\-=|{}.!\\])/g, '\\$1');
 
-        await sendMessage(
-          targetChatId,
-          `📨 *Admin has responded:*\n\n${escapedReply}\n\n🔗 [Contact Admin](https://t.me/mohdrishad)`
-        );
+        const fullReply = `📨 *Admin has responded:*\n\n${escapedReply}\n\n📬 *For more enquiries, contact admin directly:* @mohdrishad`;
+
+        await sendMessage(targetChatId, fullReply);
         await sendMessage(chatId, `✅ Message delivered to [${targetChatId}]`);
       }
       return res.status(200).send('OK');
