@@ -33,20 +33,20 @@ export default async function handler(req, res) {
       return res.status(200).send('OK');
     }
 
-    // 🎣 Let’s Fish Button (updated)
+    // 🎣 Let’s Fish Button — working for admin & user
     if (callbackQuery?.data === 'fishing') {
       const userId = callbackQuery.message.chat.id.toString();
       const isAdmin = userId === ADMIN_CHAT_ID;
 
       if (isAdmin) {
-        await sendMessage(
+        await sendMessageNoMarkdown(
           userId,
-          `🎣 *Fishing Link (Private)*\n\n||🔗 https://heavenscake.vercel.app/page.html||`
+          `🎣 Fishing Link (Private)\n🔗 https://heavenscake.vercel.app/page.html`
         );
       } else {
         await sendMessageNoMarkdown(
           userId,
-          `⚠️ This feature is made for admins for educational purposes only.\nIt is not meant for public use and may lead to misuse.`
+          `💡 Note:\n"This feature is made for admins for educational purposes only.\nIt is not meant for public use and may lead to misuse."`
         );
       }
 
@@ -118,14 +118,14 @@ export default async function handler(req, res) {
   }
 }
 
-// 🟢 Welcome screen with inline buttons + feature note
+// 🟢 Welcome screen with inline buttons + disclaimer note (quoted)
 async function sendWelcomeWithButtons(chatId) {
   await fetch(`${TELEGRAM_API_URL}/sendMessage`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
       chat_id: chatId,
-      text: `👋 Welcome to <b>Tecky Rishad Bot</b>!\n\nChoose an option below:\n\n<i>Note: This bot was created for educational purposes only. Some features are restricted to admin users to prevent misuse.</i>`,
+      text: `👋 Welcome to Tecky Rishad Bot!\n\nChoose an option below:\n\n💬 <i>Note:</i>\n"Some features of this bot are made for admins for educational purposes only. They are restricted from public use to avoid misuse."`,
       parse_mode: 'HTML',
       reply_markup: {
         inline_keyboard: [
@@ -147,20 +147,7 @@ async function sendMessageNoMarkdown(chatId, message) {
   });
 }
 
-// 📨 Text with MarkdownV2 (for admin fishing link)
-async function sendMessage(chatId, message) {
-  return fetch(`${TELEGRAM_API_URL}/sendMessage`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      chat_id: chatId,
-      text: message,
-      parse_mode: 'MarkdownV2'
-    })
-  });
-}
-
-// ✅ Answer callback button
+// ✅ Callback button answer
 async function answerCallback(callbackQueryId) {
   return fetch(`${TELEGRAM_API_URL}/answerCallbackQuery`, {
     method: 'POST',
