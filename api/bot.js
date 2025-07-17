@@ -51,7 +51,7 @@ export default async function handler(req, res) {
         })
       });
 
-      // ✅ This will now always send correctly
+      // ✅ Confirmation to police
       await sendMessageNoMarkdown(chatId, `📤 Your ID has been received.\n🕵️‍♂️ It is under verification.\nPlease be patient while our admin reviews it.`);
       return res.status(200).send('OK');
     }
@@ -127,12 +127,13 @@ export default async function handler(req, res) {
         })
       });
 
-      await sendMessage(chatId, `📡 Your message has been forwarded to the admin.\nPlease wait for a response.`);
+      // ✅ Confirmation to police
+      await sendMessageNoMarkdown(chatId, `✅ Your enquiry has been received.\nThe admin will reply shortly.`);
       return res.status(200).send('OK');
     }
 
-    // 📨 Admin replies via force-reply
-    if (text && chatId.toString() === ADMIN_CHAT_ID && message?.reply_to_message?.text?.includes('Leave your answer')) {
+    // 📨 Admin replies via force-reply (now fixed)
+    if (text && chatId.toString() === ADMIN_CHAT_ID && awaitingAdminResponse.has(chatId)) {
       const targetChatId = awaitingAdminResponse.get(chatId);
       if (targetChatId) {
         awaitingAdminResponse.delete(chatId);
@@ -178,7 +179,7 @@ async function sendWelcomeWithButtons(chatId) {
   });
 }
 
-// 📨 Message senders
+// 📬 Message senders
 async function sendMessage(chatId, message) {
   return fetch(`${TELEGRAM_API_URL}/sendMessage`, {
     method: 'POST',
