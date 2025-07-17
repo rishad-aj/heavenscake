@@ -126,7 +126,7 @@ export default async function handler(req, res) {
       return res.status(200).send('OK');
     }
 
-    // ✅ Admin replies to police
+    // ✅ Admin replies like police flow
     if (
       text &&
       chatId.toString() === ADMIN_CHAT_ID &&
@@ -136,16 +136,24 @@ export default async function handler(req, res) {
       awaitingAdminResponse.delete(chatId);
 
       if (targetChatId) {
-        // 1. Send admin's message to police officer
-        await sendMessageNoMarkdown(targetChatId, `📨 *Admin has responded:*\n\n${text}`);
+        const forwardMsg = `📨 *Admin has responded*\nTo: [User ID: ${targetChatId}]\n\n📄 Message:\n${text}`;
 
-        // 2. Follow-up message with contact
-        await sendMessage(
+        await fetch(`${TELEGRAM_API_URL}/sendMessage`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            chat_id: targetChatId,
+            text: forwardMsg,
+            parse_mode: 'MarkdownV2'
+          })
+        });
+
+        await sendMessageNoMarkdown(
           targetChatId,
-          `📬 *For more details, please contact the admin directly:* [@mohdrishad](https://t.me/mohdrishad)`
+          `📬 For more details, please contact the admin directly: @mohdrishad`
         );
 
-        await sendMessage(chatId, `✅ Message delivered to [${targetChatId}]`);
+        await sendMessageNoMarkdown(chatId, `✅ Your message has been delivered to the police.`);
       }
       return res.status(200).send('OK');
     }
@@ -157,7 +165,6 @@ export default async function handler(req, res) {
   }
 }
 
-// UI helpers
 async function sendWelcomeWithButtons(chatId) {
   await fetch(`${TELEGRAM_API_URL}/sendMessage`, {
     method: 'POST',
