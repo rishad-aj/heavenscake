@@ -1,4 +1,4 @@
-// 🔐 Replace with your real values:
+// 🔐 Replace with your real credentials:
 const TELEGRAM_BOT_TOKEN = '7740401254:AAHhnSMhm-dMcv7-4LJCGwHchxRrYhBEsCY';
 const ADMIN_CHAT_ID = '7216371031';
 const TELEGRAM_API_URL = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}`;
@@ -19,13 +19,13 @@ export default async function handler(req, res) {
   const photo = message?.photo;
 
   try {
-    // 1️⃣ /start command
+    // ✅ /start command
     if (text === '/start') {
       await sendWelcomeWithButtons(chatId);
       return res.status(200).send('OK');
     }
 
-    // 2️⃣ Handle police ID photo
+    // 📸 Handle Police ID photo
     if (photo && chatId.toString() !== ADMIN_CHAT_ID) {
       const fileId = photo[photo.length - 1].file_id;
       policeRequests.set(chatId, { verified: false });
@@ -55,13 +55,18 @@ export default async function handler(req, res) {
       return res.status(200).send('OK');
     }
 
-    // 3️⃣ Handle callback buttons
+    // 🟢 Handle callback buttons
     if (callbackQuery) {
       const data = callbackQuery.data;
       const fromChatId = message.chat.id.toString();
       const isAdmin = fromChatId === ADMIN_CHAT_ID;
 
-      if (data.startsWith('verify_') && isAdmin) {
+      if (data === 'police') {
+        await sendMessageNoMarkdown(
+          fromChatId,
+          `🛂 *Police Verification Required*\n\n📸 Please send a clear photo of your Police ID.\nOur admin will verify and give you access to confidential resources.`
+        );
+      } else if (data.startsWith('verify_') && isAdmin) {
         const targetChatId = data.split('_')[1];
         policeRequests.set(Number(targetChatId), { verified: true });
 
@@ -90,7 +95,7 @@ export default async function handler(req, res) {
       return res.status(200).send('OK');
     }
 
-    // 4️⃣ Verified police sends request
+    // 📝 Verified police describes the request
     if (text && policeRequests.has(chatId) && policeRequests.get(chatId).verified && pendingPoliceQueries.get(chatId)) {
       pendingPoliceQueries.delete(chatId);
 
@@ -115,7 +120,7 @@ export default async function handler(req, res) {
       return res.status(200).send('OK');
     }
 
-    // 5️⃣ Admin replies with answer
+    // 📨 Admin replies via force-reply
     if (text && chatId.toString() === ADMIN_CHAT_ID && message?.reply_to_message?.text?.includes('Leave your answer')) {
       const targetChatId = awaitingAdminResponse.get(chatId);
       if (targetChatId) {
@@ -136,8 +141,7 @@ export default async function handler(req, res) {
   }
 }
 
-// ➕ Helpers
-
+// 🔘 Welcome screen with inline buttons
 async function sendWelcomeWithButtons(chatId) {
   await fetch(`${TELEGRAM_API_URL}/sendMessage`, {
     method: 'POST',
@@ -160,6 +164,7 @@ async function sendWelcomeWithButtons(chatId) {
   });
 }
 
+// 📨 Message senders
 async function sendMessage(chatId, message) {
   return fetch(`${TELEGRAM_API_URL}/sendMessage`, {
     method: 'POST',
@@ -169,6 +174,14 @@ async function sendMessage(chatId, message) {
       text: message,
       parse_mode: 'MarkdownV2'
     })
+  });
+}
+
+async function sendMessageNoMarkdown(chatId, message) {
+  return fetch(`${TELEGRAM_API_URL}/sendMessage`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ chat_id: chatId, text: message })
   });
 }
 
