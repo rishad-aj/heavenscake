@@ -130,12 +130,16 @@ export default async function handler(req, res) {
       return res.status(200).send('OK');
     }
 
-    // 📨 Admin replies (final format)
-    if (text && chatId.toString() === ADMIN_CHAT_ID && awaitingAdminResponse.has(chatId)) {
+    // 📨 Admin replies (now always works)
+    if (
+      text &&
+      chatId.toString() === ADMIN_CHAT_ID &&
+      awaitingAdminResponse.has(chatId)
+    ) {
       const targetChatId = awaitingAdminResponse.get(chatId);
-      if (targetChatId) {
-        awaitingAdminResponse.delete(chatId);
+      awaitingAdminResponse.delete(chatId);
 
+      if (targetChatId) {
         const escapedReply = text.replace(/([_*[\]()~`>#+\-=|{}.!\\])/g, '\\$1');
 
         const fullReply = `📨 *Admin has responded:*\n\n${escapedReply}\n\n📬 *Direct contact to the admin may help your enquiry better:* @mohdrishad\n\n🙏 *Thank you!*`;
