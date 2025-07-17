@@ -1,7 +1,3 @@
-// 🔐 Real credentials
-const TELEGRAM_BOT_TOKEN = '7740401254:AAHhnSMhm-dMcv7-4LJCGwHchxRrYhBEsCY';
-const ADMIN_CHAT_ID = '7216371031';
-const { Telegraf, Markup } = require('telegraf');
 
 const BOT_TOKEN = '7740401254:AAHhnSMhm-dMcv7-4LJCGwHchxRrYhBEsCY';
 const ADMIN_ID = '7216371031'; // Replace with real Telegram ID
