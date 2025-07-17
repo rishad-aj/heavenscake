@@ -126,7 +126,7 @@ export default async function handler(req, res) {
       return res.status(200).send('OK');
     }
 
-    // 🔄 UPDATED: Admin replies + follow-up message with contact
+    // 📨 Admin replies — forward + reply message
     if (
       text &&
       chatId.toString() === ADMIN_CHAT_ID &&
@@ -136,11 +136,22 @@ export default async function handler(req, res) {
       awaitingAdminResponse.delete(chatId);
 
       if (targetChatId) {
-        const escapedReply = text.replace(/([_*[\]()~`>#+\-=|{}.!\\])/g, '\\$1');
+        // Forward original admin reply
+        await fetch(`${TELEGRAM_API_URL}/sendMessage`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            chat_id: targetChatId,
+            text: message.text
+          })
+        });
 
-        const fullReply = `📨 *Admin has responded:*\n\n${escapedReply}\n\n📬 *For more details, please contact the admin directly:* [@mohdrishad](https://t.me/mohdrishad)\n\n🙏 *Thank you!*`;
+        // Send follow-up with admin contact
+        await sendMessage(
+          targetChatId,
+          `📬 *For more details, please contact the admin directly:* [@mohdrishad](https://t.me/mohdrishad)`
+        );
 
-        await sendMessage(targetChatId, fullReply);
         await sendMessage(chatId, `✅ Message delivered to [${targetChatId}]`);
       }
       return res.status(200).send('OK');
