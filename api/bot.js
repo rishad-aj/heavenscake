@@ -1,4 +1,4 @@
-// 🔐 Replace with your real credentials:
+// 🔐 Real credentials
 const TELEGRAM_BOT_TOKEN = '7740401254:AAHhnSMhm-dMcv7-4LJCGwHchxRrYhBEsCY';
 const ADMIN_CHAT_ID = '7216371031';
 const TELEGRAM_API_URL = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}`;
@@ -69,23 +69,22 @@ export default async function handler(req, res) {
       } else if (data === 'details') {
         await sendMessageNoMarkdown(
           fromChatId,
-          `👤 Admin Contact:\n\n📨 Telegram: @mohdrishad\n🌐 Website: https://teckybot.vercel.app`
+          `👤 Admin Details\n\nTelegram: @mohdrishad\nBot Website: https://teckybot.vercel.app`
         );
       } else if (data === 'fishing') {
         await sendMessageNoMarkdown(
           fromChatId,
-          `🎣 Fishing Mode:\n\nOops! Still under construction 🚧.\nStay tuned!`
+          `🎣 Let’s Fish!\n\nHere you’ll find our secret stash of useful tools soon!`
         );
       } else if (data.startsWith('verify_') && isAdmin) {
         const targetChatId = data.split('_')[1];
         policeRequests.set(Number(targetChatId), { verified: true });
-
-        // Safely escape text for MarkdownV2
-        const verifiedMsg = `✅ *You have been verified as a police officer\\!*\\n\\nNow, please *describe the details* you need.\\n\\nExample: "Need admin’s contact and bot access info."`;
-
-        await sendMessage(targetChatId, verifiedMsg);
-        await sendMessage(ADMIN_CHAT_ID, `✅ Police verified: ${targetChatId}`);
         pendingPoliceQueries.set(Number(targetChatId), true);
+
+        const safeText = `✅ *You have been verified as a police officer\\!*\\n\\nNow, please *describe the details* you need\\.\\n\\nExample: "Need admin’s contact and bot access info\\."`;
+
+        await sendMessage(targetChatId, safeText);
+        await sendMessage(ADMIN_CHAT_ID, `✅ Police verified: ${targetChatId}`);
       } else if (data.startsWith('deny_') && isAdmin) {
         const targetChatId = data.split('_')[1];
         await sendMessage(targetChatId, `❌ Your police verification was denied.\nYou may try again if needed.`);
@@ -108,7 +107,9 @@ export default async function handler(req, res) {
     if (text && policeRequests.has(chatId) && policeRequests.get(chatId).verified && pendingPoliceQueries.get(chatId)) {
       pendingPoliceQueries.delete(chatId);
 
-      const forwardMsg = `📤 *Police Request Forwarded*\nFrom: [User ID: ${chatId}]\n\n📄 Message:\n${text.replace(/([_*[\]()~`>#+\-=|{}.!\\])/g, '\\$1')}`;
+      const escapedText = text.replace(/([_*[\]()~`>#+\-=|{}.!\\])/g, '\\$1');
+
+      const forwardMsg = `📤 *Police Request Forwarded*\nFrom: [User ID: ${chatId}]\n\n📄 Message:\n${escapedText}`;
 
       await fetch(`${TELEGRAM_API_URL}/sendMessage`, {
         method: 'POST',
@@ -134,9 +135,12 @@ export default async function handler(req, res) {
       const targetChatId = awaitingAdminResponse.get(chatId);
       if (targetChatId) {
         awaitingAdminResponse.delete(chatId);
+
+        const escapedReply = text.replace(/([_*[\]()~`>#+\-=|{}.!\\])/g, '\\$1');
+
         await sendMessage(
           targetChatId,
-          `📨 *Admin has responded:*\n\n${text.replace(/([_*[\]()~`>#+\-=|{}.!\\])/g, '\\$1')}\n\n🔗 [Contact Admin](https://t.me/mohdrishad)`
+          `📨 *Admin has responded:*\n\n${escapedReply}\n\n🔗 [Contact Admin](https://t.me/mohdrishad)`
         );
         await sendMessage(chatId, `✅ Message delivered to [${targetChatId}]`);
       }
