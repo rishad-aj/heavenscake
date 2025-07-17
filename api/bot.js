@@ -51,8 +51,8 @@ export default async function handler(req, res) {
         })
       });
 
-      // Confirmation to police that ID was received
-      await sendMessage(chatId, `📤 Your ID has been received.\n🕵️‍♂️ It is under verification.\nPlease be patient while our admin reviews it.`);
+      // ✅ This will now always send correctly
+      await sendMessageNoMarkdown(chatId, `📤 Your ID has been received.\n🕵️‍♂️ It is under verification.\nPlease be patient while our admin reviews it.`);
       return res.status(200).send('OK');
     }
 
