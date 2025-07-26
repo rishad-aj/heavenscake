@@ -4,17 +4,5 @@
       "source": "/review",
       "destination": "/review.html"
     }
-  ],
-  "routes": [
-    {
-      "src": "/api/telegram",
-      "methods": ["POST"],
-      "dest": "/api/telegram.js"
-    },
-    {
-      "src": "/api/track",
-      "methods": ["GET"],
-      "dest": "/api/track.js"
-    }
   ]
 }
