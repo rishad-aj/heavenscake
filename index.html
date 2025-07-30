@@ -20,7 +20,11 @@
 </script>
    </head>
    <body>
-      <img src="/api/track" style="display: none;" />
+<script>
+fetch('/api/track')
+  .then(res => res.ok)
+  .catch(() => {});
+</script>
       <div id="boot-animation">
          <div class="logo">
             <img src="favicon.svg" alt="Logo of heaven's cake">
