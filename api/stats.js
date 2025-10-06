@@ -1,7 +1,6 @@
-// /api/stats.js
 import fs from 'fs';
 import path from 'path';
-import fetch from 'node-fetch'; // required if Node <18
+import fetch from 'node-fetch';
 
 export default async function handler(req, res) {
   if (req.method !== 'POST' && req.method !== 'GET')
@@ -11,10 +10,8 @@ export default async function handler(req, res) {
   const CHAT_ID = process.env.TELEGRAM_ADMIN_CHAT_ID;
   const TELEGRAM_API = `https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendMessage`;
 
-  // 🔹 Use correct absolute path
   const VISITORS_PATH = path.join(process.cwd(), 'api', 'visitors.json');
 
-  // 🔹 Ensure file exists
   if (!fs.existsSync(VISITORS_PATH)) {
     fs.writeFileSync(VISITORS_PATH, '[]', 'utf-8');
   }
@@ -26,7 +23,6 @@ export default async function handler(req, res) {
     logs = [];
   }
 
-  // 🔹 Calculate stats
   const now = new Date();
   const getCount = (filterFn) => logs.filter(filterFn).length;
 
@@ -42,7 +38,6 @@ export default async function handler(req, res) {
     year: getCount(v => new Date(v.timestamp).getFullYear() === now.getFullYear())
   };
 
-  // 🔹 Format message
   const message = `📊 *Visitor Stats*
 ───────────────
 🧮 Total: ${stats.total}
@@ -51,21 +46,15 @@ export default async function handler(req, res) {
 🗓️ This Month: ${stats.month}
 📈 This Year: ${stats.year}`;
 
-  // 🔹 Send Telegram message
-  if (TELEGRAM_TOKEN && CHAT_ID) {
-    await fetch(TELEGRAM_API, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        chat_id: CHAT_ID,
-        text: message,
-        parse_mode: 'Markdown'
-      })
-    });
-  } else {
-    console.warn('⚠️ Telegram credentials missing');
-  }
+  await fetch(TELEGRAM_API, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      chat_id: CHAT_ID,
+      text: message,
+      parse_mode: 'Markdown'
+    })
+  });
 
-  // 🔹 Respond to browser
   res.status(200).json({ ok: true, stats });
 }
