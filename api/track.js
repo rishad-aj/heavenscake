@@ -7,7 +7,6 @@ const CHAT_ID = process.env.TELEGRAM_ADMIN_CHAT_ID;
 const TELEGRAM_API = `https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendMessage`;
 
 export default async function handler(req, res) {
-  // 1️⃣ Get IP and location
   const ip = req.headers['x-forwarded-for']?.split(',')[0] ?? req.socket.remoteAddress;
   const ipInfoUrl = `https://ipinfo.io/${ip}/json?token=18d2a866939a58`;
 
@@ -19,7 +18,6 @@ export default async function handler(req, res) {
     locationData = { city: 'Unknown', country: 'Unknown' };
   }
 
-  // 2️⃣ Prepare data
   const timestamp = new Date().toISOString();
   const source = req.headers.referer || req.headers.origin || 'Direct / Unknown';
 
@@ -31,9 +29,7 @@ export default async function handler(req, res) {
     timestamp
   };
 
-  // 3️⃣ Save visitor to file
   const VISITORS_PATH = path.join(process.cwd(), 'api', 'visitors.json');
-
   try {
     if (!fs.existsSync(VISITORS_PATH)) fs.writeFileSync(VISITORS_PATH, '[]', 'utf-8');
     const logs = JSON.parse(fs.readFileSync(VISITORS_PATH, 'utf-8'));
@@ -43,7 +39,6 @@ export default async function handler(req, res) {
     console.error('Failed to save visitor log:', err);
   }
 
-  // 4️⃣ Send Telegram alert
   const message = `👀 *New Visitor Online!*
 🌐 IP: \`${ip}\`
 📍 Location: ${visitor.city}, ${visitor.country}
