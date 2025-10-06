@@ -15,7 +15,7 @@ export default async function handler(req, res) {
     const response = await fetch(ipInfoUrl);
     locationData = await response.json();
   } catch {
-    locationData = { city: 'Unknown', country: 'Unknown' };
+    locationData = { city: 'Unknown', country: 'Unknown', org: 'Unknown' };
   }
 
   const timestamp = new Date().toISOString();
@@ -25,6 +25,7 @@ export default async function handler(req, res) {
     ip,
     city: locationData.city || 'Unknown',
     country: locationData.country || 'Unknown',
+    isp: locationData.org || 'Unknown', // ISP added here
     source,
     timestamp
   };
@@ -42,6 +43,7 @@ export default async function handler(req, res) {
   const message = `👀 *New Visitor Online!*
 🌐 IP: \`${ip}\`
 📍 Location: ${visitor.city}, ${visitor.country}
+🏢 ISP: ${visitor.isp}
 🔗 Source: ${visitor.source}
 🕒 Time: ${timestamp}`;
 
