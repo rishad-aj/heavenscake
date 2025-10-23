@@ -6,6 +6,12 @@ const TELEGRAM_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
 const CHAT_ID = process.env.TELEGRAM_ADMIN_CHAT_ID;
 const TELEGRAM_API = `https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendMessage`;
 
+// 🔹 Helper to convert country code → flag emoji
+const getFlagEmoji = (countryCode) =>
+  countryCode
+    ? String.fromCodePoint(...[...countryCode.toUpperCase()].map(c => 127397 + c.charCodeAt()))
+    : '🏳️';
+
 export default async function handler(req, res) {
   const ip = req.headers['x-forwarded-for']?.split(',')[0] ?? req.socket.remoteAddress;
   const ipInfoUrl = `https://ipinfo.io/${ip}/json?token=18d2a866939a58`;
@@ -25,12 +31,14 @@ export default async function handler(req, res) {
     ip,
     city: locationData.city || 'Unknown',
     country: locationData.country || 'Unknown',
-    isp: locationData.org || 'Unknown', // ISP added here
+    isp: locationData.org || 'Unknown',
     source,
     timestamp
   };
 
-  const VISITORS_PATH = path.join(process.cwd(), 'api', 'visitors.json');
+  // 🔹 Shared file path (not inside /api/)
+  const VISITORS_PATH = path.join(process.cwd(), 'visitors.json');
+
   try {
     if (!fs.existsSync(VISITORS_PATH)) fs.writeFileSync(VISITORS_PATH, '[]', 'utf-8');
     const logs = JSON.parse(fs.readFileSync(VISITORS_PATH, 'utf-8'));
@@ -40,10 +48,11 @@ export default async function handler(req, res) {
     console.error('Failed to save visitor log:', err);
   }
 
+  const flag = getFlagEmoji(visitor.country);
   const message = `👀 *New Visitor Online!*
-🌐 IP: \`${ip}\`
-📍 Location: ${visitor.city}, ${visitor.country}
+${flag} ${visitor.city}, ${visitor.country}
 🏢 ISP: ${visitor.isp}
+🌐 IP: \`${ip}\`
 🔗 Source: ${visitor.source}
 🕒 Time: ${timestamp}`;
 
