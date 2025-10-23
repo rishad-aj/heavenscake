@@ -10,7 +10,7 @@ export default async function handler(req, res) {
   if (req.method !== 'POST' && req.method !== 'GET')
     return res.status(405).send('Method Not Allowed');
 
-  // 🔹 Fetch visitor logs
+  // 🔹 Fetch visitor logs from jsonbin.io
   let logs = [];
   try {
     const resBin = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}/latest`, {
@@ -23,18 +23,17 @@ export default async function handler(req, res) {
   }
 
   const now = new Date();
-  const getCount = (filterFn) => logs.filter(filterFn).length;
-
   const today = now.toISOString().slice(0, 10);
-  const weekStart = new Date(now);
-  weekStart.setDate(now.getDate() - now.getDay());
+
+  // Start of week in UTC (Sunday)
+  const weekStart = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() - now.getUTCDay()));
 
   const stats = {
     total: logs.length,
-    day: getCount(v => v.timestamp?.startsWith(today)),
-    week: getCount(v => new Date(v.timestamp) >= weekStart),
-    month: getCount(v => new Date(v.timestamp).getMonth() === now.getMonth()),
-    year: getCount(v => new Date(v.timestamp).getFullYear() === now.getFullYear())
+    day: logs.filter(v => v.timestamp?.startsWith(today)).length,
+    week: logs.filter(v => new Date(v.timestamp) >= weekStart).length,
+    month: logs.filter(v => new Date(v.timestamp).getUTCMonth() === now.getUTCMonth()).length,
+    year: logs.filter(v => new Date(v.timestamp).getUTCFullYear() === now.getUTCFullYear()).length
   };
 
   const message = `📊 *Visitor Stats*
@@ -45,15 +44,18 @@ export default async function handler(req, res) {
 🗓️ This Month: ${stats.month}
 📈 This Year: ${stats.year}`;
 
-  await fetch(TELEGRAM_API, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      chat_id: CHAT_ID,
-      text: message,
-      parse_mode: 'Markdown'
-    })
-  });
+  // Send stats to Telegram
+  if (TELEGRAM_TOKEN && CHAT_ID) {
+    await fetch(TELEGRAM_API, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        chat_id: CHAT_ID,
+        text: message,
+        parse_mode: 'Markdown'
+      })
+    });
+  }
 
   res.status(200).json({ ok: true, stats });
 }
