@@ -1,26 +1,24 @@
-import fs from 'fs';
-import path from 'path';
 import fetch from 'node-fetch';
+
+const TELEGRAM_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
+const CHAT_ID = process.env.TELEGRAM_ADMIN_CHAT_ID;
+const JSONBIN_API_KEY = process.env.JSONBIN_API_KEY;
+const BIN_ID = process.env.JSONBIN_BIN_ID;
+const TELEGRAM_API = `https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendMessage`;
 
 export default async function handler(req, res) {
   if (req.method !== 'POST' && req.method !== 'GET')
     return res.status(405).send('Method Not Allowed');
 
-  const TELEGRAM_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
-  const CHAT_ID = process.env.TELEGRAM_ADMIN_CHAT_ID;
-  const TELEGRAM_API = `https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendMessage`;
-
-  // 🔹 Shared file path (same as in track.js)
-  const VISITORS_PATH = path.join(process.cwd(), 'visitors.json');
-
-  if (!fs.existsSync(VISITORS_PATH)) {
-    fs.writeFileSync(VISITORS_PATH, '[]', 'utf-8');
-  }
-
+  // 🔹 Fetch visitor logs
   let logs = [];
   try {
-    logs = JSON.parse(fs.readFileSync(VISITORS_PATH, 'utf-8'));
-  } catch (e) {
+    const resBin = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}/latest`, {
+      headers: { 'X-Master-Key': JSONBIN_API_KEY }
+    });
+    const data = await resBin.json();
+    logs = data.record?.visitors || [];
+  } catch (err) {
     logs = [];
   }
 
