@@ -1,12 +1,12 @@
-import fs from 'fs';
-import path from 'path';
 import fetch from 'node-fetch';
 
 const TELEGRAM_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
 const CHAT_ID = process.env.TELEGRAM_ADMIN_CHAT_ID;
+const JSONBIN_API_KEY = process.env.JSONBIN_API_KEY;
+const BIN_ID = process.env.JSONBIN_BIN_ID;
 const TELEGRAM_API = `https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendMessage`;
 
-// 🔹 Helper to convert country code → flag emoji
+// Convert country code to flag emoji
 const getFlagEmoji = (countryCode) =>
   countryCode
     ? String.fromCodePoint(...[...countryCode.toUpperCase()].map(c => 127397 + c.charCodeAt()))
@@ -36,18 +36,32 @@ export default async function handler(req, res) {
     timestamp
   };
 
-  // 🔹 Shared file path (not inside /api/)
-  const VISITORS_PATH = path.join(process.cwd(), 'visitors.json');
-
+  // 🔹 Fetch current logs
+  let logs = [];
   try {
-    if (!fs.existsSync(VISITORS_PATH)) fs.writeFileSync(VISITORS_PATH, '[]', 'utf-8');
-    const logs = JSON.parse(fs.readFileSync(VISITORS_PATH, 'utf-8'));
-    logs.push(visitor);
-    fs.writeFileSync(VISITORS_PATH, JSON.stringify(logs, null, 2), 'utf-8');
+    const resBin = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}/latest`, {
+      headers: { 'X-Master-Key': JSONBIN_API_KEY }
+    });
+    const data = await resBin.json();
+    logs = data.record?.visitors || [];
   } catch (err) {
-    console.error('Failed to save visitor log:', err);
+    logs = [];
   }
 
+  logs.push(visitor);
+
+  // 🔹 Save updated logs back to jsonbin
+  await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}`, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-Master-Key': JSONBIN_API_KEY,
+      'X-Bin-Versioning': 'false'
+    },
+    body: JSON.stringify({ visitors: logs })
+  });
+
+  // 🔹 Telegram message
   const flag = getFlagEmoji(visitor.country);
   const message = `👀 *New Visitor Online!*
 ${flag} ${visitor.city}, ${visitor.country}
