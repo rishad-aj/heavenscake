@@ -10,7 +10,8 @@ export default async function handler(req, res) {
   const CHAT_ID = process.env.TELEGRAM_ADMIN_CHAT_ID;
   const TELEGRAM_API = `https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendMessage`;
 
-  const VISITORS_PATH = path.join(process.cwd(), 'api', 'visitors.json');
+  // 🔹 Shared file path (same as in track.js)
+  const VISITORS_PATH = path.join(process.cwd(), 'visitors.json');
 
   if (!fs.existsSync(VISITORS_PATH)) {
     fs.writeFileSync(VISITORS_PATH, '[]', 'utf-8');
