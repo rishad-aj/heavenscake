@@ -10,14 +10,18 @@ export default async function handler(req, res) {
   if (req.method !== 'POST' && req.method !== 'GET')
     return res.status(405).send('Method Not Allowed');
 
-  // 🔹 Fetch visitor logs from jsonbin.io
+  // 🔹 Fetch logs from jsonbin.io
   let logs = [];
   try {
     const resBin = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}/latest`, {
       headers: { 'X-Master-Key': JSONBIN_API_KEY }
     });
     const data = await resBin.json();
-    logs = data.record?.visitors || [];
+    if (Array.isArray(data.record)) {
+      logs = data.record;
+    } else if (data.record?.visitors) {
+      logs = data.record.visitors;
+    }
   } catch (err) {
     logs = [];
   }
@@ -25,7 +29,7 @@ export default async function handler(req, res) {
   const now = new Date();
   const today = now.toISOString().slice(0, 10);
 
-  // Start of week in UTC (Sunday)
+  // Start of week in UTC
   const weekStart = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() - now.getUTCDay()));
 
   const stats = {
@@ -44,7 +48,7 @@ export default async function handler(req, res) {
 🗓️ This Month: ${stats.month}
 📈 This Year: ${stats.year}`;
 
-  // Send stats to Telegram
+  // 🔹 Send stats to Telegram
   if (TELEGRAM_TOKEN && CHAT_ID) {
     await fetch(TELEGRAM_API, {
       method: 'POST',
