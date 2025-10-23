@@ -36,21 +36,25 @@ export default async function handler(req, res) {
     timestamp
   };
 
-  // 🔹 Fetch current logs
+  // 🔹 Fetch existing logs
   let logs = [];
   try {
     const resBin = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}/latest`, {
       headers: { 'X-Master-Key': JSONBIN_API_KEY }
     });
     const data = await resBin.json();
-    logs = data.record?.visitors || [];
+    if (Array.isArray(data.record)) {
+      logs = data.record;
+    } else if (data.record?.visitors) {
+      logs = data.record.visitors;
+    }
   } catch (err) {
     logs = [];
   }
 
   logs.push(visitor);
 
-  // 🔹 Save updated logs back to jsonbin
+  // 🔹 Save back to jsonbin
   await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}`, {
     method: 'PUT',
     headers: {
@@ -61,7 +65,7 @@ export default async function handler(req, res) {
     body: JSON.stringify({ visitors: logs })
   });
 
-  // 🔹 Telegram message
+  // 🔹 Telegram notification
   const flag = getFlagEmoji(visitor.country);
   const message = `👀 *New Visitor Online!*
 ${flag} ${visitor.city}, ${visitor.country}
