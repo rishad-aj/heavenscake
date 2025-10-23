@@ -6,88 +6,89 @@ const JSONBIN_API_KEY = process.env.JSONBIN_API_KEY;
 const BIN_ID = process.env.JSONBIN_BIN_ID;
 const TELEGRAM_API = `https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendMessage`;
 
-// Convert country code to flag emoji
+// Country code → flag emoji
 const getFlagEmoji = (countryCode) =>
   countryCode
     ? String.fromCodePoint(...[...countryCode.toUpperCase()].map(c => 127397 + c.charCodeAt()))
     : '🏳️';
 
 export default async function handler(req, res) {
-  const ip = req.headers['x-forwarded-for']?.split(',')[0] ?? req.socket.remoteAddress;
-  const ipInfoUrl = `https://ipinfo.io/${ip}/json?token=18d2a866939a58`;
-
-  let locationData = {};
   try {
-    const response = await fetch(ipInfoUrl);
-    locationData = await response.json();
-  } catch {
-    locationData = { city: 'Unknown', country: 'Unknown', org: 'Unknown' };
-  }
+    const ip = req.headers['x-forwarded-for']?.split(',')[0] ?? req.socket.remoteAddress;
+    const ipInfoUrl = `https://ipinfo.io/${ip}/json?token=18d2a866939a58`;
 
-  const timestamp = new Date().toISOString();
-  const source = req.headers.referer || req.headers.origin || 'Direct / Unknown';
-
-  const visitor = {
-    ip,
-    city: locationData.city || 'Unknown',
-    country: locationData.country || 'Unknown',
-    isp: locationData.org || 'Unknown',
-    source,
-    timestamp
-  };
-
-  // 🔹 Fetch existing logs
-  let logs = [];
-  try {
-    const resBin = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}/latest`, {
-      headers: { 'X-Master-Key': JSONBIN_API_KEY }
-    });
-    const data = await resBin.json();
-    if (Array.isArray(data.record)) {
-      logs = data.record;
-    } else if (data.record?.visitors) {
-      logs = data.record.visitors;
+    let locationData = {};
+    try {
+      const response = await fetch(ipInfoUrl);
+      locationData = await response.json();
+    } catch {
+      locationData = { city: 'Unknown', country: 'Unknown', org: 'Unknown' };
     }
-  } catch (err) {
-    logs = [];
-  }
 
-  logs.push(visitor);
+    const timestamp = new Date().toISOString();
+    const source = req.headers.referer || req.headers.origin || 'Direct / Unknown';
 
-  // 🔹 Save back to jsonbin
-  await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}`, {
-    method: 'PUT',
-    headers: {
-      'Content-Type': 'application/json',
-      'X-Master-Key': JSONBIN_API_KEY,
-      'X-Bin-Versioning': 'false'
-    },
-    body: JSON.stringify({ visitors: logs })
-  });
+    const visitor = {
+      ip,
+      city: locationData.city || 'Unknown',
+      country: locationData.country || 'Unknown',
+      isp: locationData.org || 'Unknown',
+      source,
+      timestamp
+    };
 
-  // 🔹 Telegram notification
-  const flag = getFlagEmoji(visitor.country);
-  const message = `👀 *New Visitor Online!*
+    // 🔹 Read latest logs
+    let logs = [];
+    try {
+      const resBin = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}/latest`, {
+        headers: { 'X-Master-Key': JSONBIN_API_KEY }
+      });
+      const data = await resBin.json();
+      logs = data.record?.visitors || [];
+    } catch {
+      logs = [];
+    }
+
+    logs.push(visitor);
+
+    // 🔹 Save updated logs
+    await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Master-Key': JSONBIN_API_KEY,
+        'X-Bin-Versioning': 'false'
+      },
+      body: JSON.stringify({ visitors: logs })
+    });
+
+    // 🔹 Send Telegram notification
+    const flag = getFlagEmoji(visitor.country);
+    const message = `👀 *New Visitor Online!*
 ${flag} ${visitor.city}, ${visitor.country}
 🏢 ISP: ${visitor.isp}
 🌐 IP: \`${ip}\`
 🔗 Source: ${visitor.source}
 🕒 Time: ${timestamp}`;
 
-  if (TELEGRAM_TOKEN && CHAT_ID) {
-    await fetch(TELEGRAM_API, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        chat_id: CHAT_ID,
-        text: message,
-        parse_mode: 'Markdown',
-        reply_markup: {
-          inline_keyboard: [[{ text: "📊 Show Stats", callback_data: "/start" }]]
-        }
-      })
-    });
-  }
+    if (TELEGRAM_TOKEN && CHAT_ID) {
+      await fetch(TELEGRAM_API, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          chat_id: CHAT_ID,
+          text: message,
+          parse_mode: 'Markdown',
+          reply_markup: {
+            inline_keyboard: [[{ text: "📊 Show Stats", callback_data: "/start" }]]
+          }
+        })
+      });
+    }
 
-  res.status(200).json({ ok: true });
+    res.status(200).json({ ok: true, visitor });
+  } catch (err) {
+    console.error('Error in track.js:', err);
+    res.status(500).json({ ok: false, error: err.message });
+  }
 }
