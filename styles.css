@@ -1,37 +1,48 @@
-/* ===== CSS RESET & VARIABLES ===== */
+/* ================================
+   🍰 Global Styles & Variables
+================================== */
 :root {
-  --primary-brown: #734d40;
-  --secondary-brown: #d99872;
-  --text-light: #ffffff;
-  --shadow: rgba(0, 0, 0, 0.3);
+  --clr-primary: #734d40;
+  --clr-accent: #d99872;
+  --clr-light: #ffffff;
+  --clr-dark: #5d3e33;
+  --transition: all 0.3s ease-in-out;
+  --shadow-sm: 0 2px 6px rgba(0, 0, 0, 0.1);
+  --shadow-md: 0 6px 12px rgba(0, 0, 0, 0.2);
+  --radius: 10px;
 }
 
 * {
   box-sizing: border-box;
-  margin: 0;
-  padding: 0;
   font-family: "Inter", sans-serif;
+  scroll-behavior: smooth;
 }
 
-/* ===== BOOT ANIMATION ===== */
+body {
+  margin: 0;
+  padding: 0;
+  background-color: var(--clr-accent);
+  color: var(--clr-light);
+}
+
+/* ================================
+   🔸 Boot Animation
+================================== */
 #boot-animation {
   position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: var(--secondary-brown);
+  inset: 0;
   display: flex;
   justify-content: center;
   align-items: center;
+  background-color: var(--clr-accent);
   z-index: 9999;
-  animation: hold 5s ease-in-out, fadeOut 1s ease-in-out 1s forwards;
+  animation: hold 3s ease-in-out, fadeOut 1s ease-in-out 3s forwards;
 }
 
 #boot-animation .logo img {
-  max-width: 200px;
-  height: auto;
+  max-width: 180px;
   border-radius: 20px;
+  box-shadow: var(--shadow-md);
 }
 
 @keyframes hold {
@@ -39,74 +50,194 @@
 }
 
 @keyframes fadeOut {
-  0% { opacity: 1; }
-  100% { opacity: 0; visibility: hidden; }
+  from { opacity: 1; }
+  to { opacity: 0; visibility: hidden; }
 }
 
-/* ===== LAYOUT & CONTAINERS ===== */
-body {
-  background-color: var(--secondary-brown);
-  color: var(--text-light);
-  margin: 0;
-  padding: 0;
-}
-
-.container {
-  width: 100%;
-  padding: 20px;
-}
-
-.card-wrapper {
-  max-width: 1100px;
-  margin: 0 auto;
-  padding: 20px 10px;
-}
-
-/* ===== HEADER & NAVIGATION ===== */
+/* ================================
+   🧭 Header & Navigation
+================================== */
 header {
-  background-color: var(--primary-brown);
-  padding: 10px;
+  background-color: var(--clr-primary);
+  padding: 12px 16px;
   display: flex;
   align-items: center;
-  box-shadow: inset 1px 2px 3px var(--shadow);
+  box-shadow: inset 0 2px 4px rgba(0,0,0,0.3);
+  position: relative;
 }
 
 .logo2-svg {
-  width: 200px;
-  cursor: pointer;
-  transition: transform 0.3s ease;
+  width: 180px;
   position: absolute;
   left: 40px;
+  cursor: pointer;
+  transition: transform 0.3s;
+}
+
+.logo2-svg:hover {
+  transform: scale(1.05);
 }
 
 .menu-button {
-  width: 24px;
-  height: 24px;
+  width: 26px;
+  height: 26px;
   margin-right: 10px;
   cursor: pointer;
   display: flex;
   align-items: center;
+  transition: transform 0.3s;
+}
+
+.menu-button:hover {
+  transform: scale(1.1);
 }
 
 .menu-button svg {
   width: 100%;
   height: 100%;
-  fill: var(--text-light);
+  fill: var(--clr-light);
 }
 
-/* ===== SIDEBAR ===== */
+/* ================================
+   🔍 Search
+================================== */
+.input {
+  display: block;
+  width: 80%;
+  margin: 20px auto;
+  padding: 1em;
+  border: none;
+  outline: none;
+  border-radius: 100px;
+  background-color: var(--clr-primary);
+  color: var(--clr-light);
+  box-shadow: inset 0 2px 4px rgba(0,0,0,0.3);
+  transition: var(--transition);
+}
+
+.input::placeholder {
+  color: var(--clr-light);
+}
+
+.input:focus {
+  transform: scale(1.05);
+  box-shadow: 0 0 25px rgba(0,0,0,0.5);
+}
+
+/* ================================
+   🍰 Product Cards
+================================== */
+.menu-grid {
+  display: grid;
+  gap: 20px;
+  padding: 20px;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+}
+
+.cake-card {
+  background: var(--clr-primary);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-sm);
+  transition: var(--transition);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  transform: scale(1);
+}
+
+.cake-card:hover {
+  transform: scale(1.04);
+  box-shadow: var(--shadow-md);
+}
+
+.cake-image {
+  height: 250px;
+  width: 100%;
+  object-fit: cover;
+  border-radius: var(--radius) var(--radius) 0 0;
+}
+
+.cake-info {
+  padding: 15px;
+  background: var(--clr-primary);
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.cake-name {
+  color: var(--clr-light);
+  font-size: 1.15em;
+  margin-bottom: 6px;
+}
+
+.cake-description {
+  color: var(--clr-accent);
+  font-size: 0.9em;
+  line-height: 1.5;
+  margin-bottom: 10px;
+  flex: 1;
+}
+
+/* Buttons inside cards */
+.button-container {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-height: 0;
+  overflow: hidden;
+  opacity: 0;
+  transition: var(--transition);
+}
+
+.cake-card:hover .button-container {
+  max-height: 100px;
+  opacity: 1;
+}
+
+.order-btn,
+.view-btn {
+  padding: 10px 16px;
+  border-radius: 100px;
+  border: none;
+  font-size: 13px;
+  cursor: pointer;
+  transition: transform 0.2s ease, background-color 0.3s ease;
+  width: 100%;
+  text-align: center;
+}
+
+.order-btn {
+  background: var(--clr-accent);
+  color: var(--clr-light);
+}
+
+.view-btn {
+  background: var(--clr-light);
+  color: var(--clr-primary);
+  border: 1px solid var(--clr-accent);
+}
+
+.order-btn:hover,
+.view-btn:hover {
+  transform: scale(1.05);
+}
+
+/* ================================
+   🧱 Sidebar Navigation
+================================== */
 .sidebar {
   position: fixed;
-  left: -250px;
+  left: -260px;
   top: 0;
   height: 100%;
   width: 250px;
-  background-color: var(--primary-brown);
-  padding-top: 60px;
-  transition: left 0.3s ease;
+  background-color: var(--clr-primary);
+  padding-top: 70px;
+  transition: var(--transition);
   z-index: 1000;
   overflow-y: auto;
-  box-shadow: inset 0px 1px 2px 1px var(--shadow);
+  box-shadow: inset 0 1px 2px rgba(0,0,0,0.3);
 }
 
 .sidebar.active {
@@ -115,430 +246,24 @@ header {
 
 .sidebar a {
   display: block;
-  color: inherit;
+  color: var(--clr-light);
   padding: 15px;
   text-decoration: none;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-/* ===== NAV ICON ANIMATION ===== */
-#nav-icon {
-  width: 24px;
-  height: 24px;
-  position: relative;
-  cursor: pointer;
-  z-index: 1001;
-}
-
-#nav-icon span {
-  display: block;
-  position: absolute;
-  height: 2.35px;
-  width: 100%;
-  background: white;
-  border-radius: 3px;
-  transition: 0.25s ease-in-out;
-}
-
-#nav-icon span:nth-child(1) { top: 0; }
-#nav-icon span:nth-child(2) { top: 8px; }
-#nav-icon span:nth-child(3) { top: 16px; }
-
-#nav-icon.open span:nth-child(1) {
-  transform: rotate(45deg);
-  top: 8px;
-}
-
-#nav-icon.open span:nth-child(2) {
-  opacity: 0;
-}
-
-#nav-icon.open span:nth-child(3) {
-  transform: rotate(-45deg);
-  top: 8px;
-}
-
-/* ===== SEARCH & INPUT ===== */
-.input {
-  border: none;
-  outline: none;
-  border-radius: 100px;
-  padding: 1em;
-  background-color: var(--primary-brown);
-  box-shadow: inset 1px 2px 3px var(--shadow);
-  transition: 300ms ease-in-out;
-  margin: 20px auto;
-  width: 80%;
-  display: block;
-  color: var(--text-light);
-}
-
-.input:focus {
-  background-color: var(--primary-brown);
-  transform: scale(1.05);
-  box-shadow: 13px 13px 100px #000000, -13px -13px 100px #000000;
-}
-
-.input::placeholder {
-  color: var(--text-light);
-}
-
-.search-icon, .location-icon, #locationsvg {
-  fill: var(--text-light);
-}
-
-.location-icon {
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  z-index: 1001;
-}
-
-#locationsvg {
-  width: 24px;
-  height: 24px;
-}
-
-/* ===== SUGGESTIONS & MENU ===== */
-.suggestions-box, .menu {
-  background-color: var(--primary-brown);
-  border-radius: 10px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
-  color: var(--text-light);
-  margin: 20px auto;
-  width: 80%;
-  z-index: 10;
-}
-
-.suggestions-box {
-  position: absolute;
-  margin-top: 5px;
-  width: 90%;
-  display: none;
-  left: 50%;
-  transform: translateX(-50%);
-}
-
-.suggestions-box ul, .menu ul {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-}
-
-.suggestions-box li, .menu-item {
-  padding: 10px 15px;
-  cursor: pointer;
-  font-size: 14px;
-  border-bottom: 1px solid #5d3e33;
+  border-bottom: 1px solid rgba(255,255,255,0.1);
   transition: background-color 0.3s ease;
 }
 
-.suggestions-box li:hover, .menu-item:hover {
-  background-color: var(--secondary-brown);
+.sidebar a:hover {
+  background-color: var(--clr-accent);
 }
 
-.menu-item {
-  display: flex;
-  flex-direction: column;
-  transition: all 0.2s ease-in-out;
-}
-
-.menu-item.selected, .menu-item.active {
-  font-size: 20px;
-  font-weight: bold;
-  text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2);
-}
-
-.menu-item-buttons {
-  display: none;
-  margin-top: 10px;
-  gap: 10px;
-}
-
-.menu-item.active .menu-item-buttons {
-  display: flex;
-}
-
-/* ===== CAKE GRID SYSTEM ===== */
-.menu-grid {
-  display: grid;
-  gap: 20px;
-  padding: 20px;
-  grid-template-columns: repeat(4, 1fr);
-}
-
-/* Large Laptops & Desktops */
-@media (max-width: 1200px) {
-  .menu-grid {
-    grid-template-columns: repeat(3, 1fr);
-  }
-}
-
-/* Tablet & Small Laptops */
-@media (max-width: 1024px) {
-  .menu-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-}
-
-/* Mobile */
-@media (max-width: 768px) {
-  .menu-grid {
-    grid-template-columns: 1fr;
-  }
-  
-  .cake-card:hover {
-    transform: scale(1.02);
-  }
-}
-
-/* ===== CAKE CARDS ===== */
-.cake-card {
-  background: var(--primary-brown);
-  border-radius: 10px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  transition: all 0.3s ease-in-out;
-  overflow: hidden;
-  transform: scale(1);
-  position: relative;
-  display: flex;
-  flex-direction: column;
-}
-
-.cake-card:hover {
-  transform: scale(1.05);
-  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
-}
-
-.cake-image, .cake-img {
-  height: 250px;
-  background: #ddd;
-  border-radius: 10px 10px 0 0;
-  object-fit: cover;
-  width: 100%;
-}
-
-.cake-img {
-  width: 300px;
-  height: 300px;
-  display: block;
-  margin: 0 auto;
-  aspect-ratio: 1/1;
-  background: #f8f8f8 url('loader.svg') no-repeat center;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-  transition: opacity 0.5s ease-in-out;
-}
-
-.cake-info {
-  padding: 10px;
-  background: var(--primary-brown);
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-}
-
-.cake-name {
-  color: var(--text-light);
-  margin-bottom: 8px;
-  font-size: 1.1em;
-}
-
-.cake-description {
-  color: var(--secondary-brown);
-  font-size: 0.85em;
-  line-height: 1.4;
-  margin-bottom: 8px;
-  flex: 1;
-}
-
-/* ===== BUTTON CONTAINERS ===== */
-.button-container {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  max-height: 0;
-  overflow: hidden;
-  transition: all 0.3s ease;
-  opacity: 0;
-  padding: 0 10px;
-}
-
-.cake-card:hover .button-container {
-  max-height: 90px;
-  opacity: 1;
-  padding-bottom: 10px;
-}
-
-.cake-card.force-hide .button-container {
-  max-height: 0 !important;
-  opacity: 0 !important;
-  transition: none !important;
-}
-
-/* ===== BUTTON STYLES ===== */
-.order-btn, .view-btn, .shop-button, .addtocart-button, .menu-item-buttons button {
-  padding: 10px 20px;
-  border: none;
-  border-radius: 100px;
-  font-size: 13px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  text-decoration: none;
-  display: block;
-  text-align: center;
-}
-
-.order-btn, .shop-button, .menu-item-buttons button {
-  background: var(--secondary-brown);
-  color: var(--text-light);
-}
-
-.view-btn, .addtocart-button {
-  background: var(--text-light);
-  color: var(--primary-brown);
-  border: 1px solid var(--secondary-brown);
-}
-
-.order-btn:hover, .view-btn:hover, 
-.shop-button:hover, .addtocart-button:hover,
-.menu-item-buttons button:hover {
-  transform: scale(1.02);
-}
-
-.order-btn:active, .view-btn:active,
-.shop-button:active, .addtocart-button:active,
-.menu-item-buttons button:active {
-  transform: scale(0.98);
-}
-
-/* ===== SOCIAL ICONS ===== */
-#social-icons {
-  display: flex;
-  gap: 10px;
-  justify-content: flex-start;
-  align-items: center;
-}
-
-#social-icons a {
-  display: inline-block;
-  width: 43px;
-  height: 43px;
-}
-
-#social-icons .social-icon {
-  width: 100%;
-  height: 100%;
-  fill: var(--text-light);
-  transition: transform 0.2s ease;
-}
-
-#social-icons a:hover .social-icon {
-  transform: scale(1.1);
-}
-
-/* ===== SERVICE SECTIONS ===== */
-.service-item {
-  display: flex;
-  align-items: center;
-  padding: 20px;
-  border-bottom: 1px solid var(--primary-brown);
-  background-color: var(--secondary-brown);
-}
-
-.service-item:last-child {
-  border-bottom: none;
-}
-
-.service-icon {
-  font-size: 40px;
-  color: var(--text-light);
-  margin-right: 20px;
-}
-
-.service-text {
-  flex-grow: 1;
-}
-
-.service-title {
-  font-size: 20px;
-  font-weight: bold;
-  margin: 0;
-  color: var(--text-light);
-}
-
-.service-description {
-  font-size: 16px;
-  margin: 5px 0 0 0;
-  color: var(--text-light);
-}
-
-.service-description a {
-  color: var(--text-light);
-  text-decoration: underline;
-}
-
-/* ===== TYPOGRAPHY & UTILITIES ===== */
-.bebas-neue-regular {
-  font-family: "Bebas Neue", sans-serif;
-  font-weight: 400;
-  font-style: normal;
-}
-
-.trending-heading, .leftgapheading-section {
-  text-align: center;
-  margin-bottom: 20px;
-}
-
-.leftgapheading-section {
-  padding: 20px;
-  border-radius: 0;
-}
-
-.spacer {
-  height: 20px;
-}
-
-.no-scroll {
-  overflow: hidden;
-  height: 100%;
-}
-
-.copyright {
-  position: absolute;
-  bottom: 10px;
-  width: 100%;
-  text-align: center;
-  font-size: 14px;
-  color: var(--text-light);
-  background-color: var(--primary-brown);
-  padding: 10px;
-}
-
-/* ===== ERROR STATES ===== */
-.err-box {
-  text-align: center;
-  padding: 2rem;
-  max-width: 300px;
-  margin: 0 auto;
-}
-
-.err-code {
-  color: var(--text-light);
-  font-size: 3rem;
-  margin: 0 0 0.5rem;
-}
-
-.err-msg {
-  color: var(--text-light);
-  margin: 0 0 1.5rem;
-  font-size: 1.2rem;
-}
-
-/* ===== HELP SECTION ===== */
+/* ================================
+   💬 Help & Service Sections
+================================== */
 .help-section {
-  background-color: var(--primary-brown);
-  padding: 20px;
-  color: var(--text-light);
+  background-color: var(--clr-primary);
+  padding: 30px;
+  color: var(--clr-light);
 }
 
 .help-content {
@@ -551,37 +276,66 @@ header {
   .help-content {
     flex-direction: row;
     justify-content: space-between;
-    align-items: flex-start;
   }
-
   .help-box {
     width: 48%;
   }
 }
 
-/* ===== CONTENT SECTIONS ===== */
-.content {
-  text-align: center;
-  padding: 20px;
+/* ================================
+   ⚙️ Misc Components
+================================== */
+.shop-button,
+.addtocart-button {
+  display: inline-block;
+  padding: 10px 20px;
+  border-radius: 100px;
+  font-size: 15px;
+  border: none;
+  cursor: pointer;
+  text-decoration: none;
+  transition: var(--transition);
+  box-shadow: inset 1px 2px 3px rgba(0, 0, 0, 0.3);
 }
 
-.section {
-  border-bottom: 1px solid var(--primary-brown);
-  padding: 20px 0;
+.shop-button {
+  background-color: var(--clr-primary);
+  color: var(--clr-light);
 }
 
-.section:last-child {
-  border-bottom: none;
+.shop-button:hover {
+  background-color: var(--clr-accent);
 }
 
-.section h2 {
-  font-size: 24px;
-  font-weight: bold;
-  margin: 10px 0;
+.addtocart-button {
+  background-color: var(--clr-light);
+  color: var(--clr-accent);
 }
 
-.section p {
-  font-size: 16px;
-  line-height: 1.5;
-  margin: 10px 0;
+.addtocart-button:hover {
+  transform: scale(1.05);
+}
+
+/* ================================
+   📱 Responsiveness
+================================== */
+@media (max-width: 768px) {
+  header {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .logo2-svg {
+    position: relative;
+    left: 0;
+    margin-bottom: 10px;
+  }
+
+  .menu-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .cake-card:hover {
+    transform: scale(1.02);
+  }
 }
