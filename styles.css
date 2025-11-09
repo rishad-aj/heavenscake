@@ -338,8 +338,13 @@ h1 {
 	color: #fff;
 	padding: 15px 0;
 	margin: 0;
+	transition: all 0.3s ease;
 }
 
+.sidebar h3:hover {
+	color: #ffd9b3;
+	transform: translateX(10px);
+}
 
 .sidebar a {
 	display: block;
@@ -347,6 +352,23 @@ h1 {
 	padding: 15px;
 	text-decoration: none;
 	border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+	transition: all 0.3s ease;
+	position: relative;
+}
+
+.sidebar a:hover {
+	background-color: rgba(255, 255, 255, 0.1);
+	color: #ffd9b3;
+	transform: translateX(15px);
+	padding-left: 25px;
+}
+
+.sidebar a:hover::before {
+	content: "›";
+	position: absolute;
+	left: 10px;
+	color: #ffd9b3;
+	font-weight: bold;
 }
 
 /* Style for copyright notice */
@@ -359,10 +381,21 @@ h1 {
 	color: #fff;
 	background-color: #734d40;
 	padding: 10px;
+	transition: all 0.3s ease;
+}
+
+.copyright:hover {
+	color: #ffd9b3;
+	text-shadow: 0 0 10px rgba(255, 217, 179, 0.3);
 }
 
 .spacer {
 	height: 20px;
+	transition: all 0.3s ease;
+}
+
+.spacer:hover {
+	background-color: rgba(255, 255, 255, 0.05);
 }
 
 .content {
