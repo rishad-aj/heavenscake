@@ -1,203 +1,3 @@
-/* Add smooth fade-in animation for page content */
-.container {
-    animation: fadeIn 1s ease-in-out 0.5s both;
-}
-
-/* Card entrance animations */
-.cake-card {
-    animation: slideUpFade 0.6s ease-out both;
-}
-
-/* Stagger animation for cards */
-.cake-card:nth-child(1) { animation-delay: 0.1s; }
-.cake-card:nth-child(2) { animation-delay: 0.2s; }
-.cake-card:nth-child(3) { animation-delay: 0.3s; }
-.cake-card:nth-child(4) { animation-delay: 0.4s; }
-.cake-card:nth-child(5) { animation-delay: 0.5s; }
-.cake-card:nth-child(6) { animation-delay: 0.6s; }
-
-/* Button hover enhancements */
-.order-btn, .view-btn {
-    position: relative;
-    overflow: hidden;
-    transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-}
-
-.order-btn::before, .view-btn::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: -100%;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
-    transition: left 0.5s;
-}
-
-.order-btn:hover::before, .view-btn:hover::before {
-    left: 100%;
-}
-
-/* Social icons animation */
-#social-icons a {
-    animation: bounceIn 0.6s ease-out both;
-}
-
-#social-icons a:nth-child(1) { animation-delay: 0.7s; }
-#social-icons a:nth-child(2) { animation-delay: 0.8s; }
-#social-icons a:nth-child(3) { animation-delay: 0.9s; }
-
-/* Input focus animation enhancement */
-.input {
-    transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-}
-
-/* Menu item hover enhancement */
-.menu-item {
-    transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-}
-
-/* Service items animation */
-.service-item {
-    animation: fadeInLeft 0.6s ease-out both;
-}
-
-.service-item:nth-child(1) { animation-delay: 0.3s; }
-.service-item:nth-child(2) { animation-delay: 0.4s; }
-.service-item:nth-child(3) { animation-delay: 0.5s; }
-
-/* Logo and menu button hover effects */
-.logo2-svg:hover, .menu-button:hover {
-    transform: scale(1.05);
-    transition: transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-}
-
-/* Suggestions box animation */
-.suggestions-box {
-    animation: slideDown 0.3s ease-out;
-}
-
-/* Loading animation for images */
-.cake-img {
-    animation: pulse 2s infinite;
-}
-
-/* Keyframe definitions */
-@keyframes fadeIn {
-    from {
-        opacity: 0;
-    }
-    to {
-        opacity: 1;
-    }
-}
-
-@keyframes slideUpFade {
-    from {
-        opacity: 0;
-        transform: translateY(30px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-@keyframes bounceIn {
-    0% {
-        opacity: 0;
-        transform: scale(0.3);
-    }
-    50% {
-        opacity: 1;
-        transform: scale(1.05);
-    }
-    70% {
-        transform: scale(0.9);
-    }
-    100% {
-        opacity: 1;
-        transform: scale(1);
-    }
-}
-
-@keyframes fadeInLeft {
-    from {
-        opacity: 0;
-        transform: translateX(-30px);
-    }
-    to {
-        opacity: 1;
-        transform: translateX(0);
-    }
-}
-
-@keyframes slideDown {
-    from {
-        opacity: 0;
-        transform: translateY(-10px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-@keyframes pulse {
-    0% {
-        opacity: 0.6;
-    }
-    50% {
-        opacity: 0.8;
-    }
-    100% {
-        opacity: 0.6;
-    }
-}
-
-/* Enhanced hover effects for cards */
-.cake-card:hover {
-    animation: cardHover 0.3s ease-out forwards;
-}
-
-@keyframes cardHover {
-    0% {
-        transform: scale(1);
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    }
-    100% {
-        transform: scale(1.05);
-        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
-    }
-}
-
-/* Smooth transitions for sidebar */
-.sidebar {
-    transition: left 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-}
-
-.sidebar a {
-    transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-}
-
-/* Button click animation */
-.order-btn:active, .view-btn:active {
-    animation: buttonClick 0.15s ease-out;
-}
-
-@keyframes buttonClick {
-    0% {
-        transform: scale(1);
-    }
-    50% {
-        transform: scale(0.95);
-    }
-    100% {
-        transform: scale(0.98);
-    }
-}
-
-
 * {
 	box-sizing: border-box;
 	font-family: "Inter", sans-serif;
@@ -252,6 +52,7 @@
 .container {
 	width: 100%;
 	padding: 20px;
+	animation: fadeIn 1s ease-in-out 0.5s both;
 }
 
 .card-wrapper {
@@ -282,11 +83,13 @@
 	position: relative;
 	display: flex;
 	flex-direction: column;
+	animation: slideUpFade 0.6s ease-out both;
 }
 
 .cake-card:hover {
 	transform: scale(1.05);
 	box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+	animation: cardHover 0.3s ease-out forwards;
 }
 
 .cake-image {
@@ -356,6 +159,9 @@
 	text-align: center;
 	text-decoration: none;
 	display: block;
+	position: relative;
+	overflow: hidden;
+	transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
 
 .order-btn {
@@ -377,6 +183,24 @@
 .order-btn:active,
 .view-btn:active {
 	transform: scale(0.98);
+	animation: buttonClick 0.15s ease-out;
+}
+
+.order-btn::before,
+.view-btn::before {
+	content: '';
+	position: absolute;
+	top: 0;
+	left: -100%;
+	width: 100%;
+	height: 100%;
+	background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+	transition: left 0.5s;
+}
+
+.order-btn:hover::before,
+.view-btn:hover::before {
+	left: 100%;
 }
 
 /* Default Grid - 4 columns */
@@ -461,6 +285,7 @@ header {
 	margin: 20px auto;
 	width: 80%;
 	display: block;
+	transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
 
 .input:focus {
@@ -482,6 +307,11 @@ header {
 	position: absolute;
 	left: 40px;
 	/* shifted more to the right */
+}
+
+.logo2-svg:hover, .menu-button:hover {
+    transform: scale(1.05);
+    transition: transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
 
 .menu-button {
@@ -528,6 +358,7 @@ h1 {
 	z-index: 1000;
 	overflow-y: auto;
 	box-shadow: inset 0px 1px 2px 1px rgba(0, 0, 0, 0.3);
+	transition: left 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
 
 .sidebar.active {
@@ -554,6 +385,7 @@ h1 {
 	border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 	transition: all 0.3s ease;
 	position: relative;
+	transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
 
 .sidebar a:hover {
@@ -690,6 +522,7 @@ h1 {
 	display: inline-block;
 	width: 43px;
 	height: 43px;
+	animation: bounceIn 0.6s ease-out both;
 }
 
 #social-icons .social-icon {
@@ -757,6 +590,7 @@ h1 {
 	display: none;
 	left: 50%;
 	transform: translateX(-50%);
+	animation: slideDown 0.3s ease-out;
 }
 
 .suggestions-box ul {
@@ -813,6 +647,7 @@ h1 {
 	display: flex;
 	flex-direction: column;
 	transition: all 0.2s ease-in-out;
+	transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
 
 .menu-item:hover {
@@ -944,6 +779,7 @@ h1 {
 	padding: 20px;
 	border-bottom: 1px solid #734d40;
 	background-color: #d99872;
+	animation: fadeInLeft 0.6s ease-out both;
 }
 
 .service-item:last-child {
@@ -990,6 +826,7 @@ h1 {
 	aspect-ratio: 1/1;
 	background: #f8f8f8 url('loader.svg') no-repeat center;
 	box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+	animation: pulse 2s infinite;
 }
 
 .err-box {
@@ -1010,4 +847,116 @@ h1 {
 	color: #fff;
 	margin: 0 0 1.5rem;
 	font-size: 1.2rem;
+}
+
+/* Stagger animation for cards */
+.cake-card:nth-child(1) { animation-delay: 0.1s; }
+.cake-card:nth-child(2) { animation-delay: 0.2s; }
+.cake-card:nth-child(3) { animation-delay: 0.3s; }
+.cake-card:nth-child(4) { animation-delay: 0.4s; }
+.cake-card:nth-child(5) { animation-delay: 0.5s; }
+.cake-card:nth-child(6) { animation-delay: 0.6s; }
+
+#social-icons a:nth-child(1) { animation-delay: 0.7s; }
+#social-icons a:nth-child(2) { animation-delay: 0.8s; }
+#social-icons a:nth-child(3) { animation-delay: 0.9s; }
+
+.service-item:nth-child(1) { animation-delay: 0.3s; }
+.service-item:nth-child(2) { animation-delay: 0.4s; }
+.service-item:nth-child(3) { animation-delay: 0.5s; }
+
+/* Keyframe definitions */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes slideUpFade {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes bounceIn {
+    0% {
+        opacity: 0;
+        transform: scale(0.3);
+    }
+    50% {
+        opacity: 1;
+        transform: scale(1.05);
+    }
+    70% {
+        transform: scale(0.9);
+    }
+    100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+@keyframes fadeInLeft {
+    from {
+        opacity: 0;
+        transform: translateX(-30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes pulse {
+    0% {
+        opacity: 0.6;
+    }
+    50% {
+        opacity: 0.8;
+    }
+    100% {
+        opacity: 0.6;
+    }
+}
+
+@keyframes cardHover {
+    0% {
+        transform: scale(1);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+    100% {
+        transform: scale(1.05);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+    }
+}
+
+@keyframes buttonClick {
+    0% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(0.95);
+    }
+    100% {
+        transform: scale(0.98);
+    }
 }
