@@ -24,7 +24,8 @@ const AppState = {
     isSidebarOpen: false,
     currentSearch: '',
     slideshowPaused: false,
-    activeSuggestionIndex: -1
+    activeSuggestionIndex: -1,
+    currentMatches: []
 };
 
 // Analytics Tracking (optional)
@@ -120,20 +121,22 @@ const cakes = [
 
 // Search functionality with debouncing and keyboard navigation
 const searchBar = safeQuerySelector('#searchBar');
-const suggestionsBox = safeQuerySelector('#suggestions')?.querySelector('ul');
+const suggestionsContainer = safeQuerySelector('#suggestions');
+const suggestionsBox = suggestionsContainer?.querySelector('ul');
 
-if (searchBar && suggestionsBox) {
+// Initialize search functionality if elements exist
+if (searchBar && suggestionsContainer && suggestionsBox) {
     // Accessibility
     searchBar.setAttribute('aria-label', 'Search for cakes');
     suggestionsBox.setAttribute('aria-label', 'Search suggestions');
     
-    const debouncedSearch = debounce(() => {
+    const performSearch = () => {
         const query = searchBar.value.trim().toLowerCase();
         suggestionsBox.innerHTML = '';
         AppState.activeSuggestionIndex = -1;
 
         if (!query) {
-            document.querySelector('.suggestions-box').style.display = 'none';
+            suggestionsContainer.style.display = 'none';
             return;
         }
 
@@ -146,6 +149,7 @@ if (searchBar && suggestionsBox) {
         containingMatches.sort((a, b) => a.localeCompare(b));
 
         const allMatches = [...startingMatches, ...containingMatches];
+        AppState.currentMatches = allMatches; // Store for "More results"
         const matches = allMatches.slice(0, 5);
 
         if (matches.length === 0) {
@@ -156,7 +160,8 @@ if (searchBar && suggestionsBox) {
             Object.assign(noResults.style, {
                 textAlign: 'center',
                 pointerEvents: 'none',
-                color: 'white'
+                color: 'white',
+                padding: '10px'
             });
             suggestionsBox.appendChild(noResults);
         } else {
@@ -165,35 +170,61 @@ if (searchBar && suggestionsBox) {
                 suggestion.textContent = match;
                 suggestion.setAttribute('role', 'option');
                 suggestion.setAttribute('id', `suggestion-${index}`);
+                suggestion.style.padding = '10px';
+                suggestion.style.cursor = 'pointer';
+                suggestion.style.borderBottom = '1px solid rgba(255,255,255,0.1)';
+                
                 suggestion.addEventListener('click', () => {
                     trackEvent('Search', 'suggestion_click', match);
-                    window.location.href = `products.html?search=${encodeURIComponent(match)}`;
+                    // Use proper URL construction for products page
+                    const url = new URL('products.html', window.location.origin);
+                    url.searchParams.set('search', match);
+                    window.location.href = url.toString();
                 });
+                
+                suggestion.addEventListener('mouseenter', () => {
+                    suggestion.style.backgroundColor = 'rgba(255,255,255,0.1)';
+                });
+                
+                suggestion.addEventListener('mouseleave', () => {
+                    suggestion.style.backgroundColor = 'transparent';
+                });
+                
                 suggestionsBox.appendChild(suggestion);
             });
 
+            // FIXED: "More results" functionality
             if (allMatches.length > 5) {
                 const moreResults = document.createElement('li');
-                moreResults.textContent = 'More results...';
+                moreResults.textContent = `More results... (${allMatches.length - 5} more)`;
                 moreResults.setAttribute('role', 'option');
                 moreResults.setAttribute('id', 'suggestion-more');
+                moreResults.setAttribute('data-action', 'show-more');
                 Object.assign(moreResults.style, {
                     textAlign: 'center',
                     cursor: 'pointer',
-                    color: 'white'
+                    color: '#ffeb3b',
+                    padding: '10px',
+                    fontWeight: 'bold',
+                    borderTop: '2px solid rgba(255,255,255,0.2)',
+                    backgroundColor: 'rgba(255,255,255,0.05)'
                 });
-                moreResults.addEventListener('click', () => {
+                
+                moreResults.addEventListener('click', (e) => {
+                    e.stopPropagation();
                     trackEvent('Search', 'show_more_results', query);
                     displayAllResults(allMatches);
                 });
+                
                 suggestionsBox.appendChild(moreResults);
             }
         }
 
-        document.querySelector('.suggestions-box').style.display = 'block';
+        suggestionsContainer.style.display = 'block';
         trackEvent('Search', 'input', query);
-    }, 300);
+    };
 
+    const debouncedSearch = debounce(performSearch, 300);
     searchBar.addEventListener('input', debouncedSearch);
 
     // Keyboard navigation for search suggestions
@@ -217,11 +248,25 @@ if (searchBar && suggestionsBox) {
             case 'Enter':
                 if (AppState.activeSuggestionIndex >= 0 && suggestions[AppState.activeSuggestionIndex]) {
                     e.preventDefault();
-                    suggestions[AppState.activeSuggestionIndex].click();
+                    const clickedElement = suggestions[AppState.activeSuggestionIndex];
+                    if (clickedElement.getAttribute('data-action') === 'show-more') {
+                        clickedElement.click();
+                    } else {
+                        // Regular suggestion click
+                        const url = new URL('products.html', window.location.origin);
+                        url.searchParams.set('search', clickedElement.textContent);
+                        window.location.href = url.toString();
+                    }
+                } else if (searchBar.value.trim()) {
+                    // If no suggestion selected but there's search text, redirect to products page
+                    e.preventDefault();
+                    const url = new URL('products.html', window.location.origin);
+                    url.searchParams.set('search', searchBar.value.trim());
+                    window.location.href = url.toString();
                 }
                 break;
             case 'Escape':
-                document.querySelector('.suggestions-box').style.display = 'none';
+                suggestionsContainer.style.display = 'none';
                 AppState.activeSuggestionIndex = -1;
                 break;
         }
@@ -229,10 +274,20 @@ if (searchBar && suggestionsBox) {
 
     // Close suggestions when clicking outside
     document.addEventListener('click', (e) => {
-        if (!searchBar.contains(e.target) && !suggestionsBox.contains(e.target)) {
-            document.querySelector('.suggestions-box').style.display = 'none';
+        if (!searchBar.contains(e.target) && !suggestionsContainer.contains(e.target)) {
+            suggestionsContainer.style.display = 'none';
             AppState.activeSuggestionIndex = -1;
         }
+    });
+
+    // Also close on search bar blur, but with delay to allow for clicks
+    searchBar.addEventListener('blur', () => {
+        setTimeout(() => {
+            if (!suggestionsContainer.matches(':hover')) {
+                suggestionsContainer.style.display = 'none';
+                AppState.activeSuggestionIndex = -1;
+            }
+        }, 200);
     });
 }
 
@@ -241,15 +296,21 @@ function updateSuggestionFocus(suggestions) {
         if (index === AppState.activeSuggestionIndex) {
             suggestion.classList.add('focused');
             suggestion.setAttribute('aria-selected', 'true');
+            suggestion.style.backgroundColor = 'rgba(255,255,255,0.2)';
             suggestion.scrollIntoView({ block: 'nearest' });
         } else {
             suggestion.classList.remove('focused');
             suggestion.setAttribute('aria-selected', 'false');
+            suggestion.style.backgroundColor = suggestion.getAttribute('data-action') === 'show-more' 
+                ? 'rgba(255,255,255,0.05)' 
+                : 'transparent';
         }
     });
 }
 
 function displayAllResults(matches) {
+    if (!suggestionsBox) return;
+    
     suggestionsBox.innerHTML = '';
     AppState.activeSuggestionIndex = -1;
     
@@ -259,10 +320,25 @@ function displayAllResults(matches) {
         suggestion.textContent = match;
         suggestion.setAttribute('role', 'option');
         suggestion.setAttribute('id', `suggestion-all-${index}`);
+        suggestion.style.padding = '10px';
+        suggestion.style.cursor = 'pointer';
+        suggestion.style.borderBottom = '1px solid rgba(255,255,255,0.1)';
+        
         suggestion.addEventListener('click', () => {
             trackEvent('Search', 'all_results_click', match);
-            window.location.href = `products.html?search=${encodeURIComponent(match)}`;
+            const url = new URL('products.html', window.location.origin);
+            url.searchParams.set('search', match);
+            window.location.href = url.toString();
         });
+        
+        suggestion.addEventListener('mouseenter', () => {
+            suggestion.style.backgroundColor = 'rgba(255,255,255,0.1)';
+        });
+        
+        suggestion.addEventListener('mouseleave', () => {
+            suggestion.style.backgroundColor = 'transparent';
+        });
+        
         suggestionsBox.appendChild(suggestion);
     });
 
@@ -270,22 +346,40 @@ function displayAllResults(matches) {
     closeResults.textContent = 'Show less';
     closeResults.setAttribute('role', 'option');
     closeResults.setAttribute('id', 'suggestion-less');
+    closeResults.setAttribute('data-action', 'show-less');
     Object.assign(closeResults.style, {
         textAlign: 'center',
         cursor: 'pointer',
-        color: 'white'
+        color: '#ffeb3b',
+        padding: '10px',
+        fontWeight: 'bold',
+        borderTop: '2px solid rgba(255,255,255,0.2)',
+        backgroundColor: 'rgba(255,255,255,0.05)'
     });
+    
     closeResults.addEventListener('click', () => {
-        searchBar.dispatchEvent(new Event('input'));
+        // Trigger the original search to show limited results again
+        if (searchBar.value.trim()) {
+            searchBar.dispatchEvent(new Event('input'));
+        } else {
+            suggestionsContainer.style.display = 'none';
+        }
     });
+    
     suggestionsBox.appendChild(closeResults);
 }
 
-// Filter products in products.html with retry if cards not loaded yet
+// Enhanced product filtering with query search support
 function filterCakes(retryCount = 10) {
     const params = new URLSearchParams(window.location.search);
     const searchTerm = params.get("search");
+    
     if (searchTerm) {
+        // Update search bar value if on products page
+        if (searchBar) {
+            searchBar.value = searchTerm;
+        }
+        
         const allProducts = document.querySelectorAll(".cake-card");
         if (allProducts.length === 0 && retryCount > 0) {
             setTimeout(() => filterCakes(retryCount - 1), 100);
@@ -293,23 +387,101 @@ function filterCakes(retryCount = 10) {
         }
 
         let foundCount = 0;
+        const searchTermLower = searchTerm.toLowerCase();
+        
         allProducts.forEach(card => {
-            const name = card.querySelector(".cake-name")?.textContent.toLowerCase();
-            if (name && name.includes(searchTerm.toLowerCase())) {
+            const nameElement = card.querySelector(".cake-name");
+            const name = nameElement?.textContent.toLowerCase();
+            
+            if (name && name.includes(searchTermLower)) {
                 card.style.display = "block";
                 foundCount++;
+                
+                // Highlight the matching text
+                if (nameElement) {
+                    const originalText = nameElement.textContent;
+                    const regex = new RegExp(`(${searchTerm})`, 'gi');
+                    const highlightedText = originalText.replace(regex, '<mark>$1</mark>');
+                    nameElement.innerHTML = highlightedText;
+                }
             } else {
                 card.style.display = "none";
             }
         });
 
+        // Show message if no results found
+        const resultsMessage = document.getElementById('results-message') || createResultsMessage();
+        if (foundCount === 0) {
+            resultsMessage.textContent = `No cakes found matching "${searchTerm}"`;
+            resultsMessage.style.display = 'block';
+        } else {
+            resultsMessage.textContent = `Found ${foundCount} cake(s) matching "${searchTerm}"`;
+            resultsMessage.style.display = 'block';
+        }
+
         trackEvent('Search', 'filter_results', `${searchTerm} (${foundCount} found)`);
+    } else {
+        // Show all products if no search term
+        const allProducts = document.querySelectorAll(".cake-card");
+        allProducts.forEach(card => {
+            card.style.display = "block";
+        });
+        
+        const resultsMessage = document.getElementById('results-message');
+        if (resultsMessage) {
+            resultsMessage.style.display = 'none';
+        }
     }
 }
 
+function createResultsMessage() {
+    const message = document.createElement('div');
+    message.id = 'results-message';
+    message.style.cssText = `
+        text-align: center;
+        padding: 20px;
+        margin: 20px 0;
+        background: rgba(255,255,255,0.1);
+        border-radius: 10px;
+        color: white;
+        font-size: 18px;
+    `;
+    
+    const menuGrid = document.querySelector('.menu-grid');
+    if (menuGrid && menuGrid.parentNode) {
+        menuGrid.parentNode.insertBefore(message, menuGrid);
+    }
+    
+    return message;
+}
+
+// Initialize search functionality when DOM is loaded
 document.addEventListener("DOMContentLoaded", () => {
     filterCakes();
+    
+    // Add search form functionality
+    const searchForm = safeQuerySelector('.search-box');
+    if (searchForm) {
+        searchForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const searchValue = searchBar?.value.trim();
+            if (searchValue) {
+                const url = new URL('products.html', window.location.origin);
+                url.searchParams.set('search', searchValue);
+                window.location.href = url.toString();
+            }
+        });
+    }
 });
+
+// Rest of your existing code for cake cards, Swiper, boot animation, and slideshow remains the same...
+// [Include all the remaining code from your original implementation for:
+// - Add buttons to cake cards
+// - Swiper Init  
+// - Boot animation remove
+// - Enhanced WebP Image Slideshow
+// - Global error handler
+// - Page load tracking]
 
 // Add buttons to cake cards
 document.addEventListener('DOMContentLoaded', function () {
