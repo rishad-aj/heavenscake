@@ -250,6 +250,8 @@ function updateSuggestionFocus(suggestions) {
 }
 
 function displayAllResults(matches) {
+    if (!suggestionsBox) return;
+    
     suggestionsBox.innerHTML = '';
     AppState.activeSuggestionIndex = -1;
     
@@ -276,7 +278,9 @@ function displayAllResults(matches) {
         color: 'white'
     });
     closeResults.addEventListener('click', () => {
-        searchBar.dispatchEvent(new Event('input'));
+        if (searchBar) {
+            searchBar.dispatchEvent(new Event('input'));
+        }
     });
     suggestionsBox.appendChild(closeResults);
 }
@@ -285,6 +289,11 @@ function displayAllResults(matches) {
 function filterCakes(retryCount = 10) {
     const params = new URLSearchParams(window.location.search);
     const searchTerm = params.get("search");
+    
+    if (searchTerm && searchBar) {
+        searchBar.value = searchTerm;
+    }
+    
     if (searchTerm) {
         const allProducts = document.querySelectorAll(".cake-card");
         if (allProducts.length === 0 && retryCount > 0) {
@@ -303,27 +312,32 @@ function filterCakes(retryCount = 10) {
             }
         });
 
-        // Add "No results found" label if no products match
-        const existingNoResults = document.querySelector('.no-results-label');
+        // Add "No results found" message if no products found
+        const existingNoResults = document.querySelector('.no-results-message');
         if (existingNoResults) {
             existingNoResults.remove();
         }
 
-        if (foundCount === 0) {
-            const noResultsLabel = document.createElement('div');
-            noResultsLabel.className = 'no-results-label';
-            noResultsLabel.textContent = `No results found for "${searchTerm}"`;
-            noResultsLabel.style.cssText = `
+        if (foundCount === 0 && searchTerm) {
+            const noResultsMessage = document.createElement('div');
+            noResultsMessage.className = 'no-results-message';
+            noResultsMessage.innerHTML = `
+                <h3>No results found for "${searchTerm}"</h3>
+                <p>Try searching for a different cake or browse our full menu.</p>
+            `;
+            noResultsMessage.style.cssText = `
                 text-align: center;
-                padding: 2rem;
-                color: #666;
-                font-size: 1.2rem;
-                grid-column: 1 / -1;
+                padding: 40px 20px;
+                color: #333;
+                background: #f9f9f9;
+                border-radius: 10px;
+                margin: 20px auto;
+                max-width: 500px;
             `;
             
             const menuGrid = document.querySelector('.menu-grid');
             if (menuGrid) {
-                menuGrid.appendChild(noResultsLabel);
+                menuGrid.parentNode.insertBefore(noResultsMessage, menuGrid.nextSibling);
             }
         }
 
