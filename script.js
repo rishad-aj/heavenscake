@@ -142,14 +142,20 @@ function displayAllResults(matches) {
         color: 'white'
     });
     closeResults.addEventListener('click', () => {
-        searchBar.dispatchEvent(new Event('input'));
+        if (searchBar) {
+            searchBar.dispatchEvent(new Event('input'));
+        }
     });
     suggestionsBox.appendChild(closeResults);
 }
 
 // Initialize search
 if (searchBar) {
-    searchBar.addEventListener('input', handleSearchInput);
+    let searchTimeout;
+    searchBar.addEventListener('input', function() {
+        clearTimeout(searchTimeout);
+        searchTimeout = setTimeout(handleSearchInput, 300);
+    });
     
     document.querySelector('.search-bar')?.addEventListener('submit', function(e) {
         e.preventDefault();
@@ -304,20 +310,20 @@ function initializeSwiper() {
 document.addEventListener('DOMContentLoaded', function () {
     const bootAnimation = document.getElementById('boot-animation');
     if (bootAnimation) {
-        bootAnimation.addEventListener('animationend', function () {
-            bootAnimation.remove();
-        });
-        
-        // Fallback: remove after 3 seconds if animationend doesn't fire
-        setTimeout(() => {
+        const removeBootAnimation = () => {
             if (document.body.contains(bootAnimation)) {
                 bootAnimation.remove();
             }
-        }, 3000);
+        };
+        
+        bootAnimation.addEventListener('animationend', removeBootAnimation);
+        
+        // Fallback: remove after 3 seconds
+        setTimeout(removeBootAnimation, 3000);
     }
 });
 
-// 3D Card Stack Slideshow
+// 3D Card Stack Slideshow - Mobile Optimized
 class CakeSlideshow3D {
     constructor() {
         this.images = [
@@ -335,6 +341,7 @@ class CakeSlideshow3D {
         this.autoAdvance = true;
         this.slideInterval = null;
         this.slideDuration = 4000;
+        this.isMobile = window.innerWidth <= 768;
 
         if (this.container) {
             this.init();
@@ -344,6 +351,7 @@ class CakeSlideshow3D {
     init() {
         this.createSlideshow();
         this.startAutoAdvance();
+        this.setupResizeHandler();
     }
 
     createSlideshow() {
@@ -354,7 +362,7 @@ class CakeSlideshow3D {
             <div class="slideshow-container">
                 <div class="card-stack">
                     ${this.images.map((img, index) => `
-                        <div class="slide ${index === 0 ? 'active' : index === 1 ? 'next' : index === this.images.length - 1 ? 'prev' : ''}" 
+                        <div class="slide ${this.getSlideClass(index)}" 
                              style="background-image: url('images/${img.file}')">
                             <div class="slide-content">
                                 <h3 class="slide-title">${img.alt}</h3>
@@ -363,12 +371,12 @@ class CakeSlideshow3D {
                         </div>
                     `).join('')}
                 </div>
-                <button class="nav-btn prev-btn">❮</button>
-                <button class="nav-btn next-btn">❯</button>
+                <button class="nav-btn prev-btn" aria-label="Previous slide">❮</button>
+                <button class="nav-btn next-btn" aria-label="Next slide">❯</button>
                 
                 <div class="indicators">
                     ${this.images.map((_, index) => `
-                        <div class="indicator ${index === 0 ? 'active' : ''}" data-index="${index}"></div>
+                        <div class="indicator ${index === 0 ? 'active' : ''}" data-index="${index}" aria-label="Go to slide ${index + 1}"></div>
                     `).join('')}
                 </div>
 
@@ -384,218 +392,25 @@ class CakeSlideshow3D {
             this.container.appendChild(originalShopButton);
         }
 
-        this.addStyles();
         this.setupEventListeners();
     }
 
-    addStyles() {
-        if (document.querySelector('#cake-slideshow-styles')) return;
-
-        const styles = `
-            .slideshow-container {
-                position: relative;
-                height: 500px;
-                margin: 0 auto 20px;
-                perspective: 1200px;
-                width: 100%;
-                max-width: 900px;
-            }
-
-            .card-stack {
-                position: relative;
-                width: 100%;
-                height: 100%;
-                display: flex;
-                justify-content: center;
-                align-items: center;
-            }
-
-            .slide {
-                position: absolute;
-                width: 80%;
-                height: 85%;
-                border-radius: 15px;
-                background-size: cover;
-                background-position: center;
-                box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5);
-                transition: transform 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94), 
-                            opacity 0.8s ease, 
-                            z-index 0.8s ease;
-                transform-style: preserve-3d;
-                overflow: hidden;
-                cursor: pointer;
-            }
-
-            .slide.active {
-                transform: translateZ(0);
-                z-index: 5;
-            }
-
-            .slide.next {
-                transform: translateX(30%) scale(0.9) rotateY(-15deg);
-                z-index: 4;
-                opacity: 0.8;
-            }
-
-            .slide.prev {
-                transform: translateX(-30%) scale(0.9) rotateY(15deg);
-                z-index: 3;
-                opacity: 0.8;
-            }
-
-            .slide.far-prev {
-                transform: translateX(-50%) scale(0.8) rotateY(25deg);
-                z-index: 2;
-                opacity: 0.5;
-            }
-
-            .slide.far-next {
-                transform: translateX(50%) scale(0.8) rotateY(-25deg);
-                z-index: 1;
-                opacity: 0.5;
-            }
-
-            .slide-content {
-                position: absolute;
-                bottom: 0;
-                left: 0;
-                right: 0;
-                background: linear-gradient(transparent, rgba(0, 0, 0, 0.8));
-                padding: 25px;
-                color: white;
-                text-align: left;
-                transform: translateZ(20px);
-            }
-
-            .slide-title {
-                font-size: 1.8rem;
-                margin-bottom: 8px;
-                font-weight: 600;
-                text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
-            }
-
-            .slide-desc {
-                font-size: 1.1rem;
-                opacity: 0.9;
-                line-height: 1.5;
-                margin: 0;
-            }
-
-            .nav-btn {
-                position: absolute;
-                top: 50%;
-                transform: translateY(-50%);
-                background: rgba(255, 255, 255, 0.2);
-                backdrop-filter: blur(10px);
-                color: white;
-                border: none;
-                width: 60px;
-                height: 60px;
-                border-radius: 50%;
-                font-size: 1.8rem;
-                cursor: pointer;
-                z-index: 10;
-                transition: all 0.3s ease;
-                box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-            }
-
-            .nav-btn:hover {
-                background: rgba(255, 255, 255, 0.3);
-                transform: translateY(-50%) scale(1.1);
-            }
-
-            .prev-btn {
-                left: 10px;
-            }
-
-            .next-btn {
-                right: 10px;
-            }
-
-            .indicators {
-                display: flex;
-                justify-content: center;
-                gap: 12px;
-                margin-top: 20px;
-            }
-
-            .indicator {
-                width: 14px;
-                height: 14px;
-                border-radius: 50%;
-                background: rgba(255, 255, 255, 0.4);
-                cursor: pointer;
-                transition: all 0.3s ease;
-            }
-
-            .indicator.active {
-                background: white;
-                transform: scale(1.3);
-            }
-
-            .progress-bar {
-                width: 100%;
-                height: 5px;
-                background: rgba(255, 255, 255, 0.2);
-                border-radius: 5px;
-                margin-top: 30px;
-                overflow: hidden;
-            }
-
-            .progress {
-                height: 100%;
-                background: white;
-                width: 0%;
-                transition: width 0.3s ease;
-            }
-
-            @media (max-width: 768px) {
-                .slideshow-container {
-                    height: 400px;
-                }
-                
-                .slide-title {
-                    font-size: 1.5rem;
-                }
-                
-                .slide-desc {
-                    font-size: 1rem;
-                }
-                
-                .nav-btn {
-                    width: 50px;
-                    height: 50px;
-                    font-size: 1.5rem;
-                }
-            }
-
-            @media (max-width: 480px) {
-                .slideshow-container {
-                    height: 350px;
-                }
-                
-                .slide {
-                    width: 90%;
-                }
-                
-                .slide.next, .slide.prev {
-                    transform: translateX(25%) scale(0.85) rotateY(-12deg);
-                }
-                
-                .slide.prev {
-                    transform: translateX(-25%) scale(0.85) rotateY(12deg);
-                }
-                
-                .slide.far-next, .slide.far-prev {
-                    display: none;
-                }
-            }
-        `;
-
-        const styleSheet = document.createElement('style');
-        styleSheet.id = 'cake-slideshow-styles';
-        styleSheet.textContent = styles;
-        document.head.appendChild(styleSheet);
+    getSlideClass(index) {
+        if (this.isMobile) {
+            // Mobile: Only show active, prev, and next slides
+            if (index === this.currentSlide) return 'active';
+            if (index === (this.currentSlide + 1) % this.images.length) return 'next';
+            if (index === (this.currentSlide - 1 + this.images.length) % this.images.length) return 'prev';
+            return 'hidden';
+        } else {
+            // Desktop: Show all slides with different positions
+            if (index === this.currentSlide) return 'active';
+            if (index === (this.currentSlide + 1) % this.images.length) return 'next';
+            if (index === (this.currentSlide - 1 + this.images.length) % this.images.length) return 'prev';
+            if (index === (this.currentSlide + 2) % this.images.length) return 'far-next';
+            if (index === (this.currentSlide - 2 + this.images.length) % this.images.length) return 'far-prev';
+            return 'hidden';
+        }
     }
 
     setupEventListeners() {
@@ -608,6 +423,7 @@ class CakeSlideshow3D {
 
         if (!slides.length) return;
 
+        // Button events
         prevBtn?.addEventListener('click', () => {
             this.navigate(-1);
             this.resetAutoAdvance();
@@ -618,6 +434,7 @@ class CakeSlideshow3D {
             this.resetAutoAdvance();
         });
 
+        // Indicator events
         indicators.forEach(indicator => {
             indicator.addEventListener('click', () => {
                 const targetIndex = parseInt(indicator.getAttribute('data-index'));
@@ -626,6 +443,7 @@ class CakeSlideshow3D {
             });
         });
 
+        // Slide click events
         slides.forEach(slide => {
             slide.addEventListener('click', () => {
                 this.navigate(1);
@@ -633,6 +451,7 @@ class CakeSlideshow3D {
             });
         });
 
+        // Keyboard navigation
         document.addEventListener('keydown', (e) => {
             if (e.key === 'ArrowLeft') {
                 this.navigate(-1);
@@ -643,6 +462,20 @@ class CakeSlideshow3D {
             }
         });
 
+        // Touch events for mobile
+        let touchStartX = 0;
+        let touchEndX = 0;
+
+        slideshowContainer?.addEventListener('touchstart', (e) => {
+            touchStartX = e.changedTouches[0].screenX;
+        }, { passive: true });
+
+        slideshowContainer?.addEventListener('touchend', (e) => {
+            touchEndX = e.changedTouches[0].screenX;
+            this.handleSwipe(touchStartX, touchEndX);
+        }, { passive: true });
+
+        // Pause auto-advance on hover/touch
         slideshowContainer?.addEventListener('mouseenter', () => {
             this.pauseAutoAdvance();
         });
@@ -658,6 +491,31 @@ class CakeSlideshow3D {
         this.progressBar = progressBar;
     }
 
+    handleSwipe(startX, endX) {
+        const swipeThreshold = 50;
+        const diff = startX - endX;
+
+        if (Math.abs(diff) > swipeThreshold) {
+            if (diff > 0) {
+                this.navigate(1); // Swipe left - next
+            } else {
+                this.navigate(-1); // Swipe right - previous
+            }
+            this.resetAutoAdvance();
+        }
+    }
+
+    setupResizeHandler() {
+        let resizeTimeout;
+        window.addEventListener('resize', () => {
+            clearTimeout(resizeTimeout);
+            resizeTimeout = setTimeout(() => {
+                this.isMobile = window.innerWidth <= 768;
+                this.updateSlides();
+            }, 250);
+        });
+    }
+
     navigate(direction) {
         this.currentSlide = (this.currentSlide + direction + this.images.length) % this.images.length;
         this.updateSlides();
@@ -671,31 +529,9 @@ class CakeSlideshow3D {
     updateSlides() {
         if (!this.slides || !this.slides.length) return;
 
-        this.slides.forEach(slide => {
-            slide.classList.remove('active', 'next', 'prev', 'far-next', 'far-prev');
+        this.slides.forEach((slide, index) => {
+            slide.className = 'slide ' + this.getSlideClass(index);
         });
-
-        this.slides[this.currentSlide].classList.add('active');
-
-        // Set next slides
-        for (let i = 1; i <= 2; i++) {
-            const nextIndex = (this.currentSlide + i) % this.slides.length;
-            if (i === 1) {
-                this.slides[nextIndex].classList.add('next');
-            } else {
-                this.slides[nextIndex].classList.add('far-next');
-            }
-        }
-
-        // Set previous slides
-        for (let i = 1; i <= 2; i++) {
-            const prevIndex = (this.currentSlide - i + this.slides.length) % this.slides.length;
-            if (i === 1) {
-                this.slides[prevIndex].classList.add('prev');
-            } else {
-                this.slides[prevIndex].classList.add('far-prev');
-            }
-        }
 
         if (this.indicators) {
             this.indicators.forEach((indicator, index) => {
@@ -758,19 +594,7 @@ document.addEventListener('DOMContentLoaded', function() {
     new CakeSlideshow3D();
 });
 
-// Error handling and fallbacks
+// Error handling
 window.addEventListener('error', function(e) {
     console.error('Script error:', e.error);
 });
-
-// Performance optimization: Debounce search input
-let searchTimeout;
-if (searchBar) {
-    const originalHandler = searchBar.oninput;
-    searchBar.oninput = function(e) {
-        clearTimeout(searchTimeout);
-        searchTimeout = setTimeout(() => {
-            handleSearchInput.call(this, e);
-        }, 300);
-    };
-}
