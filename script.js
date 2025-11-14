@@ -51,6 +51,14 @@ const cakes = [
 const searchBar = document.getElementById('searchBar');
 const suggestionsBox = document.getElementById('suggestions')?.querySelector('ul');
 
+// Enhanced search function with query parameter support
+function performSearch(searchQuery) {
+    if (searchQuery && searchQuery.trim()) {
+        window.location.href = `products.html?search=${encodeURIComponent(searchQuery.trim())}`;
+    }
+}
+
+// Handle search input with query parameter support
 searchBar?.addEventListener('input', () => {
     const query = searchBar.value.trim().toLowerCase();
     suggestionsBox.innerHTML = '';
@@ -85,7 +93,7 @@ searchBar?.addEventListener('input', () => {
             const suggestion = document.createElement('li');
             suggestion.textContent = match;
             suggestion.addEventListener('click', () => {
-                window.location.href = `products.html?search=${encodeURIComponent(match)}`;
+                performSearch(match);
             });
             suggestionsBox.appendChild(suggestion);
         });
@@ -108,6 +116,21 @@ searchBar?.addEventListener('input', () => {
     document.querySelector('.suggestions-box').style.display = 'block';
 });
 
+// Handle search form submission
+document.querySelector('.search-bar')?.addEventListener('submit', function(e) {
+    e.preventDefault();
+    const searchQuery = searchBar.value.trim();
+    performSearch(searchQuery);
+});
+
+// Handle Enter key in search bar
+searchBar?.addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') {
+        const searchQuery = searchBar.value.trim();
+        performSearch(searchQuery);
+    }
+});
+
 function displayAllResults(matches) {
     suggestionsBox.innerHTML = '';
     matches.sort((a, b) => a.localeCompare(b));
@@ -115,7 +138,7 @@ function displayAllResults(matches) {
         const suggestion = document.createElement('li');
         suggestion.textContent = match;
         suggestion.addEventListener('click', () => {
-            window.location.href = `products?search=${encodeURIComponent(match)}`;
+            performSearch(match);
         });
         suggestionsBox.appendChild(suggestion);
     });
@@ -133,33 +156,87 @@ function displayAllResults(matches) {
     suggestionsBox.appendChild(closeResults);
 }
 
-// Filter products in products.html with retry if cards not loaded yet
+// Enhanced filter products with query parameter support and better matching
 function filterCakes(retryCount = 10) {
     const params = new URLSearchParams(window.location.search);
-
-    // ➤ Added support for ?query=
-    const searchTerm = params.get("search") || params.get("query");
-
+    const searchTerm = params.get("search");
+    
     if (searchTerm) {
+        // Update search bar value if we're on products page
+        if (searchBar) {
+            searchBar.value = searchTerm;
+        }
+        
         const allProducts = document.querySelectorAll(".cake-card");
         if (allProducts.length === 0 && retryCount > 0) {
             setTimeout(() => filterCakes(retryCount - 1), 100);
             return;
         }
 
+        const searchTerms = searchTerm.toLowerCase().split(' ').filter(term => term.length > 0);
+        
         allProducts.forEach(card => {
             const name = card.querySelector(".cake-name")?.textContent.toLowerCase();
-            if (name && name.includes(searchTerm.toLowerCase())) {
-                card.style.display = "block";
+            if (name) {
+                // Check if all search terms are present in the cake name
+                const matchesAllTerms = searchTerms.every(term => name.includes(term));
+                if (matchesAllTerms) {
+                    card.style.display = "block";
+                    // Highlight the matching card
+                    card.style.border = "2px solid #ff6b6b";
+                    card.style.borderRadius = "10px";
+                } else {
+                    card.style.display = "none";
+                }
             } else {
                 card.style.display = "none";
             }
         });
+
+        // Show message if no results found
+        const visibleCards = document.querySelectorAll('.cake-card[style="display: block"]');
+        if (visibleCards.length === 0 && allProducts.length > 0) {
+            showNoResultsMessage(searchTerm);
+        }
     }
 }
 
+function showNoResultsMessage(searchTerm) {
+    // Remove existing message if any
+    const existingMessage = document.querySelector('.no-results-message');
+    if (existingMessage) {
+        existingMessage.remove();
+    }
+
+    const message = document.createElement('div');
+    message.className = 'no-results-message';
+    message.innerHTML = `
+        <p>No cakes found for "${searchTerm}"</p>
+        <p>Try searching for different terms or <a href="products.html">browse all cakes</a></p>
+    `;
+    message.style.cssText = `
+        text-align: center;
+        padding: 2rem;
+        color: white;
+        font-size: 1.2rem;
+    `;
+    
+    const menuGrid = document.querySelector('.menu-grid');
+    if (menuGrid) {
+        menuGrid.parentNode.insertBefore(message, menuGrid);
+    }
+}
+
+// Initialize search functionality on page load
 document.addEventListener("DOMContentLoaded", () => {
     filterCakes();
+    
+    // If we're on products page with search parameter, ensure search bar reflects it
+    const params = new URLSearchParams(window.location.search);
+    const searchTerm = params.get("search");
+    if (searchTerm && searchBar) {
+        searchBar.value = searchTerm;
+    }
 });
 
 // Add buttons to cake cards
@@ -168,7 +245,7 @@ document.addEventListener('DOMContentLoaded', function () {
         const cakeNameElem = card.querySelector('.cake-name');
         const buttonContainer = card.querySelector('.button-container');
 
-        if (!cakeNameElem || !buttonContainer) return;
+        if (!cakeNameElem || !buttonContainer) return; // Prevent null errors
 
         const cakeName = cakeNameElem.textContent;
         buttonContainer.innerHTML = '';
@@ -179,6 +256,7 @@ document.addEventListener('DOMContentLoaded', function () {
         orderBtn.href = `https://wa.me/918301088697?text=I%20would%20like%20to%20order%20${encodeURIComponent(cakeName)}`;
         orderBtn.target = '_blank';
 
+        // Detect if in cakes section
         let isCakeMenu = false;
         let prev = card;
         while (prev = prev.previousElementSibling) {
@@ -300,8 +378,8 @@ class CakeSlideshow {
         this.cakeImg = document.querySelector('.cake-img');
         this.currentIndex = 0;
         this.interval = null;
-        this.transitionTime = 500;
-        this.slideDuration = 3500;
+        this.transitionTime = 500; // Increased for smoother transition
+        this.slideDuration = 3500; // 3.5 seconds per slide
         this.isAnimating = false;
 
         if (this.cakeImg) {
