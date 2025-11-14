@@ -318,128 +318,158 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 });
 
-// 3D GLASS EFFECT SLIDESHOW
-class CakeSlideshow {
-    constructor() {
-        this.images = [
-            { file: "vanilla-cake.webp", alt: "Vanilla Cake" },
-            { file: "whiteforest-cake.webp", alt: "White Forest Cake" },
-            { file: "blackforest-cake.webp", alt: "Black Forest Cake" },
-            { file: "germanblackforest-cake.webp", alt: "German Black Forest Cake" },
-            { file: "chocolate-cake.webp", alt: "Chocolate Cake" },
-            { file: "chocolatetruffle-cake.webp", alt: "Chocolate Truffle Cake" },
-            { file: "whitechocotruffle-cake.webp", alt: "White Chocolate Truffle Cake" },
-            { file: "vancho-cake.webp", alt: "Vanilla Chocolate Cake" },
-            { file: "kitkat-cake.webp", alt: "KitKat Cake" },
-            { file: "ferrerorocher-cake.webp", alt: "Ferrero Rocher Cake" },
-            { file: "nutella-cake.webp", alt: "Nutella Cake" },
-            { file: "snickers-cake.webp", alt: "Snickers Cake" },
-            { file: "oreo-cake.webp", alt: "Oreo Cake" },
-            { file: "nuttybubble-cake.webp", alt: "Nutty Bubble Cake" },
-            { file: "redvelvet-cake.webp", alt: "Red Velvet Cake" },
-            { file: "redvelvetcreamcheese-cake.webp", alt: "Red Velvet Cream Cheese Cake" },
-            { file: "raffaello-cake.webp", alt: "Raffaello Cake" },
-            { file: "toffee-cake.webp", alt: "Toffee Cake" },
-            { file: "tendercoconut-cake.webp", alt: "Tender Coconut Cake" },
-            { file: "butterscotch-cake.webp", alt: "Butterscotch Cake" },
-            { file: "russianhoney-cake.webp", alt: "Russian Honey Cake" },
-            { file: "tresleches-cake.webp", alt: "Tres Leches Cake" },
-            { file: "milkynut-cake.webp", alt: "Milky Nut Cake" },
-            { file: "mexicantoffee-cake.webp", alt: "Mexican Toffee Cake" },
-            { file: "redbee-cake.webp", alt: "Red Bee Cake" },
-            { file: "goldenvancho-cake.webp", alt: "Golden Vanilla Chocolate Cake" },
-            { file: "kulfi-cake.webp", alt: "Kulfi Cake" },
-            { file: "chocovelvet-cake.webp", alt: "Chocolate Velvet Cake" },
-            { file: "choconuts-cake.webp", alt: "Chocolate Nuts Cake" },
-            { file: "loadedchocolate-cake.webp", alt: "Loaded Chocolate Cake" },
-            { file: "spanishdelight-cake.webp", alt: "Spanish Delight Cake" },
-            { file: "lotusbiscoff-cake.webp", alt: "Lotus Biscoff Cake" },
-            { file: "kifaya-cake.webp", alt: "Kifaya Cake" },
-            { file: "loadedcashew-cake.webp", alt: "Loaded Cashew Cake" },
-            { file: "rasmalai-cake.webp", alt: "Rasmalai Cake" },
-            { file: "honeyalmond-cake.webp", alt: "Honey Almond Cake" },
-            { file: "pineapple-cake.webp", alt: "Pineapple Cake" },
-            { file: "rainbow-cake.webp", alt: "Rainbow Cake" },
-            { file: "strawberry-cake.webp", alt: "Strawberry Cake" },
-            { file: "pista-cake.webp", alt: "Pista Cake" },
-            { file: "blueberry-cake.webp", alt: "Blueberry Cake" },
-            { file: "orangetruffle-cake.webp", alt: "Orange Truffle Cake" },
-            { file: "mangotruffle-cake.webp", alt: "Mango Truffle Cake" },
-            { file: "vanstrawberry-cake.webp", alt: "Vanilla Strawberry Cake" },
-            { file: "neapolitan-cake.webp", alt: "Neapolitan Cake" },
-            { file: "mangostrawberry-cake.webp", alt: "Mango Strawberry Cake" },
-            { file: "treslechespudding-cake.webp", alt: "Tres Leches Pudding Cake" },
-            { file: "pistatresleches-cake.webp", alt: "Pista Tres Leches Cake" },
-            { file: "dream-cake.webp", alt: "Dream Cake" }
-        ];
-
-        this.cakeImg = document.querySelector('.cake-img');
-        this.currentIndex = 0;
-        this.interval = null;
-        this.slideDuration = 3500;
-        this.isAnimating = false;
-
-        if (this.cakeImg) this.init();
-    }
-
-    init() {
-        this.preloadImages();
-        this.startSlideshow();
-        this.setupHoverControl();
-    }
-
-    preloadImages() {
-        this.images.forEach(img => new Image().src = `images/${img.file}`);
-    }
-
-    setupHoverControl() {
-        this.cakeImg.addEventListener('mouseenter', () => this.pause());
-        this.cakeImg.addEventListener('mouseleave', () => this.resume());
-        this.cakeImg.addEventListener('touchstart', () => this.pause());
-        this.cakeImg.addEventListener('touchend', () => this.resume());
-    }
-
-    async changeSlide() {
-        if (this.isAnimating) return;
-        this.isAnimating = true;
-
-        // 3D Rotate Out
-        this.cakeImg.style.transform = "rotateY(40deg) scale(0.9)";
-        this.cakeImg.style.opacity = 0;
-
-        await new Promise(res => setTimeout(res, 500));
-
-        // Update image
-        this.currentIndex = (this.currentIndex + 1) % this.images.length;
-        const next = this.images[this.currentIndex];
-        this.cakeImg.src = `images/${next.file}`;
-        this.cakeImg.alt = next.alt;
-
-        // Rotate Back In
-        requestAnimationFrame(() => {
-            this.cakeImg.style.transform = "rotateY(0deg) scale(1)";
-            this.cakeImg.style.opacity = 1;
-            this.isAnimating = false;
-        });
-    }
-
-    startSlideshow() {
-        const firstImg = this.images[0];
-        this.cakeImg.src = `images/${firstImg.file}`;
-        this.cakeImg.alt = firstImg.alt;
-
-        this.interval = setInterval(() => this.changeSlide(), this.slideDuration);
-    }
-
-    pause() {
-        clearInterval(this.interval);
-    }
-
-    resume() {
-        this.interval = setInterval(() => this.changeSlide(), this.slideDuration);
-    }
-}
+/* ============================================================
+   3D STACK CAKE SLIDESHOW (Responsive, Dynamic, No HTML Needed)
+   Replaces previous CakeSlideshow() entirely
+   ============================================================ */
 
 document.addEventListener("DOMContentLoaded", () => {
-    new CakeSlideshow();
+
+    class CakeStackSlideshow {
+
+        constructor() {
+            this.images = [
+                { file: "vanilla-cake.webp", alt: "Vanilla Cake" },
+                { file: "whiteforest-cake.webp", alt: "White Forest Cake" },
+                { file: "blackforest-cake.webp", alt: "Black Forest Cake" },
+                { file: "germanblackforest-cake.webp", alt: "German Black Forest Cake" },
+                { file: "chocolate-cake.webp", alt: "Chocolate Cake" },
+                { file: "chocolatetruffle-cake.webp", alt: "Chocolate Truffle Cake" },
+                { file: "whitechocotruffle-cake.webp", alt: "White Chocolate Truffle Cake" },
+                { file: "vancho-cake.webp", alt: "Vanilla Chocolate Cake" },
+                { file: "kitkat-cake.webp", alt: "KitKat Cake" },
+                { file: "ferrerorocher-cake.webp", alt: "Ferrero Rocher Cake" },
+                { file: "nutella-cake.webp", alt: "Nutella Cake" },
+                { file: "snickers-cake.webp", alt: "Snickers Cake" },
+                { file: "oreo-cake.webp", alt: "Oreo Cake" },
+                { file: "nuttybubble-cake.webp", alt: "Nutty Bubble Cake" },
+                { file: "redvelvet-cake.webp", alt: "Red Velvet Cake" },
+                { file: "redvelvetcreamcheese-cake.webp", alt: "Red Velvet Cream Cheese Cake" },
+                { file: "raffaello-cake.webp", alt: "Raffaello Cake" },
+                { file: "toffee-cake.webp", alt: "Toffee Cake" },
+                { file: "tendercoconut-cake.webp", alt: "Tender Coconut Cake" },
+                { file: "butterscotch-cake.webp", alt: "Butterscotch Cake" },
+                { file: "russianhoney-cake.webp", alt: "Russian Honey Cake" },
+                { file: "tresleches-cake.webp", alt: "Tres Leches Cake" },
+                { file: "milkynut-cake.webp", alt: "Milky Nut Cake" },
+                { file: "mexicantoffee-cake.webp", alt: "Mexican Toffee Cake" },
+                { file: "redbee-cake.webp", alt: "Red Bee Cake" },
+                { file: "goldenvancho-cake.webp", alt: "Golden Vanilla Chocolate Cake" },
+                { file: "kulfi-cake.webp", alt: "Kulfi Cake" },
+                { file: "chocovelvet-cake.webp", alt: "Chocolate Velvet Cake" },
+                { file: "choconuts-cake.webp", alt: "Chocolate Nuts Cake" },
+                { file: "loadedchocolate-cake.webp", alt: "Loaded Chocolate Cake" },
+                { file: "spanishdelight-cake.webp", alt: "Spanish Delight Cake" },
+                { file: "lotusbiscoff-cake.webp", alt: "Lotus Biscoff Cake" },
+                { file: "kifaya-cake.webp", alt: "Kifaya Cake" },
+                { file: "loadedcashew-cake.webp", alt: "Loaded Cashew Cake" },
+                { file: "rasmalai-cake.webp", alt: "Rasmalai Cake" },
+                { file: "honeyalmond-cake.webp", alt: "Honey Almond Cake" },
+                { file: "pineapple-cake.webp", alt: "Pineapple Cake" },
+                { file: "rainbow-cake.webp", alt: "Rainbow Cake" },
+                { file: "strawberry-cake.webp", alt: "Strawberry Cake" },
+                { file: "pista-cake.webp", alt: "Pista Cake" },
+                { file: "blueberry-cake.webp", alt: "Blueberry Cake" },
+                { file: "orangetruffle-cake.webp", alt: "Orange Truffle Cake" },
+                { file: "mangotruffle-cake.webp", alt: "Mango Truffle Cake" },
+                { file: "vanstrawberry-cake.webp", alt: "Vanilla Strawberry Cake" },
+                { file: "neapolitan-cake.webp", alt: "Neapolitan Cake" },
+                { file: "mangostrawberry-cake.webp", alt: "Mango Strawberry Cake" },
+                { file: "treslechespudding-cake.webp", alt: "Tres Leches Pudding Cake" },
+                { file: "pistatresleches-cake.webp", alt: "Pista Tres Leches Cake" },
+                { file: "dream-cake.webp", alt: "Dream Cake" }
+            ];
+
+            this.container = document.querySelector(".cake-slideshow-stack");
+            if (!this.container) return;
+
+            this.current = 0;
+
+            this.createStyle();
+            this.buildStack();
+            this.updateStack();
+
+            setInterval(() => this.next(), 2500);
+        }
+
+        /* Add CSS directly from JS */
+        createStyle() {
+            const css = `
+                .cake-slideshow-stack {
+                    position: relative;
+                    margin: auto;
+                    width: 90%;
+                    max-width: 360px;
+                    height: 220px;
+                    transform-style: preserve-3d;
+                }
+
+                @media(min-width: 768px){
+                    .cake-slideshow-stack {
+                        width: 420px;
+                        height: 260px;
+                    }
+                }
+
+                .cake-card {
+                    position: absolute;
+                    inset: 0;
+                    border-radius: 16px;
+                    background-size: cover;
+                    background-position: center;
+                    box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+                    transition: transform 0.7s ease, opacity 0.6s ease;
+                }
+            `;
+            const style = document.createElement("style");
+            style.innerHTML = css;
+            document.head.appendChild(style);
+        }
+
+        /* Build 3 layered cards dynamically */
+        buildStack() {
+            this.cards = [];
+
+            for (let i = 0; i < 3; i++) {
+                const card = document.createElement("div");
+                card.className = "cake-card";
+                this.container.appendChild(card);
+                this.cards.push(card);
+            }
+
+            this.updateImages();
+        }
+
+        updateImages() {
+            for (let i = 0; i < 3; i++) {
+                const index = (this.current + i) % this.images.length;
+                this.cards[i].style.backgroundImage = `url("images/${this.images[index].file}")`;
+                this.cards[i].setAttribute("alt", this.images[index].alt);
+            }
+        }
+
+        updateStack() {
+            this.cards.forEach((card, i) => {
+                const diff = i;
+
+                card.style.transform = `
+                    translateZ(${-diff * 80}px)
+                    translateY(${diff * 18}px)
+                    scale(${1 - diff * 0.1})
+                `;
+
+                card.style.opacity = diff === 0 ? 1 : 0.6;
+            });
+        }
+
+        next() {
+            this.current = (this.current + 1) % this.images.length;
+            this.updateImages();
+            this.updateStack();
+        }
+    }
+
+    /* Start slideshow */
+    new CakeStackSlideshow();
+
 });
