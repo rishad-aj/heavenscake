@@ -51,6 +51,129 @@ const cakes = [
 const searchBar = document.getElementById('searchBar');
 const suggestionsBox = document.getElementById('suggestions')?.querySelector('ul');
 
+// Query search functionality
+function handleQuerySearch() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const searchQuery = urlParams.get('search');
+    
+    if (searchQuery && searchBar) {
+        searchBar.value = searchQuery;
+        // Trigger search to show results
+        searchBar.dispatchEvent(new Event('input'));
+        
+        // If on products page, filter the cakes
+        if (window.location.pathname.includes('products.html')) {
+            setTimeout(() => {
+                filterCakesByQuery(searchQuery);
+            }, 100);
+        }
+    }
+}
+
+// Enhanced filter function for query search
+function filterCakesByQuery(query) {
+    const allProducts = document.querySelectorAll(".cake-card");
+    const searchTerm = query.toLowerCase().trim();
+    
+    if (allProducts.length === 0) return;
+    
+    let hasMatches = false;
+    
+    allProducts.forEach(card => {
+        const name = card.querySelector(".cake-name")?.textContent.toLowerCase();
+        const description = card.querySelector(".cake-description")?.textContent.toLowerCase() || '';
+        
+        if (name && (name.includes(searchTerm) || description.includes(searchTerm))) {
+            card.style.display = "block";
+            hasMatches = true;
+            
+            // Highlight the matching text
+            highlightText(card, searchTerm);
+        } else {
+            card.style.display = "none";
+        }
+    });
+    
+    // Show no results message if no matches found
+    showNoResultsMessage(hasMatches, searchTerm);
+}
+
+// Highlight matching text in search results
+function highlightText(card, searchTerm) {
+    const nameElement = card.querySelector(".cake-name");
+    const descElement = card.querySelector(".cake-description");
+    
+    if (nameElement) {
+        const originalName = nameElement.textContent;
+        const highlightedName = originalName.replace(
+            new RegExp(searchTerm, 'gi'),
+            match => `<span class="search-highlight">${match}</span>`
+        );
+        nameElement.innerHTML = highlightedName;
+    }
+    
+    if (descElement) {
+        const originalDesc = descElement.textContent;
+        const highlightedDesc = originalDesc.replace(
+            new RegExp(searchTerm, 'gi'),
+            match => `<span class="search-highlight">${match}</span>`
+        );
+        descElement.innerHTML = highlightedDesc;
+    }
+}
+
+// Show no results message
+function showNoResultsMessage(hasMatches, searchTerm) {
+    // Remove existing no results message
+    const existingMessage = document.querySelector('.no-results-message');
+    if (existingMessage) {
+        existingMessage.remove();
+    }
+    
+    if (!hasMatches && searchTerm) {
+        const menuGrid = document.querySelector('.menu-grid');
+        if (menuGrid) {
+            const noResultsMsg = document.createElement('div');
+            noResultsMsg.className = 'no-results-message';
+            noResultsMsg.innerHTML = `
+                <div style="text-align: center; padding: 2rem; color: #666;">
+                    <h3>No results found for "${searchTerm}"</h3>
+                    <p>Try searching for something else or <a href="javascript:void(0)" onclick="clearSearch()">clear search</a></p>
+                </div>
+            `;
+            menuGrid.parentNode.insertBefore(noResultsMsg, menuGrid.nextSibling);
+        }
+    }
+}
+
+// Clear search function
+function clearSearch() {
+    if (searchBar) {
+        searchBar.value = '';
+        searchBar.dispatchEvent(new Event('input'));
+    }
+    
+    // Remove query parameter from URL
+    const url = new URL(window.location);
+    url.searchParams.delete('search');
+    window.history.replaceState({}, '', url);
+    
+    // Show all products
+    const allProducts = document.querySelectorAll(".cake-card");
+    allProducts.forEach(card => {
+        card.style.display = "block";
+        // Remove highlighting
+        const nameElement = card.querySelector(".cake-name");
+        const descElement = card.querySelector(".cake-description");
+        if (nameElement) nameElement.innerHTML = nameElement.textContent;
+        if (descElement) descElement.innerHTML = descElement.textContent;
+    });
+    
+    // Remove no results message
+    const noResultsMsg = document.querySelector('.no-results-message');
+    if (noResultsMsg) noResultsMsg.remove();
+}
+
 searchBar?.addEventListener('input', () => {
     const query = searchBar.value.trim().toLowerCase();
     suggestionsBox.innerHTML = '';
@@ -85,7 +208,7 @@ searchBar?.addEventListener('input', () => {
             const suggestion = document.createElement('li');
             suggestion.textContent = match;
             suggestion.addEventListener('click', () => {
-                window.location.href = `products.html?search=${encodeURIComponent(match)}`;
+                performSearch(match);
             });
             suggestionsBox.appendChild(suggestion);
         });
@@ -108,6 +231,23 @@ searchBar?.addEventListener('input', () => {
     document.querySelector('.suggestions-box').style.display = 'block';
 });
 
+// Perform search and navigate to products page
+function performSearch(query) {
+    if (window.location.pathname.includes('products.html')) {
+        // Already on products page, update URL and filter
+        const url = new URL(window.location);
+        url.searchParams.set('search', query);
+        window.history.pushState({}, '', url);
+        filterCakesByQuery(query);
+    } else {
+        // Navigate to products page with search query
+        window.location.href = `products.html?search=${encodeURIComponent(query)}`;
+    }
+    
+    // Close suggestions
+    document.querySelector('.suggestions-box').style.display = 'none';
+}
+
 function displayAllResults(matches) {
     suggestionsBox.innerHTML = '';
     matches.sort((a, b) => a.localeCompare(b));
@@ -115,7 +255,7 @@ function displayAllResults(matches) {
         const suggestion = document.createElement('li');
         suggestion.textContent = match;
         suggestion.addEventListener('click', () => {
-            window.location.href = `products.html?search=${encodeURIComponent(match)}`;
+            performSearch(match);
         });
         suggestionsBox.appendChild(suggestion);
     });
@@ -144,18 +284,17 @@ function filterCakes(retryCount = 10) {
             return;
         }
 
-        allProducts.forEach(card => {
-            const name = card.querySelector(".cake-name")?.textContent.toLowerCase();
-            if (name && name.includes(searchTerm.toLowerCase())) {
-                card.style.display = "block";
-            } else {
-                card.style.display = "none";
-            }
-        });
+        filterCakesByQuery(searchTerm);
     }
 }
 
+// Handle browser back/forward buttons
+window.addEventListener('popstate', function() {
+    handleQuerySearch();
+});
+
 document.addEventListener("DOMContentLoaded", () => {
+    handleQuerySearch(); // Handle query parameters on page load
     filterCakes();
 });
 
@@ -165,7 +304,7 @@ document.addEventListener('DOMContentLoaded', function () {
         const cakeNameElem = card.querySelector('.cake-name');
         const buttonContainer = card.querySelector('.button-container');
 
-        if (!cakeNameElem || !buttonContainer) return;
+        if (!cakeNameElem || !buttonContainer) return; // Prevent null errors
 
         const cakeName = cakeNameElem.textContent;
         buttonContainer.innerHTML = '';
@@ -176,6 +315,7 @@ document.addEventListener('DOMContentLoaded', function () {
         orderBtn.href = `https://wa.me/918301088697?text=I%20would%20like%20to%20order%20${encodeURIComponent(cakeName)}`;
         orderBtn.target = '_blank';
 
+        // Detect if in cakes section
         let isCakeMenu = false;
         let prev = card;
         while (prev = prev.previousElementSibling) {
@@ -297,8 +437,8 @@ class CakeSlideshow {
         this.cakeImg = document.querySelector('.cake-img');
         this.currentIndex = 0;
         this.interval = null;
-        this.transitionTime = 500;
-        this.slideDuration = 3500;
+        this.transitionTime = 500; // Increased for smoother transition
+        this.slideDuration = 3500; // 3.5 seconds per slide
         this.isAnimating = false;
 
         if (this.cakeImg) {
