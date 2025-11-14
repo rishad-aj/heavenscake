@@ -318,7 +318,7 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 });
 
-// Enhanced WebP Image Slideshow
+// Enhanced WebP Image Slideshow with Improved Features
 class CakeSlideshow {
     constructor() {
         this.images = [
@@ -374,54 +374,219 @@ class CakeSlideshow {
         ];
 
         this.cakeImg = document.querySelector('.cake-img');
+        this.slideshowContainer = document.querySelector('.slideshow-container');
         this.currentIndex = 0;
         this.interval = null;
-        this.transitionTime = 500; // Increased for smoother transition
-        this.slideDuration = 3500; // 3.5 seconds per slide
+        this.transitionTime = 600; // Smoother transition
+        this.slideDuration = 4000; // 4 seconds per slide
         this.isAnimating = false;
+        this.preloadBuffer = 3; // Preload next 3 images
+        this.touchStartX = 0;
+        this.touchEndX = 0;
 
-        if (this.cakeImg) {
+        if (this.cakeImg && this.slideshowContainer) {
             this.init();
         }
     }
 
     init() {
+        this.createSlideshowElements();
         this.preloadImages();
         this.setupEventListeners();
         this.startSlideshow();
-        this.cakeImg.style.opacity = 1;
+        this.updateProgressIndicator();
+    }
+
+    createSlideshowElements() {
+        // Create progress indicator
+        this.progressContainer = document.createElement('div');
+        this.progressContainer.className = 'slideshow-progress';
+        this.progressContainer.style.cssText = `
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 8px;
+            z-index: 10;
+        `;
+
+        // Create progress dots
+        this.images.forEach((_, index) => {
+            const dot = document.createElement('div');
+            dot.className = 'progress-dot';
+            dot.style.cssText = `
+                width: 8px;
+                height: 8px;
+                border-radius: 50%;
+                background: ${index === 0 ? 'white' : 'rgba(255,255,255,0.5)'};
+                cursor: pointer;
+                transition: background 0.3s ease;
+            `;
+            dot.addEventListener('click', () => this.goToSlide(index));
+            this.progressContainer.appendChild(dot);
+        });
+
+        // Create navigation arrows
+        this.prevBtn = document.createElement('button');
+        this.prevBtn.innerHTML = '‹';
+        this.prevBtn.className = 'slideshow-nav slideshow-prev';
+        this.prevBtn.style.cssText = `
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(0,0,0,0.5);
+            color: white;
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            font-size: 20px;
+            cursor: pointer;
+            z-index: 10;
+            transition: background 0.3s ease;
+        `;
+
+        this.nextBtn = document.createElement('button');
+        this.nextBtn.innerHTML = '›';
+        this.nextBtn.className = 'slideshow-nav slideshow-next';
+        this.nextBtn.style.cssText = this.prevBtn.style.cssText;
+        this.nextBtn.style.left = 'auto';
+        this.nextBtn.style.right = '15px';
+
+        // Add elements to slideshow container
+        this.slideshowContainer.style.position = 'relative';
+        this.slideshowContainer.appendChild(this.progressContainer);
+        this.slideshowContainer.appendChild(this.prevBtn);
+        this.slideshowContainer.appendChild(this.nextBtn);
+
+        // Add CSS for image transitions
+        this.cakeImg.style.cssText += `
+            transition: opacity ${this.transitionTime}ms ease-in-out, transform ${this.transitionTime}ms ease-in-out;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        `;
     }
 
     preloadImages() {
-        this.images.forEach(img => {
-            const image = new Image();
-            image.src = `images/${img.file}`;
-        });
+        // Preload images with buffer
+        for (let i = 1; i <= this.preloadBuffer; i++) {
+            const nextIndex = (this.currentIndex + i) % this.images.length;
+            const img = new Image();
+            img.src = `images/${this.images[nextIndex].file}`;
+        }
     }
 
     setupEventListeners() {
+        // Mouse events
         this.cakeImg.addEventListener('mouseenter', () => this.pause());
         this.cakeImg.addEventListener('mouseleave', () => this.resume());
-        this.cakeImg.addEventListener('touchstart', () => this.pause(), { passive: true });
-        this.cakeImg.addEventListener('touchend', () => this.resume(), { passive: true });
+
+        // Touch events for swipe
+        this.cakeImg.addEventListener('touchstart', (e) => {
+            this.touchStartX = e.changedTouches[0].screenX;
+            this.pause();
+        }, { passive: true });
+
+        this.cakeImg.addEventListener('touchend', (e) => {
+            this.touchEndX = e.changedTouches[0].screenX;
+            this.handleSwipe();
+            setTimeout(() => this.resume(), 3000);
+        }, { passive: true });
+
+        // Navigation buttons
+        this.prevBtn.addEventListener('click', () => this.previousSlide());
+        this.nextBtn.addEventListener('click', () => this.nextSlide());
+
+        // Keyboard navigation
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowLeft') this.previousSlide();
+            if (e.key === 'ArrowRight') this.nextSlide();
+            if (e.key === ' ') {
+                e.preventDefault();
+                this.togglePlayPause();
+            }
+        });
+
+        // Visibility API - pause when tab is hidden
+        document.addEventListener('visibilitychange', () => {
+            if (document.hidden) {
+                this.pause();
+            } else {
+                this.resume();
+            }
+        });
     }
 
-    async changeSlide() {
+    async changeSlide(direction = 1) {
         if (this.isAnimating) return;
         this.isAnimating = true;
 
-        this.cakeImg.style.opacity = 0;
+        // Add slide-out animation
+        this.cakeImg.style.transform = direction > 0 ? 'translateX(-20px)' : 'translateX(20px)';
+        this.cakeImg.style.opacity = '0';
+
         await new Promise(resolve => setTimeout(resolve, this.transitionTime));
 
-        this.currentIndex = (this.currentIndex + 1) % this.images.length;
+        this.currentIndex = (this.currentIndex + direction + this.images.length) % this.images.length;
         const nextImg = this.images[this.currentIndex];
+        
+        // Preload next images
+        this.preloadImages();
+        
         this.cakeImg.src = `images/${nextImg.file}`;
         this.cakeImg.alt = nextImg.alt;
 
-        this.cakeImg.style.opacity = 0;
+        // Reset transform and fade in
+        this.cakeImg.style.transform = direction > 0 ? 'translateX(20px)' : 'translateX(-20px)';
+        
         requestAnimationFrame(() => {
-            this.cakeImg.style.opacity = 1;
+            this.cakeImg.style.transform = 'translateX(0)';
+            this.cakeImg.style.opacity = '1';
+            
+            // Update progress indicator
+            this.updateProgressIndicator();
+            
             this.isAnimating = false;
+        });
+    }
+
+    nextSlide() {
+        this.changeSlide(1);
+        this.restartInterval();
+    }
+
+    previousSlide() {
+        this.changeSlide(-1);
+        this.restartInterval();
+    }
+
+    goToSlide(index) {
+        const direction = index > this.currentIndex ? 1 : -1;
+        this.currentIndex = index;
+        this.changeSlide(0); // Direct jump
+        this.restartInterval();
+    }
+
+    handleSwipe() {
+        const swipeThreshold = 50;
+        const diff = this.touchStartX - this.touchEndX;
+
+        if (Math.abs(diff) > swipeThreshold) {
+            if (diff > 0) {
+                this.nextSlide();
+            } else {
+                this.previousSlide();
+            }
+        }
+    }
+
+    updateProgressIndicator() {
+        const dots = this.progressContainer.querySelectorAll('.progress-dot');
+        dots.forEach((dot, index) => {
+            dot.style.background = index === this.currentIndex ? 'white' : 'rgba(255,255,255,0.5)';
         });
     }
 
@@ -430,23 +595,96 @@ class CakeSlideshow {
         this.cakeImg.src = `images/${firstImg.file}`;
         this.cakeImg.alt = firstImg.alt;
         this.cakeImg.loading = 'eager';
+        this.cakeImg.style.opacity = '1';
 
-        this.interval = setInterval(() => this.changeSlide(), this.slideDuration);
+        this.interval = setInterval(() => this.changeSlide(1), this.slideDuration);
     }
 
     pause() {
-        clearInterval(this.interval);
-        this.interval = null;
+        if (this.interval) {
+            clearInterval(this.interval);
+            this.interval = null;
+        }
+        // Show navigation buttons on hover
+        this.prevBtn.style.opacity = '1';
+        this.nextBtn.style.opacity = '1';
     }
 
     resume() {
         if (!this.interval) {
-            this.changeSlide();
-            this.interval = setInterval(() => this.changeSlide(), this.slideDuration);
+            this.interval = setInterval(() => this.changeSlide(1), this.slideDuration);
+        }
+        // Hide navigation buttons
+        this.prevBtn.style.opacity = '0';
+        this.nextBtn.style.opacity = '0';
+    }
+
+    restartInterval() {
+        this.pause();
+        this.resume();
+    }
+
+    togglePlayPause() {
+        if (this.interval) {
+            this.pause();
+        } else {
+            this.resume();
         }
     }
 }
 
+// Initialize improved slideshow
 document.addEventListener('DOMContentLoaded', () => {
     new CakeSlideshow();
 });
+
+// Add CSS for the new slideshow features
+const slideshowStyles = `
+    .slideshow-container {
+        position: relative;
+        overflow: hidden;
+    }
+
+    .slideshow-nav {
+        opacity: 0;
+        transition: opacity 0.3s ease, background 0.3s ease;
+    }
+
+    .slideshow-container:hover .slideshow-nav {
+        opacity: 1;
+    }
+
+    .slideshow-nav:hover {
+        background: rgba(0,0,0,0.8) !important;
+    }
+
+    .progress-dot:hover {
+        transform: scale(1.2);
+        transition: transform 0.2s ease;
+    }
+
+    .cake-img {
+        will-change: transform, opacity;
+        backface-visibility: hidden;
+        transform: translateZ(0);
+    }
+
+    @media (max-width: 768px) {
+        .slideshow-nav {
+            opacity: 1;
+            width: 35px !important;
+            height: 35px !important;
+            font-size: 18px !important;
+        }
+        
+        .progress-dot {
+            width: 6px !important;
+            height: 6px !important;
+        }
+    }
+`;
+
+// Inject styles into the document
+const styleSheet = document.createElement('style');
+styleSheet.textContent = slideshowStyles;
+document.head.appendChild(styleSheet);
