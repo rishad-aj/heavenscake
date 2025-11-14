@@ -318,7 +318,7 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 });
 
-// Enhanced WebP Image Slideshow
+// 3D GLASS EFFECT SLIDESHOW
 class CakeSlideshow {
     constructor() {
         this.images = [
@@ -376,50 +376,48 @@ class CakeSlideshow {
         this.cakeImg = document.querySelector('.cake-img');
         this.currentIndex = 0;
         this.interval = null;
-        this.transitionTime = 500; // Increased for smoother transition
-        this.slideDuration = 3500; // 3.5 seconds per slide
+        this.slideDuration = 3500;
         this.isAnimating = false;
 
-        if (this.cakeImg) {
-            this.init();
-        }
+        if (this.cakeImg) this.init();
     }
 
     init() {
         this.preloadImages();
-        this.setupEventListeners();
         this.startSlideshow();
-        this.cakeImg.style.opacity = 1;
+        this.setupHoverControl();
     }
 
     preloadImages() {
-        this.images.forEach(img => {
-            const image = new Image();
-            image.src = `images/${img.file}`;
-        });
+        this.images.forEach(img => new Image().src = `images/${img.file}`);
     }
 
-    setupEventListeners() {
+    setupHoverControl() {
         this.cakeImg.addEventListener('mouseenter', () => this.pause());
         this.cakeImg.addEventListener('mouseleave', () => this.resume());
-        this.cakeImg.addEventListener('touchstart', () => this.pause(), { passive: true });
-        this.cakeImg.addEventListener('touchend', () => this.resume(), { passive: true });
+        this.cakeImg.addEventListener('touchstart', () => this.pause());
+        this.cakeImg.addEventListener('touchend', () => this.resume());
     }
 
     async changeSlide() {
         if (this.isAnimating) return;
         this.isAnimating = true;
 
+        // 3D Rotate Out
+        this.cakeImg.style.transform = "rotateY(40deg) scale(0.9)";
         this.cakeImg.style.opacity = 0;
-        await new Promise(resolve => setTimeout(resolve, this.transitionTime));
 
+        await new Promise(res => setTimeout(res, 500));
+
+        // Update image
         this.currentIndex = (this.currentIndex + 1) % this.images.length;
-        const nextImg = this.images[this.currentIndex];
-        this.cakeImg.src = `images/${nextImg.file}`;
-        this.cakeImg.alt = nextImg.alt;
+        const next = this.images[this.currentIndex];
+        this.cakeImg.src = `images/${next.file}`;
+        this.cakeImg.alt = next.alt;
 
-        this.cakeImg.style.opacity = 0;
+        // Rotate Back In
         requestAnimationFrame(() => {
+            this.cakeImg.style.transform = "rotateY(0deg) scale(1)";
             this.cakeImg.style.opacity = 1;
             this.isAnimating = false;
         });
@@ -429,24 +427,19 @@ class CakeSlideshow {
         const firstImg = this.images[0];
         this.cakeImg.src = `images/${firstImg.file}`;
         this.cakeImg.alt = firstImg.alt;
-        this.cakeImg.loading = 'eager';
 
         this.interval = setInterval(() => this.changeSlide(), this.slideDuration);
     }
 
     pause() {
         clearInterval(this.interval);
-        this.interval = null;
     }
 
     resume() {
-        if (!this.interval) {
-            this.changeSlide();
-            this.interval = setInterval(() => this.changeSlide(), this.slideDuration);
-        }
+        this.interval = setInterval(() => this.changeSlide(), this.slideDuration);
     }
 }
 
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener("DOMContentLoaded", () => {
     new CakeSlideshow();
 });
