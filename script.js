@@ -318,8 +318,8 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 });
 
-// Enhanced WebP Image Slideshow
-class CakeSlideshow {
+// 3D Card Stack Slideshow
+class CakeStackSlideshow {
     constructor() {
         this.images = [
             { file: "vanilla-cake.webp", alt: "Vanilla Cake" },
@@ -373,65 +373,176 @@ class CakeSlideshow {
             { file: "dream-cake.webp", alt: "Dream Cake" }
         ];
 
-        this.cakeImg = document.querySelector('.cake-img');
+        this.container = document.querySelector('.cake-img-container');
         this.currentIndex = 0;
         this.interval = null;
-        this.transitionTime = 500; // Increased for smoother transition
-        this.slideDuration = 3500; // 3.5 seconds per slide
+        this.slideDuration = 3000; // 3 seconds per slide
         this.isAnimating = false;
+        this.stackSize = 5; // Number of visible cards in stack
 
-        if (this.cakeImg) {
+        if (this.container) {
             this.init();
         }
     }
 
     init() {
-        this.preloadImages();
+        this.createStack();
         this.setupEventListeners();
         this.startSlideshow();
-        this.cakeImg.style.opacity = 1;
     }
 
-    preloadImages() {
-        this.images.forEach(img => {
-            const image = new Image();
-            image.src = `images/${img.file}`;
+    createStack() {
+        // Clear container
+        this.container.innerHTML = '';
+        
+        // Create stack container with 3D perspective
+        this.stackContainer = document.createElement('div');
+        this.stackContainer.className = 'cake-stack-container';
+        this.stackContainer.style.cssText = `
+            position: relative;
+            width: 100%;
+            height: 400px;
+            perspective: 1200px;
+            transform-style: preserve-3d;
+        `;
+
+        // Create individual cards
+        for (let i = 0; i < this.stackSize; i++) {
+            const card = document.createElement('div');
+            card.className = 'cake-stack-card';
+            card.style.cssText = `
+                position: absolute;
+                width: 280px;
+                height: 350px;
+                top: 0;
+                left: 50%;
+                margin-left: -140px;
+                border-radius: 15px;
+                overflow: hidden;
+                box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+                transition: transform 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94), 
+                            opacity 0.8s ease,
+                            z-index 0.8s ease;
+                transform-style: preserve-3d;
+                cursor: pointer;
+            `;
+
+            const img = document.createElement('img');
+            img.style.cssText = `
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+                display: block;
+            `;
+
+            const overlay = document.createElement('div');
+            overlay.style.cssText = `
+                position: absolute;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                background: linear-gradient(transparent, rgba(0,0,0,0.8));
+                color: white;
+                padding: 20px;
+                transform: translateZ(20px);
+            `;
+
+            const title = document.createElement('h3');
+            title.style.cssText = `
+                margin: 0;
+                font-size: 1.2rem;
+                font-weight: bold;
+                text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+            `;
+
+            card.appendChild(img);
+            card.appendChild(overlay);
+            overlay.appendChild(title);
+            this.stackContainer.appendChild(card);
+        }
+
+        this.container.appendChild(this.stackContainer);
+        this.cards = this.stackContainer.querySelectorAll('.cake-stack-card');
+        this.updateStack();
+    }
+
+    updateStack() {
+        this.cards.forEach((card, index) => {
+            const imgIndex = (this.currentIndex + index) % this.images.length;
+            const img = card.querySelector('img');
+            const title = card.querySelector('h3');
+            
+            img.src = `images/${this.images[imgIndex].file}`;
+            img.alt = this.images[imgIndex].alt;
+            title.textContent = this.images[imgIndex].alt;
+
+            // Calculate 3D positions for stack effect
+            const zIndex = this.stackSize - index;
+            const scale = 1 - (index * 0.1);
+            const rotation = index * 2 - 4; // Slight rotation variation
+            const translateY = index * 15; // Vertical offset for stack
+            const translateX = index * 5 - 10; // Horizontal offset for stack
+            const opacity = 1 - (index * 0.2);
+            const blur = index * 0.5;
+
+            card.style.zIndex = zIndex;
+            card.style.transform = `
+                translateX(${translateX}px) 
+                translateY(${translateY}px) 
+                scale(${scale}) 
+                rotateY(${rotation}deg)
+                translateZ(${-index * 30}px)
+            `;
+            card.style.opacity = opacity;
+            card.style.filter = `blur(${blur}px)`;
+            
+            // Add hover effect for top card
+            if (index === 0) {
+                card.style.cursor = 'pointer';
+                card.onclick = () => this.next();
+                card.onmouseenter = () => {
+                    card.style.transform = `
+                        translateX(${translateX}px) 
+                        translateY(${translateY}px) 
+                        scale(${scale * 1.05}) 
+                        rotateY(${rotation}deg)
+                        translateZ(${-index * 30}px)
+                    `;
+                };
+                card.onmouseleave = () => {
+                    card.style.transform = `
+                        translateX(${translateX}px) 
+                        translateY(${translateY}px) 
+                        scale(${scale}) 
+                        rotateY(${rotation}deg)
+                        translateZ(${-index * 30}px)
+                    `;
+                };
+            }
         });
     }
 
-    setupEventListeners() {
-        this.cakeImg.addEventListener('mouseenter', () => this.pause());
-        this.cakeImg.addEventListener('mouseleave', () => this.resume());
-        this.cakeImg.addEventListener('touchstart', () => this.pause(), { passive: true });
-        this.cakeImg.addEventListener('touchend', () => this.resume(), { passive: true });
-    }
-
-    async changeSlide() {
+    next() {
         if (this.isAnimating) return;
         this.isAnimating = true;
 
-        this.cakeImg.style.opacity = 0;
-        await new Promise(resolve => setTimeout(resolve, this.transitionTime));
+        // Add animation class for smooth transition
+        this.cards.forEach(card => {
+            card.style.transition = 'all 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
+        });
 
         this.currentIndex = (this.currentIndex + 1) % this.images.length;
-        const nextImg = this.images[this.currentIndex];
-        this.cakeImg.src = `images/${nextImg.file}`;
-        this.cakeImg.alt = nextImg.alt;
-
-        this.cakeImg.style.opacity = 0;
-        requestAnimationFrame(() => {
-            this.cakeImg.style.opacity = 1;
+        
+        setTimeout(() => {
+            this.updateStack();
             this.isAnimating = false;
-        });
+        }, 100);
     }
 
     startSlideshow() {
-        const firstImg = this.images[0];
-        this.cakeImg.src = `images/${firstImg.file}`;
-        this.cakeImg.alt = firstImg.alt;
-        this.cakeImg.loading = 'eager';
-
-        this.interval = setInterval(() => this.changeSlide(), this.slideDuration);
+        this.interval = setInterval(() => {
+            this.next();
+        }, this.slideDuration);
     }
 
     pause() {
@@ -441,12 +552,11 @@ class CakeSlideshow {
 
     resume() {
         if (!this.interval) {
-            this.changeSlide();
-            this.interval = setInterval(() => this.changeSlide(), this.slideDuration);
+            this.startSlideshow();
         }
     }
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-    new CakeSlideshow();
+    new CakeStackSlideshow();
 });
