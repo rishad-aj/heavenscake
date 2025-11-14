@@ -115,7 +115,7 @@ function displayAllResults(matches) {
         const suggestion = document.createElement('li');
         suggestion.textContent = match;
         suggestion.addEventListener('click', () => {
-            window.location.href = `products?search=${encodeURIComponent(match)}`;
+            window.location.href = `products.html?search=${encodeURIComponent(match)}`;
         });
         suggestionsBox.appendChild(suggestion);
     });
@@ -165,7 +165,7 @@ document.addEventListener('DOMContentLoaded', function () {
         const cakeNameElem = card.querySelector('.cake-name');
         const buttonContainer = card.querySelector('.button-container');
 
-        if (!cakeNameElem || !buttonContainer) return; // Prevent null errors
+        if (!cakeNameElem || !buttonContainer) return;
 
         const cakeName = cakeNameElem.textContent;
         buttonContainer.innerHTML = '';
@@ -176,7 +176,6 @@ document.addEventListener('DOMContentLoaded', function () {
         orderBtn.href = `https://wa.me/918301088697?text=I%20would%20like%20to%20order%20${encodeURIComponent(cakeName)}`;
         orderBtn.target = '_blank';
 
-        // Detect if in cakes section
         let isCakeMenu = false;
         let prev = card;
         while (prev = prev.previousElementSibling) {
@@ -298,8 +297,8 @@ class CakeSlideshow {
         this.cakeImg = document.querySelector('.cake-img');
         this.currentIndex = 0;
         this.interval = null;
-        this.transitionTime = 500; // Increased for smoother transition
-        this.slideDuration = 3500; // 3.5 seconds per slide
+        this.transitionTime = 500;
+        this.slideDuration = 3500;
         this.isAnimating = false;
 
         if (this.cakeImg) {
