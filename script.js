@@ -174,6 +174,7 @@ function filterCakes(retryCount = 10) {
         }
 
         const searchTerms = searchTerm.toLowerCase().split(' ').filter(term => term.length > 0);
+        let foundResults = false;
         
         allProducts.forEach(card => {
             const name = card.querySelector(".cake-name")?.textContent.toLowerCase();
@@ -182,9 +183,9 @@ function filterCakes(retryCount = 10) {
                 const matchesAllTerms = searchTerms.every(term => name.includes(term));
                 if (matchesAllTerms) {
                     card.style.display = "block";
-                    // Highlight the matching card
-                    card.style.border = "2px solid #ff6b6b";
-                    card.style.borderRadius = "10px";
+                    foundResults = true;
+                    // Remove any borders from previous searches
+                    card.style.border = "";
                 } else {
                     card.style.display = "none";
                 }
@@ -193,32 +194,29 @@ function filterCakes(retryCount = 10) {
             }
         });
 
-        // Show message if no results found
-        const visibleCards = document.querySelectorAll('.cake-card[style="display: block"]');
-        if (visibleCards.length === 0 && allProducts.length > 0) {
-            showNoResultsMessage(searchTerm);
+        // Remove existing message if any
+        const existingMessage = document.querySelector('.no-results-message');
+        if (existingMessage) {
+            existingMessage.remove();
+        }
+
+        // Show message only if no results found
+        if (!foundResults) {
+            showNoResultsMessage();
         }
     }
 }
 
-function showNoResultsMessage(searchTerm) {
-    // Remove existing message if any
-    const existingMessage = document.querySelector('.no-results-message');
-    if (existingMessage) {
-        existingMessage.remove();
-    }
-
+function showNoResultsMessage() {
     const message = document.createElement('div');
     message.className = 'no-results-message';
-    message.innerHTML = `
-        <p>No cakes found for "${searchTerm}"</p>
-        <p>Try searching for different terms or <a href="products.html">browse all cakes</a></p>
-    `;
+    message.textContent = 'No results found';
     message.style.cssText = `
         text-align: center;
         padding: 2rem;
         color: white;
         font-size: 1.2rem;
+        width: 100%;
     `;
     
     const menuGrid = document.querySelector('.menu-grid');
