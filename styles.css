@@ -1,3 +1,52 @@
+.cake-3d-stack {
+    position: relative;
+    width: 100%;
+    height: 350px;
+    perspective: 1200px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.cake-card {
+    position: absolute;
+    width: 80%;
+    height: 100%;
+    border-radius: 15px;
+    background-size: cover;
+    background-position: center;
+    transition: 0.7s ease;
+    box-shadow: 0 15px 35px rgba(0,0,0,0.35);
+}
+
+.cake-card.active {
+    transform: translateZ(0);
+    z-index: 5;
+}
+
+.cake-card.next {
+    transform: translateX(30%) scale(0.9) rotateY(-15deg);
+    z-index: 4;
+    opacity: 0.9;
+}
+
+.cake-card.prev {
+    transform: translateX(-30%) scale(0.9) rotateY(15deg);
+    z-index: 4;
+    opacity: 0.9;
+}
+
+.cake-card.far-next {
+    transform: translateX(50%) scale(0.8) rotateY(-25deg);
+    z-index: 3;
+    opacity: 0.6;
+}
+
+.cake-card.far-prev {
+    transform: translateX(-50%) scale(0.8) rotateY(25deg);
+    z-index: 3;
+    opacity: 0.6;
+}
 * {
 	box-sizing: border-box;
 	font-family: "Inter", sans-serif;
