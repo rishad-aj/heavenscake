@@ -319,66 +319,23 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 
 // 3D Card Stack Slideshow
-class CakeStackSlideshow {
+class CakeSlideshow3D {
     constructor() {
         this.images = [
-            { file: "vanilla-cake.webp", alt: "Vanilla Cake" },
-            { file: "whiteforest-cake.webp", alt: "White Forest Cake" },
-            { file: "blackforest-cake.webp", alt: "Black Forest Cake" },
-            { file: "germanblackforest-cake.webp", alt: "German Black Forest Cake" },
-            { file: "chocolate-cake.webp", alt: "Chocolate Cake" },
-            { file: "chocolatetruffle-cake.webp", alt: "Chocolate Truffle Cake" },
-            { file: "whitechocotruffle-cake.webp", alt: "White Chocolate Truffle Cake" },
-            { file: "vancho-cake.webp", alt: "Vanilla Chocolate Cake" },
-            { file: "kitkat-cake.webp", alt: "KitKat Cake" },
-            { file: "ferrerorocher-cake.webp", alt: "Ferrero Rocher Cake" },
-            { file: "nutella-cake.webp", alt: "Nutella Cake" },
-            { file: "snickers-cake.webp", alt: "Snickers Cake" },
-            { file: "oreo-cake.webp", alt: "Oreo Cake" },
-            { file: "nuttybubble-cake.webp", alt: "Nutty Bubble Cake" },
-            { file: "redvelvet-cake.webp", alt: "Red Velvet Cake" },
-            { file: "redvelvetcreamcheese-cake.webp", alt: "Red Velvet Cream Cheese Cake" },
-            { file: "raffaello-cake.webp", alt: "Raffaello Cake" },
-            { file: "toffee-cake.webp", alt: "Toffee Cake" },
-            { file: "tendercoconut-cake.webp", alt: "Tender Coconut Cake" },
-            { file: "butterscotch-cake.webp", alt: "Butterscotch Cake" },
-            { file: "russianhoney-cake.webp", alt: "Russian Honey Cake" },
-            { file: "tresleches-cake.webp", alt: "Tres Leches Cake" },
-            { file: "milkynut-cake.webp", alt: "Milky Nut Cake" },
-            { file: "mexicantoffee-cake.webp", alt: "Mexican Toffee Cake" },
-            { file: "redbee-cake.webp", alt: "Red Bee Cake" },
-            { file: "goldenvancho-cake.webp", alt: "Golden Vanilla Chocolate Cake" },
-            { file: "kulfi-cake.webp", alt: "Kulfi Cake" },
-            { file: "chocovelvet-cake.webp", alt: "Chocolate Velvet Cake" },
-            { file: "choconuts-cake.webp", alt: "Chocolate Nuts Cake" },
-            { file: "loadedchocolate-cake.webp", alt: "Loaded Chocolate Cake" },
-            { file: "spanishdelight-cake.webp", alt: "Spanish Delight Cake" },
-            { file: "lotusbiscoff-cake.webp", alt: "Lotus Biscoff Cake" },
-            { file: "kifaya-cake.webp", alt: "Kifaya Cake" },
-            { file: "loadedcashew-cake.webp", alt: "Loaded Cashew Cake" },
-            { file: "rasmalai-cake.webp", alt: "Rasmalai Cake" },
-            { file: "honeyalmond-cake.webp", alt: "Honey Almond Cake" },
-            { file: "pineapple-cake.webp", alt: "Pineapple Cake" },
-            { file: "rainbow-cake.webp", alt: "Rainbow Cake" },
-            { file: "strawberry-cake.webp", alt: "Strawberry Cake" },
-            { file: "pista-cake.webp", alt: "Pista Cake" },
-            { file: "blueberry-cake.webp", alt: "Blueberry Cake" },
-            { file: "orangetruffle-cake.webp", alt: "Orange Truffle Cake" },
-            { file: "mangotruffle-cake.webp", alt: "Mango Truffle Cake" },
-            { file: "vanstrawberry-cake.webp", alt: "Vanilla Strawberry Cake" },
-            { file: "neapolitan-cake.webp", alt: "Neapolitan Cake" },
-            { file: "mangostrawberry-cake.webp", alt: "Mango Strawberry Cake" },
-            { file: "treslechespudding-cake.webp", alt: "Tres Leches Pudding Cake" },
-            { file: "pistatresleches-cake.webp", alt: "Pista Tres Leches Cake" },
-            { file: "dream-cake.webp", alt: "Dream Cake" }
+            { file: "vanilla-cake.webp", alt: "Vanilla Cake", desc: "Classic vanilla flavor with creamy frosting" },
+            { file: "whiteforest-cake.webp", alt: "White Forest Cake", desc: "White chocolate and cherry delight" },
+            { file: "blackforest-cake.webp", alt: "Black Forest Cake", desc: "Chocolate cake with cherries and cream" },
+            { file: "germanblackforest-cake.webp", alt: "German Black Forest Cake", desc: "Authentic German recipe with kirsch" },
+            { file: "chocolate-cake.webp", alt: "Chocolate Cake", desc: "Rich and moist chocolate masterpiece" },
+            { file: "chocolatetruffle-cake.webp", alt: "Chocolate Truffle Cake", desc: "Decadent truffle with ganache" },
+            { file: "whitechocotruffle-cake.webp", alt: "White Chocolate Truffle Cake", desc: "Creamy white chocolate perfection" }
         ];
 
-        this.container = document.querySelector('.cake-img-container');
-        this.currentIndex = 0;
-        this.interval = null;
-        this.slideDuration = 3000; // 3 seconds per slide
-        this.isAnimating = false;
-        this.stackSize = 5; // Number of visible cards in stack
+        this.container = document.querySelector('.content');
+        this.currentSlide = 0;
+        this.autoAdvance = true;
+        this.slideInterval = null;
+        this.slideDuration = 4000; // 4 seconds
 
         if (this.container) {
             this.init();
@@ -386,177 +343,412 @@ class CakeStackSlideshow {
     }
 
     init() {
-        this.createStack();
-        this.setupEventListeners();
-        this.startSlideshow();
+        this.createSlideshow();
+        this.startAutoAdvance();
     }
 
-    createStack() {
-        // Clear container
-        this.container.innerHTML = '';
+    createSlideshow() {
+        // Save the original shop button
+        const originalShopButton = this.container.querySelector('.shop-button');
         
-        // Create stack container with 3D perspective
-        this.stackContainer = document.createElement('div');
-        this.stackContainer.className = 'cake-stack-container';
-        this.stackContainer.style.cssText = `
-            position: relative;
-            width: 100%;
-            height: 400px;
-            perspective: 1200px;
-            transform-style: preserve-3d;
+        // Clear the container but keep the shop button reference
+        this.container.innerHTML = '';
+
+        // Create slideshow container
+        const slideshowHTML = `
+            <div class="slideshow-container">
+                <div class="card-stack">
+                    ${this.images.map((img, index) => `
+                        <div class="slide ${index === 0 ? 'active' : index === 1 ? 'next' : index === this.images.length - 1 ? 'prev' : ''}" 
+                             style="background-image: url('images/${img.file}')">
+                            <div class="slide-content">
+                                <h3 class="slide-title">${img.alt}</h3>
+                                <p class="slide-desc">${img.desc}</p>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+                <button class="nav-btn prev-btn">❮</button>
+                <button class="nav-btn next-btn">❯</button>
+                
+                <div class="indicators">
+                    ${this.images.map((_, index) => `
+                        <div class="indicator ${index === 0 ? 'active' : ''}" data-index="${index}"></div>
+                    `).join('')}
+                </div>
+
+                <div class="progress-bar">
+                    <div class="progress"></div>
+                </div>
+            </div>
         `;
 
-        // Create individual cards
-        for (let i = 0; i < this.stackSize; i++) {
-            const card = document.createElement('div');
-            card.className = 'cake-stack-card';
-            card.style.cssText = `
-                position: absolute;
-                width: 280px;
-                height: 350px;
-                top: 0;
-                left: 50%;
-                margin-left: -140px;
-                border-radius: 15px;
-                overflow: hidden;
-                box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-                transition: transform 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94), 
-                            opacity 0.8s ease,
-                            z-index 0.8s ease;
-                transform-style: preserve-3d;
-                cursor: pointer;
-            `;
+        this.container.innerHTML = slideshowHTML;
 
-            const img = document.createElement('img');
-            img.style.cssText = `
+        // Add the shop button back
+        if (originalShopButton) {
+            this.container.appendChild(originalShopButton);
+        }
+
+        // Add CSS styles
+        this.addStyles();
+
+        // Initialize event listeners
+        this.setupEventListeners();
+    }
+
+    addStyles() {
+        const styles = `
+            .slideshow-container {
+                position: relative;
+                height: 500px;
+                margin: 0 auto 20px;
+                perspective: 1200px;
+                width: 100%;
+                max-width: 900px;
+            }
+
+            .card-stack {
+                position: relative;
                 width: 100%;
                 height: 100%;
-                object-fit: cover;
-                display: block;
-            `;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+            }
 
-            const overlay = document.createElement('div');
-            overlay.style.cssText = `
+            .slide {
+                position: absolute;
+                width: 80%;
+                height: 85%;
+                border-radius: 15px;
+                background-size: cover;
+                background-position: center;
+                box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5);
+                transition: transform 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94), 
+                            opacity 0.8s ease, 
+                            z-index 0.8s ease;
+                transform-style: preserve-3d;
+                overflow: hidden;
+                cursor: pointer;
+            }
+
+            .slide.active {
+                transform: translateZ(0);
+                z-index: 5;
+            }
+
+            .slide.next {
+                transform: translateX(30%) scale(0.9) rotateY(-15deg);
+                z-index: 4;
+                opacity: 0.8;
+            }
+
+            .slide.prev {
+                transform: translateX(-30%) scale(0.9) rotateY(15deg);
+                z-index: 3;
+                opacity: 0.8;
+            }
+
+            .slide.far-prev {
+                transform: translateX(-50%) scale(0.8) rotateY(25deg);
+                z-index: 2;
+                opacity: 0.5;
+            }
+
+            .slide.far-next {
+                transform: translateX(50%) scale(0.8) rotateY(-25deg);
+                z-index: 1;
+                opacity: 0.5;
+            }
+
+            .slide-content {
                 position: absolute;
                 bottom: 0;
                 left: 0;
                 right: 0;
-                background: linear-gradient(transparent, rgba(0,0,0,0.8));
+                background: linear-gradient(transparent, rgba(0, 0, 0, 0.8));
+                padding: 25px;
                 color: white;
-                padding: 20px;
+                text-align: left;
                 transform: translateZ(20px);
-            `;
+            }
 
-            const title = document.createElement('h3');
-            title.style.cssText = `
-                margin: 0;
-                font-size: 1.2rem;
-                font-weight: bold;
+            .slide-title {
+                font-size: 1.8rem;
+                margin-bottom: 8px;
+                font-weight: 600;
                 text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
-            `;
+            }
 
-            card.appendChild(img);
-            card.appendChild(overlay);
-            overlay.appendChild(title);
-            this.stackContainer.appendChild(card);
-        }
+            .slide-desc {
+                font-size: 1.1rem;
+                opacity: 0.9;
+                line-height: 1.5;
+                margin: 0;
+            }
 
-        this.container.appendChild(this.stackContainer);
-        this.cards = this.stackContainer.querySelectorAll('.cake-stack-card');
-        this.updateStack();
+            .nav-btn {
+                position: absolute;
+                top: 50%;
+                transform: translateY(-50%);
+                background: rgba(255, 255, 255, 0.2);
+                backdrop-filter: blur(10px);
+                color: white;
+                border: none;
+                width: 60px;
+                height: 60px;
+                border-radius: 50%;
+                font-size: 1.8rem;
+                cursor: pointer;
+                z-index: 10;
+                transition: all 0.3s ease;
+                box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            }
+
+            .nav-btn:hover {
+                background: rgba(255, 255, 255, 0.3);
+                transform: translateY(-50%) scale(1.1);
+            }
+
+            .prev-btn {
+                left: 10px;
+            }
+
+            .next-btn {
+                right: 10px;
+            }
+
+            .indicators {
+                display: flex;
+                justify-content: center;
+                gap: 12px;
+                margin-top: 20px;
+            }
+
+            .indicator {
+                width: 14px;
+                height: 14px;
+                border-radius: 50%;
+                background: rgba(255, 255, 255, 0.4);
+                cursor: pointer;
+                transition: all 0.3s ease;
+            }
+
+            .indicator.active {
+                background: white;
+                transform: scale(1.3);
+            }
+
+            .progress-bar {
+                width: 100%;
+                height: 5px;
+                background: rgba(255, 255, 255, 0.2);
+                border-radius: 5px;
+                margin-top: 30px;
+                overflow: hidden;
+            }
+
+            .progress {
+                height: 100%;
+                background: white;
+                width: 0%;
+                transition: width 0.3s ease;
+            }
+
+            @media (max-width: 768px) {
+                .slideshow-container {
+                    height: 400px;
+                }
+                
+                .slide-title {
+                    font-size: 1.5rem;
+                }
+                
+                .slide-desc {
+                    font-size: 1rem;
+                }
+                
+                .nav-btn {
+                    width: 50px;
+                    height: 50px;
+                    font-size: 1.5rem;
+                }
+            }
+
+            @media (max-width: 480px) {
+                .slideshow-container {
+                    height: 350px;
+                }
+                
+                .slide {
+                    width: 90%;
+                }
+                
+                .slide.next, .slide.prev {
+                    transform: translateX(25%) scale(0.85) rotateY(-12deg);
+                }
+                
+                .slide.prev {
+                    transform: translateX(-25%) scale(0.85) rotateY(12deg);
+                }
+                
+                .slide.far-next, .slide.far-prev {
+                    display: none;
+                }
+            }
+        `;
+
+        const styleSheet = document.createElement('style');
+        styleSheet.textContent = styles;
+        document.head.appendChild(styleSheet);
     }
 
-    updateStack() {
-        this.cards.forEach((card, index) => {
-            const imgIndex = (this.currentIndex + index) % this.images.length;
-            const img = card.querySelector('img');
-            const title = card.querySelector('h3');
-            
-            img.src = `images/${this.images[imgIndex].file}`;
-            img.alt = this.images[imgIndex].alt;
-            title.textContent = this.images[imgIndex].alt;
+    setupEventListeners() {
+        const slides = this.container.querySelectorAll('.slide');
+        const indicators = this.container.querySelectorAll('.indicator');
+        const prevBtn = this.container.querySelector('.prev-btn');
+        const nextBtn = this.container.querySelector('.next-btn');
+        const progressBar = this.container.querySelector('.progress');
+        const slideshowContainer = this.container.querySelector('.slideshow-container');
 
-            // Calculate 3D positions for stack effect
-            const zIndex = this.stackSize - index;
-            const scale = 1 - (index * 0.1);
-            const rotation = index * 2 - 4; // Slight rotation variation
-            const translateY = index * 15; // Vertical offset for stack
-            const translateX = index * 5 - 10; // Horizontal offset for stack
-            const opacity = 1 - (index * 0.2);
-            const blur = index * 0.5;
+        // Previous button event
+        prevBtn?.addEventListener('click', () => {
+            this.navigate(-1);
+            this.resetAutoAdvance();
+        });
 
-            card.style.zIndex = zIndex;
-            card.style.transform = `
-                translateX(${translateX}px) 
-                translateY(${translateY}px) 
-                scale(${scale}) 
-                rotateY(${rotation}deg)
-                translateZ(${-index * 30}px)
-            `;
-            card.style.opacity = opacity;
-            card.style.filter = `blur(${blur}px)`;
-            
-            // Add hover effect for top card
-            if (index === 0) {
-                card.style.cursor = 'pointer';
-                card.onclick = () => this.next();
-                card.onmouseenter = () => {
-                    card.style.transform = `
-                        translateX(${translateX}px) 
-                        translateY(${translateY}px) 
-                        scale(${scale * 1.05}) 
-                        rotateY(${rotation}deg)
-                        translateZ(${-index * 30}px)
-                    `;
-                };
-                card.onmouseleave = () => {
-                    card.style.transform = `
-                        translateX(${translateX}px) 
-                        translateY(${translateY}px) 
-                        scale(${scale}) 
-                        rotateY(${rotation}deg)
-                        translateZ(${-index * 30}px)
-                    `;
-                };
+        // Next button event
+        nextBtn?.addEventListener('click', () => {
+            this.navigate(1);
+            this.resetAutoAdvance();
+        });
+
+        // Indicator click events
+        indicators.forEach(indicator => {
+            indicator.addEventListener('click', () => {
+                const targetIndex = parseInt(indicator.getAttribute('data-index'));
+                this.navigateToSlide(targetIndex);
+                this.resetAutoAdvance();
+            });
+        });
+
+        // Slide click events (click on any slide to go next)
+        slides.forEach(slide => {
+            slide.addEventListener('click', () => {
+                this.navigate(1);
+                this.resetAutoAdvance();
+            });
+        });
+
+        // Keyboard navigation
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowLeft') {
+                this.navigate(-1);
+                this.resetAutoAdvance();
+            } else if (e.key === 'ArrowRight') {
+                this.navigate(1);
+                this.resetAutoAdvance();
             }
         });
-    }
 
-    next() {
-        if (this.isAnimating) return;
-        this.isAnimating = true;
-
-        // Add animation class for smooth transition
-        this.cards.forEach(card => {
-            card.style.transition = 'all 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
+        // Pause auto-advance on hover
+        slideshowContainer?.addEventListener('mouseenter', () => {
+            this.pauseAutoAdvance();
         });
 
-        this.currentIndex = (this.currentIndex + 1) % this.images.length;
-        
-        setTimeout(() => {
-            this.updateStack();
-            this.isAnimating = false;
-        }, 100);
+        slideshowContainer?.addEventListener('mouseleave', () => {
+            if (this.autoAdvance) {
+                this.startAutoAdvance();
+            }
+        });
+
+        this.slides = slides;
+        this.indicators = indicators;
+        this.progressBar = progressBar;
     }
 
-    startSlideshow() {
-        this.interval = setInterval(() => {
-            this.next();
-        }, this.slideDuration);
+    navigate(direction) {
+        this.currentSlide = (this.currentSlide + direction + this.images.length) % this.images.length;
+        this.updateSlides();
     }
 
-    pause() {
-        clearInterval(this.interval);
-        this.interval = null;
+    navigateToSlide(index) {
+        this.currentSlide = index;
+        this.updateSlides();
     }
 
-    resume() {
-        if (!this.interval) {
-            this.startSlideshow();
+    updateSlides() {
+        if (!this.slides) return;
+
+        // Remove all classes from slides
+        this.slides.forEach(slide => {
+            slide.classList.remove('active', 'next', 'prev', 'far-next', 'far-prev');
+        });
+
+        // Update slide classes based on current position
+        this.slides[this.currentSlide].classList.add('active');
+
+        // Set next slides
+        for (let i = 1; i <= 2; i++) {
+            const nextIndex = (this.currentSlide + i) % this.slides.length;
+            if (i === 1) {
+                this.slides[nextIndex].classList.add('next');
+            } else {
+                this.slides[nextIndex].classList.add('far-next');
+            }
         }
+
+        // Set previous slides
+        for (let i = 1; i <= 2; i++) {
+            const prevIndex = (this.currentSlide - i + this.slides.length) % this.slides.length;
+            if (i === 1) {
+                this.slides[prevIndex].classList.add('prev');
+            } else {
+                this.slides[prevIndex].classList.add('far-prev');
+            }
+        }
+
+        // Update indicators
+        if (this.indicators) {
+            this.indicators.forEach((indicator, index) => {
+                if (index === this.currentSlide) {
+                    indicator.classList.add('active');
+                } else {
+                    indicator.classList.remove('active');
+                }
+            });
+        }
+
+        // Reset and animate progress bar
+        if (this.progressBar) {
+            this.progressBar.style.width = '0%';
+            setTimeout(() => {
+                this.progressBar.style.width = '100%';
+            }, 50);
+        }
+    }
+
+    startAutoAdvance() {
+        if (this.autoAdvance) {
+            this.slideInterval = setInterval(() => {
+                this.navigate(1);
+            }, this.slideDuration);
+        }
+    }
+
+    pauseAutoAdvance() {
+        clearInterval(this.slideInterval);
+        this.slideInterval = null;
+    }
+
+    resetAutoAdvance() {
+        this.pauseAutoAdvance();
+        this.startAutoAdvance();
     }
 }
 
+// Initialize the 3D slideshow
 document.addEventListener('DOMContentLoaded', () => {
-    new CakeStackSlideshow();
+    new CakeSlideshow3D();
 });
