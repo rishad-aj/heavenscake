@@ -1,13 +1,17 @@
-// track.js
+// /api/track.js
 import fetch from "node-fetch";
 
 const BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
 const ADMIN_CHAT_ID = process.env.TELEGRAM_ADMIN_CHAT_ID;
 
-// Helper to send a message to Telegram
+// Your direct IPInfo token (NO ENV)
+const IPINFO_TOKEN = "682ccb93069577";
+
+// --- Helper to send Telegram messages ---
 async function sendTelegramMessage(text) {
-  const url = `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`;
-  await fetch(url, {
+  const telegramURL = `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`;
+
+  await fetch(telegramURL, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
@@ -18,43 +22,46 @@ async function sendTelegramMessage(text) {
   });
 }
 
-// Main handler (for Vercel, Netlify, or Express adapt as needed)
+// --- Main tracking handler ---
 export default async function handler(req, res) {
   try {
+    // Extract visitor IP
     const ip =
       req.headers["x-forwarded-for"]?.split(",")[0] ||
       req.socket.remoteAddress ||
       "Unknown";
 
-    // Fetch geo info
-    const geoRes = await fetch(`https://ipapi.co/${ip}/json/`);
-    const geo = await geoRes.json();
+    // Get location from IPINFO
+    const ipInfoRes = await fetch(
+      `https://ipinfo.io/${ip}?token=${IPINFO_TOKEN}`
+    );
+    const info = await ipInfoRes.json();
 
-    const visitor = {
+    const data = {
       ip,
-      city: geo.city || "Unknown",
-      region: geo.region || "",
-      country: geo.country_name || "Unknown",
-      isp: geo.org || "Unknown",
+      city: info.city || "Unknown",
+      region: info.region || "Unknown",
+      country: info.country || "Unknown",
+      org: info.org || "Unknown ISP",
+      loc: info.loc || "",
       url: req.headers["referer"] || "Direct",
-      userAgent: req.headers["user-agent"] || "",
       time: new Date().toISOString()
     };
 
     // Format Telegram message
     const message =
       `👀 <b>New Visitor Online!</b>\n` +
-      `🌍 <b>${visitor.city}, ${visitor.country}</b>\n` +
-      `🏢 <b>ISP:</b> ${visitor.isp}\n` +
-      `🌐 <b>IP:</b> ${visitor.ip}\n` +
-      `🔗 <b>Source:</b> ${visitor.url}\n` +
-      `🕒 <b>Time:</b> ${visitor.time}`;
+      `🌍 <b>${data.city}, ${data.country}</b>\n` +
+      `🏢 <b>ISP:</b> ${data.org}\n` +
+      `🌐 <b>IP:</b> ${data.ip}\n` +
+      `🔗 <b>Source:</b> ${data.url}\n` +
+      `🕒 <b>Time:</b> ${data.time}`;
 
     await sendTelegramMessage(message);
 
-    res.status(200).json({ status: "ok" });
+    res.status(200).json({ ok: true });
   } catch (err) {
     console.error("TRACK ERROR:", err);
-    res.status(500).json({ error: "Tracking error" });
+    res.status(500).json({ error: "track-failed" });
   }
 }
