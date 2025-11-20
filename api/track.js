@@ -1,33 +1,30 @@
 // /api/track.js
 import fetch from "node-fetch";
 
-const BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
-const ADMIN_CHAT_ID = process.env.TELEGRAM_ADMIN_CHAT_ID;
+const { TELEGRAM_BOT_TOKEN, TELEGRAM_ADMIN_CHAT_ID } = process.env;
 const IPINFO_TOKEN = "682ccb93069577";
 
-// Convert "IN" → "🇮🇳"
-const flag = (cc) =>
-  cc
-    ? cc
-        .toUpperCase()
-        .replace(/./g, (c) => String.fromCodePoint(c.charCodeAt(0) + 127397))
-    : "";
+// Country code → emoji flag (IN → 🇮🇳)
+const flag = (cc = "") =>
+  cc.toUpperCase().replace(/./g, (c) =>
+    String.fromCodePoint(c.charCodeAt(0) + 127397)
+  );
 
-// Telegram sender
+// Telegram sender (reused)
 const notifyTelegram = (text) =>
-  fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
+  fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
-      chat_id: ADMIN_CHAT_ID,
+      chat_id: TELEGRAM_ADMIN_CHAT_ID,
       text,
-      parse_mode: "HTML",
-    }),
+      parse_mode: "HTML"
+    })
   });
 
 export default async function handler(req, res) {
   try {
-    // Get Visitor IP
+    // Get user IP
     const ip =
       req.headers["x-real-ip"] ||
       req.headers["x-forwarded-for"]?.split(",")[0] ||
@@ -35,32 +32,36 @@ export default async function handler(req, res) {
       "Unknown";
 
     // Fetch IP info
-    const info = await fetch(`https://ipinfo.io/${ip}?token=${IPINFO_TOKEN}`).then(
-      (r) => r.json()
-    );
+    const info = await fetch(`https://ipinfo.io/${ip}?token=${IPINFO_TOKEN}`)
+      .then((r) => r.json())
+      .catch(() => ({}));
 
-    // Build Message
+    // Quick variables
+    const city = info.city ?? "Unknown";
+    const region = info.region ?? "Unknown";
+    const country = info.country ?? "Unknown";
+    const isp = info.org ?? "Unknown ISP";
+    const referer = req.headers["referer"] || "Direct";
+    const timeIST = new Date().toLocaleString("en-IN", { timeZone: "Asia/Kolkata" });
+
+    // Message
     const msg = `
-👀 <b>New Visitor Online!</b>
+👀 <b>New Visitor Alert</b>
 
-${flag(info.country)} <b>${info.city || "Unknown"}, ${info.region || "Unknown"}, ${
-      info.country || "Unknown"
-    }</b>
-
-🏢 <b>ISP:</b> ${info.org || "Unknown ISP"}
+${flag(country)} <b>${city}, ${region}, ${country}</b>
+🏢 <b>ISP:</b> ${isp}
 🌐 <b>IP:</b> <code>${ip}</code>
-🔗 <b>Source:</b> ${req.headers["referer"] || "Direct"}
-🕒 <b>Time:</b> ${new Date().toLocaleString("en-IN", {
-      timeZone: "Asia/Kolkata",
-    })}
+🔗 <b>Source:</b> ${referer}
+🕒 <b>Time:</b> ${timeIST}
 `;
 
     // Send to Telegram
     await notifyTelegram(msg);
 
-    res.status(200).json({ ok: true });
+    return res.status(200).json({ ok: true });
+
   } catch (err) {
     console.error("TRACK ERROR:", err);
-    res.status(500).json({ error: "track_failed" });
+    return res.status(500).json({ error: "track_failed" });
   }
 }
