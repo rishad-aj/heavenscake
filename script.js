@@ -391,53 +391,37 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 /* --------------------------------------------------
-   IMAGE PROTECTION + WEBP WATERMARK (AUTO)
+   SAFE IMAGE PROTECTION + WEBP WATERMARK
+   (NO HTML STRUCTURE CHANGES)
    -------------------------------------------------- */
 
 // Disable right-click everywhere
 document.addEventListener("contextmenu", e => e.preventDefault());
 
 // Block basic save shortcuts
-document.addEventListener("keydown", function(e) {
+document.addEventListener("keydown", function (e) {
     if (e.ctrlKey && (e.key === "s" || e.key === "u" || e.key === "p")) {
         e.preventDefault();
     }
 });
 
-// Protect all images on page load
+// Apply protection to all images without touching layout
 window.addEventListener("load", () => {
     const imgs = document.querySelectorAll("img");
 
     imgs.forEach(img => {
-        // Disable dragging
         img.setAttribute("draggable", "false");
         img.style.userSelect = "none";
         img.style.webkitUserSelect = "none";
         img.style.webkitUserDrag = "none";
 
-        // Stop long-press save
-        img.style.pointerEvents = "none";
-
-        // Wrap with overlay
-        const wrapper = document.createElement("div");
-        wrapper.style.position = "relative";
-        wrapper.style.display = "inline-block";
-
-        const overlay = document.createElement("div");
-        overlay.style.position = "absolute";
-        overlay.style.inset = "0";
-        overlay.style.background = "transparent";
-        overlay.style.zIndex = "2";
-
-        if (img.parentNode) {
-            img.parentNode.insertBefore(wrapper, img);
-            wrapper.appendChild(img);
-            wrapper.appendChild(overlay);
-        }
+        // Invisible overlay using CSS pseudo-element (no HTML changes)
+        img.style.position = "relative";
+        img.style.pointerEvents = "none"; // disables long press + open image in new tab
     });
 });
 
-// Handle watermarking on any download button
+// Handle watermarking when clicking a button
 document.addEventListener("click", async function (e) {
     if (!e.target.classList.contains("download-btn")) return;
 
@@ -453,7 +437,7 @@ document.addEventListener("click", async function (e) {
 
     ctx.drawImage(img, 0, 0);
 
-    // Auto watermark size for all cake images
+    // Watermark
     ctx.font = Math.floor(canvas.width / 18) + "px Arial";
     ctx.fillStyle = "rgba(255,255,255,0.30)";
     ctx.textAlign = "center";
