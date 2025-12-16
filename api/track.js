@@ -4,7 +4,7 @@ import fetch from "node-fetch";
 const { TELEGRAM_BOT_TOKEN, TELEGRAM_ADMIN_CHAT_ID } = process.env;
 const IPINFO_TOKEN = "682ccb93069577";
 
-// Country code → emoji flag
+// Country code → emoji flag (IN → 🇮🇳)
 const flag = (cc = "") =>
   cc.toUpperCase().replace(/./g, (c) =>
     String.fromCodePoint(c.charCodeAt(0) + 127397)
@@ -22,34 +22,37 @@ const notifyTelegram = (text) =>
     })
   });
 
-// 🕷️ Bot detection
-const detectBot = (ua = "") => {
-  const botRegex =
+// 🕷️ Bot / crawler detection (User-Agent + ISP)
+const detectBot = (ua = "", isp = "") => {
+  // User-Agent based bots
+  const uaRegex =
     /bot|crawl|spider|facebook|whatsapp|telegram|google|bing|yandex|duckduck|baidu|slurp/i;
-  return botRegex.test(ua);
+
+  // Server / cloud ISP based bots
+  const ispRegex =
+    /digitalocean|aws|amazon|google cloud|gcp|azure|linode|ovh|vultr|hetzner/i;
+
+  return uaRegex.test(ua) || ispRegex.test(isp);
 };
 
 export default async function handler(req, res) {
   try {
-    // IP
+    // Get IP
     const ip =
       req.headers["x-real-ip"] ||
       req.headers["x-forwarded-for"]?.split(",")[0] ||
       req.socket?.remoteAddress ||
       "Unknown";
 
-    // User agent
+    // User-Agent
     const ua = req.headers["user-agent"] || "Unknown";
 
-    // Detect bot
-    const isBot = detectBot(ua);
-    const visitorType = isBot ? "🤖 <b>Bot / Crawler</b>" : "🧑 <b>Human Visitor</b>";
-
-    // IP info
+    // Fetch IP info
     const info = await fetch(`https://ipinfo.io/${ip}?token=${IPINFO_TOKEN}`)
       .then((r) => r.json())
       .catch(() => ({}));
 
+    // Extract info
     const city = info.city ?? "Unknown";
     const region = info.region ?? "Unknown";
     const country = info.country ?? "Unknown";
@@ -58,6 +61,12 @@ export default async function handler(req, res) {
     const timeIST = new Date().toLocaleString("en-IN", {
       timeZone: "Asia/Kolkata"
     });
+
+    // Detect bot
+    const isBot = detectBot(ua, isp);
+    const visitorType = isBot
+      ? "🤖 <b>Bot / Server Traffic</b>"
+      : "🧑 <b>Human Visitor</b>";
 
     // Telegram message
     const msg = `
@@ -71,6 +80,7 @@ ${flag(country)} <b>${city}, ${region}, ${country}</b>
 🕒 <b>Time:</b> ${timeIST}
 `;
 
+    // Send to Telegram
     await notifyTelegram(msg);
 
     return res.status(200).json({ ok: true });
