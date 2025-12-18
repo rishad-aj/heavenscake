@@ -26,13 +26,6 @@ const notifyTelegram = (text) =>
 const DATACENTER_REGEX =
   /amazon|aws|google|gcp|azure|digitalocean|linode|ovh|vultr|oracle|cloudflare/i;
 
-// Helper to detect source (Google only)
-const getSource = (referer = "") => {
-  if (!referer) return "Direct";
-  if (referer.includes("google.")) return "Google Search";
-  return "Other";
-};
-
 export default async function handler(req, res) {
   try {
     // Get IP
@@ -52,12 +45,24 @@ export default async function handler(req, res) {
     const country = info.country ?? "Unknown";
     const isp = info.org ?? "Unknown ISP";
 
+    const referer = req.headers["referer"] || "Direct";
+
+    // Detect source from referer (Google, Bing, etc.)
+    let source = "Direct / Unknown";
+    if (referer.includes("google.")) source = "Google Search";
+    else if (referer.includes("bing.com")) source = "Bing Search";
+    else if (referer.includes("yahoo.com")) source = "Yahoo Search";
+    else if (referer.includes("duckduckgo.com")) source = "DuckDuckGo";
+    else if (referer.includes("baidu.com")) source = "Baidu";
+    else if (referer.includes("yandex.com")) source = "Yandex";
+    else source = referer;
+
     // Privacy flags
     const isVPN = info.privacy?.vpn;
     const isProxy = info.privacy?.proxy;
     const isTor = info.privacy?.tor;
 
-    // BOT detection (NO UA / NO headers)
+    // BOT detection (NO UA / NO signals)
     let isBot = false;
     let reasons = [];
 
@@ -75,10 +80,6 @@ export default async function handler(req, res) {
     const reasonText = reasons.length
       ? `⚠️ <b>Reason:</b> ${reasons.join(", ")}`
       : "✅ <b>Reason:</b> Residential / Mobile network";
-
-    // Referrer / source detection (Google only)
-    const rawReferer = req.headers["referer"] || "";
-    const source = getSource(rawReferer);
 
     const timeIST = new Date().toLocaleString("en-IN", {
       timeZone: "Asia/Kolkata"
