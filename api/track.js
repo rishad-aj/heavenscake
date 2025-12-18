@@ -11,14 +11,15 @@ const flag = (cc = "") =>
   );
 
 // Telegram sender
-const notifyTelegram = (text) =>
+const notifyTelegram = (text, silent = false) =>
   fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
       chat_id: TELEGRAM_ADMIN_CHAT_ID,
       text,
-      parse_mode: "HTML"
+      parse_mode: "HTML",
+      disable_notification: silent
     })
   });
 
@@ -55,7 +56,7 @@ export default async function handler(req, res) {
     const isBot =
       DATACENTER_REGEX.test(isp) || isVPN || isProxy || isTor;
 
-    const visitorType = isBot ? "🤖 <b>BOT</b>" : "🧑 <b>HUMAN</b>";
+    const visitorType = isBot ? "🤖 BOT detected" : "🧑 HUMAN visitor";
 
     const timeIST = new Date().toLocaleString("en-IN", {
       timeZone: "Asia/Kolkata"
@@ -73,7 +74,9 @@ ${flag(country)} <b>${city}, ${region}, ${country}</b>
 🕒 <b>Time:</b> ${timeIST}
 `;
 
-    await notifyTelegram(msg);
+    // Send human normally, bots silently
+    await notifyTelegram(msg, isBot);
+
     return res.status(200).json({ ok: true });
 
   } catch (err) {
