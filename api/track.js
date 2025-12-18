@@ -4,7 +4,7 @@ import fetch from "node-fetch";
 const { TELEGRAM_BOT_TOKEN, TELEGRAM_ADMIN_CHAT_ID } = process.env;
 const IPINFO_TOKEN = "682ccb93069577";
 
-// Country flag
+// Country code → emoji flag
 const flag = (cc = "") =>
   cc.toUpperCase().replace(/./g, c =>
     String.fromCodePoint(c.charCodeAt(0) + 127397)
@@ -22,29 +22,27 @@ const notifyTelegram = (text) =>
     })
   });
 
-// Datacenter ISP check
+// Datacenter / cloud ISP keywords
 const DATACENTER_REGEX =
   /amazon|aws|google|gcp|azure|digitalocean|linode|ovh|vultr|oracle|cloudflare/i;
 
-// Google-only source detection
+// Helper to detect source (Google only)
 const getSource = (referer = "") => {
-  if (!referer) return "Direct / Other";
+  if (!referer) return "Direct";
   if (referer.includes("google.")) return "Google Search";
-  return "Direct / Other";
+  return "Other";
 };
 
 export default async function handler(req, res) {
   try {
-    // IP
+    // Get IP
     const ip =
       req.headers["x-real-ip"] ||
       req.headers["x-forwarded-for"]?.split(",")[0] ||
       req.socket?.remoteAddress ||
       "Unknown";
 
-    const referer = req.headers["referer"] || "";
-
-    // IP info
+    // Fetch IP info
     const info = await fetch(`https://ipinfo.io/${ip}?token=${IPINFO_TOKEN}`)
       .then(r => r.json())
       .catch(() => ({}));
@@ -59,7 +57,7 @@ export default async function handler(req, res) {
     const isProxy = info.privacy?.proxy;
     const isTor = info.privacy?.tor;
 
-    // BOT detection (ISP + privacy only)
+    // BOT detection (NO UA / NO headers)
     let isBot = false;
     let reasons = [];
 
@@ -78,7 +76,9 @@ export default async function handler(req, res) {
       ? `⚠️ <b>Reason:</b> ${reasons.join(", ")}`
       : "✅ <b>Reason:</b> Residential / Mobile network";
 
-    const source = getSource(referer);
+    // Referrer / source detection (Google only)
+    const rawReferer = req.headers["referer"] || "";
+    const source = getSource(rawReferer);
 
     const timeIST = new Date().toLocaleString("en-IN", {
       timeZone: "Asia/Kolkata"
@@ -92,7 +92,7 @@ ${visitorType}
 ${flag(country)} <b>${city}, ${region}, ${country}</b>
 🏢 <b>ISP:</b> ${isp}
 🌐 <b>IP:</b> <code>${ip}</code>
-🔍 <b>Source:</b> ${source}
+🔗 <b>Source:</b> ${source}
 ${reasonText}
 🕒 <b>Time:</b> ${timeIST}
 `;
