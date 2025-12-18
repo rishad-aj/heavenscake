@@ -22,27 +22,20 @@ const notifyTelegram = (text) =>
     })
   });
 
-// BOT heuristics
-const BOT_UA_REGEX =
-  /bot|crawl|spider|slurp|headless|curl|wget|python|node|axios|fetch|httpclient|phantom|selenium|puppeteer/i;
-
-const BOT_ISP_REGEX =
+// Datacenter / cloud ISP keywords
+const DATACENTER_REGEX =
   /amazon|aws|google|gcp|azure|digitalocean|linode|ovh|vultr|oracle|cloudflare/i;
 
 export default async function handler(req, res) {
   try {
-    // IP
+    // Get IP
     const ip =
       req.headers["x-real-ip"] ||
       req.headers["x-forwarded-for"]?.split(",")[0] ||
       req.socket?.remoteAddress ||
       "Unknown";
 
-    const ua = req.headers["user-agent"] || "Unknown";
-    const referer = req.headers["referer"] || "Direct";
-    const acceptLang = req.headers["accept-language"];
-
-    // IP info
+    // Fetch IP info
     const info = await fetch(`https://ipinfo.io/${ip}?token=${IPINFO_TOKEN}`)
       .then(r => r.json())
       .catch(() => ({}));
@@ -51,40 +44,31 @@ export default async function handler(req, res) {
     const region = info.region ?? "Unknown";
     const country = info.country ?? "Unknown";
     const isp = info.org ?? "Unknown ISP";
+    const referer = req.headers["referer"] || "Direct";
 
-    // Privacy flags (if available)
-    const isProxy = info.privacy?.proxy;
+    // Privacy flags
     const isVPN = info.privacy?.vpn;
+    const isProxy = info.privacy?.proxy;
     const isTor = info.privacy?.tor;
 
-    // BOT detection logic
+    // BOT detection (NO UA / NO headers)
     let isBot = false;
-    let botReasons = [];
+    let reasons = [];
 
-    if (BOT_UA_REGEX.test(ua)) {
+    if (DATACENTER_REGEX.test(isp)) {
       isBot = true;
-      botReasons.push("Suspicious User-Agent");
+      reasons.push("Datacenter ISP");
     }
 
-    if (BOT_ISP_REGEX.test(isp)) {
+    if (isVPN || isProxy || isTor) {
       isBot = true;
-      botReasons.push("Datacenter ISP");
-    }
-
-    if (!acceptLang) {
-      isBot = true;
-      botReasons.push("Missing Accept-Language");
-    }
-
-    if (isProxy || isVPN || isTor) {
-      isBot = true;
-      botReasons.push("Proxy/VPN/Tor");
+      reasons.push("VPN / Proxy / Tor");
     }
 
     const visitorType = isBot ? "🤖 <b>BOT</b>" : "🧑 <b>HUMAN</b>";
-    const reasonText = botReasons.length
-      ? `⚠️ <b>Signals:</b> ${botReasons.join(", ")}`
-      : "✅ <b>Signals:</b> Normal browser behavior";
+    const reasonText = reasons.length
+      ? `⚠️ <b>Reason:</b> ${reasons.join(", ")}`
+      : "✅ <b>Reason:</b> Residential / Mobile network";
 
     const timeIST = new Date().toLocaleString("en-IN", {
       timeZone: "Asia/Kolkata"
@@ -98,7 +82,6 @@ ${visitorType}
 ${flag(country)} <b>${city}, ${region}, ${country}</b>
 🏢 <b>ISP:</b> ${isp}
 🌐 <b>IP:</b> <code>${ip}</code>
-🧭 <b>User-Agent:</b> ${ua}
 🔗 <b>Source:</b> ${referer}
 ${reasonText}
 🕒 <b>Time:</b> ${timeIST}
