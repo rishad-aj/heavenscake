@@ -35,7 +35,7 @@ const notifyTelegram = (text) =>
           [
             {
               text: "📊 View Stats",
-              url: "https://your-site.com/stats" // 🔴 CHANGE THIS
+              url: "https://heavenscake.vercel.app/stats"
             }
           ]
         ]
