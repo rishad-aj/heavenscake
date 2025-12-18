@@ -6,47 +6,46 @@ const IPINFO_TOKEN = "682ccb93069577";
 
 // Country code → emoji flag (IN → 🇮🇳)
 const flag = (cc = "") =>
-cc.toUpperCase().replace(/./g, (c) =>
-String.fromCodePoint(c.charCodeAt(0) + 127397)
-);
+  cc.toUpperCase().replace(/./g, (c) =>
+    String.fromCodePoint(c.charCodeAt(0) + 127397)
+  );
 
 // Telegram sender (reused)
 const notifyTelegram = (text) =>
-fetch(https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage, {
-method: "POST",
-headers: { "Content-Type": "application/json" },
-body: JSON.stringify({
-chat_id: TELEGRAM_ADMIN_CHAT_ID,
-text,
-parse_mode: "HTML"
-})
-});
+  fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      chat_id: TELEGRAM_ADMIN_CHAT_ID,
+      text,
+      parse_mode: "HTML"
+    })
+  });
 
 export default async function handler(req, res) {
-try {
-// Get user IP
-const ip =
-req.headers["x-real-ip"] ||
-req.headers["x-forwarded-for"]?.split(",")[0] ||
-req.socket?.remoteAddress ||
-"Unknown";
+  try {
+    // Get user IP
+    const ip =
+      req.headers["x-real-ip"] ||
+      req.headers["x-forwarded-for"]?.split(",")[0] ||
+      req.socket?.remoteAddress ||
+      "Unknown";
 
-// Fetch IP info  
-const info = await fetch(`https://ipinfo.io/${ip}?token=${IPINFO_TOKEN}`)  
-  .then((r) => r.json())  
-  .catch(() => ({}));  
+    // Fetch IP info
+    const info = await fetch(`https://ipinfo.io/${ip}?token=${IPINFO_TOKEN}`)
+      .then((r) => r.json())
+      .catch(() => ({}));
 
-// Quick variables  
-const city = info.city ?? "Unknown";  
-const region = info.region ?? "Unknown";  
-const country = info.country ?? "Unknown";  
-const isp = info.org ?? "Unknown ISP";  
-const referer = req.headers["referer"] || "Direct";  
-const timeIST = new Date().toLocaleString("en-IN", { timeZone: "Asia/Kolkata" });  
+    // Quick variables
+    const city = info.city ?? "Unknown";
+    const region = info.region ?? "Unknown";
+    const country = info.country ?? "Unknown";
+    const isp = info.org ?? "Unknown ISP";
+    const referer = req.headers["referer"] || "Direct";
+    const timeIST = new Date().toLocaleString("en-IN", { timeZone: "Asia/Kolkata" });
 
-// Message  
-const msg = `
-
+    // Message
+    const msg = `
 👀 <b>New Visitor Alert</b>
 
 ${flag(country)} <b>${city}, ${region}, ${country}</b>
@@ -56,14 +55,13 @@ ${flag(country)} <b>${city}, ${region}, ${country}</b>
 🕒 <b>Time:</b> ${timeIST}
 `;
 
-// Send to Telegram  
-await notifyTelegram(msg);  
+    // Send to Telegram
+    await notifyTelegram(msg);
 
-return res.status(200).json({ ok: true });
+    return res.status(200).json({ ok: true });
 
-} catch (err) {
-console.error("TRACK ERROR:", err);
-return res.status(500).json({ error: "track_failed" });
-}
-}
-
+  } catch (err) {
+    console.error("TRACK ERROR:", err);
+    return res.status(500).json({ error: "track_failed" });
+  }
+      }
