@@ -4,7 +4,7 @@ import fetch from "node-fetch";
 const { TELEGRAM_BOT_TOKEN, TELEGRAM_ADMIN_CHAT_ID } = process.env;
 const IPINFO_TOKEN = "682ccb93069577";
 
-// Country code → emoji flag
+// Country flag
 const flag = (cc = "") =>
   cc.toUpperCase().replace(/./g, c =>
     String.fromCodePoint(c.charCodeAt(0) + 127397)
@@ -22,20 +22,29 @@ const notifyTelegram = (text) =>
     })
   });
 
-// Datacenter / cloud ISP keywords
+// Datacenter ISP check
 const DATACENTER_REGEX =
   /amazon|aws|google|gcp|azure|digitalocean|linode|ovh|vultr|oracle|cloudflare/i;
 
+// Google-only source detection
+const getSource = (referer = "") => {
+  if (!referer) return "Direct / Other";
+  if (referer.includes("google.")) return "Google Search";
+  return "Direct / Other";
+};
+
 export default async function handler(req, res) {
   try {
-    // Get IP
+    // IP
     const ip =
       req.headers["x-real-ip"] ||
       req.headers["x-forwarded-for"]?.split(",")[0] ||
       req.socket?.remoteAddress ||
       "Unknown";
 
-    // Fetch IP info
+    const referer = req.headers["referer"] || "";
+
+    // IP info
     const info = await fetch(`https://ipinfo.io/${ip}?token=${IPINFO_TOKEN}`)
       .then(r => r.json())
       .catch(() => ({}));
@@ -44,14 +53,13 @@ export default async function handler(req, res) {
     const region = info.region ?? "Unknown";
     const country = info.country ?? "Unknown";
     const isp = info.org ?? "Unknown ISP";
-    const referer = req.headers["referer"] || "Direct";
 
     // Privacy flags
     const isVPN = info.privacy?.vpn;
     const isProxy = info.privacy?.proxy;
     const isTor = info.privacy?.tor;
 
-    // BOT detection (NO UA / NO headers)
+    // BOT detection (ISP + privacy only)
     let isBot = false;
     let reasons = [];
 
@@ -70,6 +78,8 @@ export default async function handler(req, res) {
       ? `⚠️ <b>Reason:</b> ${reasons.join(", ")}`
       : "✅ <b>Reason:</b> Residential / Mobile network";
 
+    const source = getSource(referer);
+
     const timeIST = new Date().toLocaleString("en-IN", {
       timeZone: "Asia/Kolkata"
     });
@@ -82,7 +92,7 @@ ${visitorType}
 ${flag(country)} <b>${city}, ${region}, ${country}</b>
 🏢 <b>ISP:</b> ${isp}
 🌐 <b>IP:</b> <code>${ip}</code>
-🔗 <b>Source:</b> ${referer}
+🔍 <b>Source:</b> ${source}
 ${reasonText}
 🕒 <b>Time:</b> ${timeIST}
 `;
