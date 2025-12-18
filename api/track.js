@@ -44,42 +44,18 @@ export default async function handler(req, res) {
     const region = info.region ?? "Unknown";
     const country = info.country ?? "Unknown";
     const isp = info.org ?? "Unknown ISP";
-
     const referer = req.headers["referer"] || "Direct";
-
-    // Detect source from referer (Google, Bing, etc.)
-    let source = "Direct / Unknown";
-    if (referer.includes("google.")) source = "Google Search";
-    else if (referer.includes("bing.com")) source = "Bing Search";
-    else if (referer.includes("yahoo.com")) source = "Yahoo Search";
-    else if (referer.includes("duckduckgo.com")) source = "DuckDuckGo";
-    else if (referer.includes("baidu.com")) source = "Baidu";
-    else if (referer.includes("yandex.com")) source = "Yandex";
-    else source = referer;
 
     // Privacy flags
     const isVPN = info.privacy?.vpn;
     const isProxy = info.privacy?.proxy;
     const isTor = info.privacy?.tor;
 
-    // BOT detection (NO UA / NO signals)
-    let isBot = false;
-    let reasons = [];
-
-    if (DATACENTER_REGEX.test(isp)) {
-      isBot = true;
-      reasons.push("Datacenter ISP");
-    }
-
-    if (isVPN || isProxy || isTor) {
-      isBot = true;
-      reasons.push("VPN / Proxy / Tor");
-    }
+    // BOT detection (no UA / no headers)
+    const isBot =
+      DATACENTER_REGEX.test(isp) || isVPN || isProxy || isTor;
 
     const visitorType = isBot ? "🤖 <b>BOT</b>" : "🧑 <b>HUMAN</b>";
-    const reasonText = reasons.length
-      ? `⚠️ <b>Reason:</b> ${reasons.join(", ")}`
-      : "✅ <b>Reason:</b> Residential / Mobile network";
 
     const timeIST = new Date().toLocaleString("en-IN", {
       timeZone: "Asia/Kolkata"
@@ -93,8 +69,7 @@ ${visitorType}
 ${flag(country)} <b>${city}, ${region}, ${country}</b>
 🏢 <b>ISP:</b> ${isp}
 🌐 <b>IP:</b> <code>${ip}</code>
-🔗 <b>Source:</b> ${source}
-${reasonText}
+🔗 <b>Source:</b> ${referer}
 🕒 <b>Time:</b> ${timeIST}
 `;
 
