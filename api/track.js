@@ -10,7 +10,18 @@ const flag = (cc = "") =>
     String.fromCodePoint(c.charCodeAt(0) + 127397)
   );
 
-// Telegram sender
+// 🕷️ Bot / crawler detection (User-Agent + ISP)
+const detectBot = (ua = "", isp = "") => {
+  const uaRegex =
+    /bot|crawl|spider|facebook|whatsapp|telegram|google|bing|yandex|duckduck|baidu|slurp/i;
+
+  const ispRegex =
+    /digitalocean|aws|amazon|google cloud|gcp|azure|linode|ovh|vultr|hetzner/i;
+
+  return uaRegex.test(ua) || ispRegex.test(isp);
+};
+
+// Telegram sender WITH STATS BUTTON
 const notifyTelegram = (text) =>
   fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
     method: "POST",
@@ -18,57 +29,55 @@ const notifyTelegram = (text) =>
     body: JSON.stringify({
       chat_id: TELEGRAM_ADMIN_CHAT_ID,
       text,
-      parse_mode: "HTML"
+      parse_mode: "HTML",
+      reply_markup: {
+        inline_keyboard: [
+          [
+            {
+              text: "📊 View Stats",
+              url: "https://your-site.com/stats" // 🔴 CHANGE THIS
+            }
+          ]
+        ]
+      }
     })
   });
 
-// 🕷️ Bot / crawler detection (User-Agent + ISP)
-const detectBot = (ua = "", isp = "") => {
-  // User-Agent based bots
-  const uaRegex =
-    /bot|crawl|spider|facebook|whatsapp|telegram|google|bing|yandex|duckduck|baidu|slurp/i;
-
-  // Server / cloud ISP based bots
-  const ispRegex =
-    /digitalocean|aws|amazon|google cloud|gcp|azure|linode|ovh|vultr|hetzner/i;
-
-  return uaRegex.test(ua) || ispRegex.test(isp);
-};
-
 export default async function handler(req, res) {
   try {
-    // Get IP
+    /* ---------------- IP ---------------- */
     const ip =
       req.headers["x-real-ip"] ||
       req.headers["x-forwarded-for"]?.split(",")[0] ||
       req.socket?.remoteAddress ||
       "Unknown";
 
-    // User-Agent
+    /* ---------------- USER AGENT ---------------- */
     const ua = req.headers["user-agent"] || "Unknown";
 
-    // Fetch IP info
+    /* ---------------- IP INFO ---------------- */
     const info = await fetch(`https://ipinfo.io/${ip}?token=${IPINFO_TOKEN}`)
       .then((r) => r.json())
       .catch(() => ({}));
 
-    // Extract info
     const city = info.city ?? "Unknown";
     const region = info.region ?? "Unknown";
     const country = info.country ?? "Unknown";
     const isp = info.org ?? "Unknown ISP";
     const referer = req.headers["referer"] || "Direct";
+
+    /* ---------------- TIME ---------------- */
     const timeIST = new Date().toLocaleString("en-IN", {
       timeZone: "Asia/Kolkata"
     });
 
-    // Detect bot
+    /* ---------------- BOT CHECK ---------------- */
     const isBot = detectBot(ua, isp);
     const visitorType = isBot
       ? "🤖 <b>Bot / Server Traffic</b>"
       : "🧑 <b>Human Visitor</b>";
 
-    // Telegram message
+    /* ---------------- MESSAGE ---------------- */
     const msg = `
 👀 <b>New Visitor Alert</b>
 ${visitorType}
@@ -80,7 +89,7 @@ ${flag(country)} <b>${city}, ${region}, ${country}</b>
 🕒 <b>Time:</b> ${timeIST}
 `;
 
-    // Send to Telegram
+    /* ---------------- SEND TELEGRAM ---------------- */
     await notifyTelegram(msg);
 
     return res.status(200).json({ ok: true });
