@@ -95,9 +95,16 @@
  </head>
    <body>
 <script>
-fetch('/api/track')
-  .then(res => res.ok)
-  .catch(() => {});
+useEffect(() => {
+  fetch("/api/track" + window.location.search, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "x-original-referrer": document.referrer || "Direct",
+      "x-landing-page": window.location.href
+    }
+  });
+}, []);
 </script>
       <div id="boot-animation">
          <div class="logo">
