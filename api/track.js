@@ -4,13 +4,15 @@ import fetch from "node-fetch";
 const { TELEGRAM_BOT_TOKEN, TELEGRAM_ADMIN_CHAT_ID } = process.env;
 const IPINFO_TOKEN = "682ccb93069577";
 
+// =====================
+// Helpers
+// =====================
+
 // Country code → emoji flag
 const flag = (cc = "") =>
-  cc
-    .toUpperCase()
-    .replace(/./g, c =>
-      String.fromCodePoint(c.charCodeAt(0) + 127397)
-    );
+  cc.toUpperCase().replace(/./g, c =>
+    String.fromCodePoint(c.charCodeAt(0) + 127397)
+  );
 
 // Telegram sender
 const notifyTelegram = (text, silent = false) =>
@@ -25,14 +27,23 @@ const notifyTelegram = (text, silent = false) =>
     })
   });
 
-// Datacenter / cloud ISP detection
+// Datacenter / cloud ISP keywords
 const DATACENTER_REGEX =
   /amazon|aws|google|gcp|azure|digitalocean|linode|ovh|vultr|oracle|cloudflare/i;
+
+// Search engines detection
+const SEARCH_ENGINES = [
+  { name: "Google Search", match: /google\./i },
+  { name: "Bing Search", match: /bing\.com/i },
+  { name: "DuckDuckGo", match: /duckduckgo\.com/i },
+  { name: "Yahoo Search", match: /search\.yahoo\.com/i },
+  { name: "Yandex Search", match: /yandex\./i }
+];
 
 export default async function handler(req, res) {
   try {
     // =====================
-    // 1. Get IP
+    // 1. IP Address
     // =====================
     const ip =
       req.headers["x-forwarded-for"]?.split(",")[0] ||
@@ -41,7 +52,7 @@ export default async function handler(req, res) {
       "Unknown";
 
     // =====================
-    // 2. IP Info lookup
+    // 2. IP Info
     // =====================
     const info = await fetch(
       `https://ipinfo.io/${ip}?token=${IPINFO_TOKEN}`
@@ -55,34 +66,45 @@ export default async function handler(req, res) {
     const isp = info.org || "Unknown ISP";
 
     // =====================
-    // 3. Traffic Source
+    // 3. Referrer
     // =====================
-    const referer = req.headers.referer || "Direct";
+    const referer = req.headers.referer || "";
 
     // =====================
-    // 4. UTM Parameters (CRITICAL)
+    // 4. UTM parameters (TOP PRIORITY)
     // =====================
     const {
       utm_source,
       utm_medium,
-      utm_campaign,
-      utm_content
+      utm_campaign
     } = req.query;
 
-    const utmInfo =
-      utm_source || utm_medium || utm_campaign
-        ? `${utm_source || "?"} / ${utm_medium || "?"} / ${
-            utm_campaign || "?"
-          }`
-        : "None";
+    // =====================
+    // 5. Source Detection Logic
+    // =====================
+    let source = "Direct";
+
+    // UTM overrides everything
+    if (utm_source) {
+      source = `UTM: ${utm_source}${utm_medium ? ` / ${utm_medium}` : ""}${
+        utm_campaign ? ` / ${utm_campaign}` : ""
+      }`;
+    }
+    // Search engines
+    else if (referer) {
+      const engine = SEARCH_ENGINES.find(se =>
+        se.match.test(referer)
+      );
+      source = engine ? engine.name : referer;
+    }
 
     // =====================
-    // 5. User Agent
+    // 6. User-Agent
     // =====================
     const userAgent = req.headers["user-agent"] || "Unknown";
 
     // =====================
-    // 6. Privacy / Bot detection
+    // 7. Bot / VPN Detection
     // =====================
     const isVPN = info.privacy?.vpn;
     const isProxy = info.privacy?.proxy;
@@ -100,14 +122,14 @@ export default async function handler(req, res) {
       : "🧑 <b>HUMAN visitor</b>";
 
     // =====================
-    // 7. Time (IST)
+    // 8. Time (IST)
     // =====================
     const timeIST = new Date().toLocaleString("en-IN", {
       timeZone: "Asia/Kolkata"
     });
 
     // =====================
-    // 8. Telegram message
+    // 9. Telegram message
     // =====================
     const msg = `
 👀 <b>New Visitor Alert</b>
@@ -116,13 +138,12 @@ ${visitorType}
 ${flag(country)} <b>${city}, ${region}, ${country}</b>
 🏢 <b>ISP:</b> ${isp}
 🌐 <b>IP:</b> <code>${ip}</code>
-🔗 <b>Referrer:</b> ${referer}
-📢 <b>UTM:</b> ${utmInfo}
+🔗 <b>Source:</b> ${source}
 🧭 <b>User-Agent:</b> ${userAgent}
 🕒 <b>Time:</b> ${timeIST}
 `;
 
-    // Send bots silently
+    // Bots = silent
     await notifyTelegram(msg, isBot);
 
     return res.status(200).json({ ok: true });
