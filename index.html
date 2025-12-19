@@ -95,16 +95,10 @@
  </head>
    <body>
 <script>
-useEffect(() => {
-  fetch("/api/track" + window.location.search, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "x-original-referrer": document.referrer || "Direct",
-      "x-landing-page": window.location.href
-    }
-  });
-}, []);
+fetch("/api/track" + window.location.search, {
+  method: "POST",
+  credentials: "include"
+});
 </script>
       <div id="boot-animation">
          <div class="logo">
