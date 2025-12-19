@@ -6,9 +6,11 @@ const IPINFO_TOKEN = "682ccb93069577";
 
 // Country code → emoji flag
 const flag = (cc = "") =>
-  cc.toUpperCase().replace(/./g, c =>
-    String.fromCodePoint(c.charCodeAt(0) + 127397)
-  );
+  cc
+    .toUpperCase()
+    .replace(/./g, c =>
+      String.fromCodePoint(c.charCodeAt(0) + 127397)
+    );
 
 // Telegram sender
 const notifyTelegram = (text, silent = false) =>
@@ -23,46 +25,90 @@ const notifyTelegram = (text, silent = false) =>
     })
   });
 
-// Datacenter / cloud ISP keywords
+// Datacenter / cloud ISP detection
 const DATACENTER_REGEX =
   /amazon|aws|google|gcp|azure|digitalocean|linode|ovh|vultr|oracle|cloudflare/i;
 
 export default async function handler(req, res) {
   try {
-    // Get IP
+    // =====================
+    // 1. Get IP
+    // =====================
     const ip =
-      req.headers["x-real-ip"] ||
       req.headers["x-forwarded-for"]?.split(",")[0] ||
+      req.headers["x-real-ip"] ||
       req.socket?.remoteAddress ||
       "Unknown";
 
-    // Fetch IP info
-    const info = await fetch(`https://ipinfo.io/${ip}?token=${IPINFO_TOKEN}`)
+    // =====================
+    // 2. IP Info lookup
+    // =====================
+    const info = await fetch(
+      `https://ipinfo.io/${ip}?token=${IPINFO_TOKEN}`
+    )
       .then(r => r.json())
       .catch(() => ({}));
 
-    const city = info.city ?? "Unknown";
-    const region = info.region ?? "Unknown";
-    const country = info.country ?? "Unknown";
-    const isp = info.org ?? "Unknown ISP";
-    const referer = req.headers["referer"] || "Direct";
+    const city = info.city || "Unknown";
+    const region = info.region || "Unknown";
+    const country = info.country || "Unknown";
+    const isp = info.org || "Unknown ISP";
 
-    // Privacy flags
+    // =====================
+    // 3. Traffic Source
+    // =====================
+    const referer = req.headers.referer || "Direct";
+
+    // =====================
+    // 4. UTM Parameters (CRITICAL)
+    // =====================
+    const {
+      utm_source,
+      utm_medium,
+      utm_campaign,
+      utm_content
+    } = req.query;
+
+    const utmInfo =
+      utm_source || utm_medium || utm_campaign
+        ? `${utm_source || "?"} / ${utm_medium || "?"} / ${
+            utm_campaign || "?"
+          }`
+        : "None";
+
+    // =====================
+    // 5. User Agent
+    // =====================
+    const userAgent = req.headers["user-agent"] || "Unknown";
+
+    // =====================
+    // 6. Privacy / Bot detection
+    // =====================
     const isVPN = info.privacy?.vpn;
     const isProxy = info.privacy?.proxy;
     const isTor = info.privacy?.tor;
 
-    // BOT detection (no UA / no headers)
     const isBot =
-      DATACENTER_REGEX.test(isp) || isVPN || isProxy || isTor;
+      DATACENTER_REGEX.test(isp) ||
+      isVPN ||
+      isProxy ||
+      isTor ||
+      !userAgent;
 
-    const visitorType = isBot ? "🤖 BOT detected" : "🧑 HUMAN visitor";
+    const visitorType = isBot
+      ? "🤖 <b>BOT detected</b>"
+      : "🧑 <b>HUMAN visitor</b>";
 
+    // =====================
+    // 7. Time (IST)
+    // =====================
     const timeIST = new Date().toLocaleString("en-IN", {
       timeZone: "Asia/Kolkata"
     });
 
-    // Telegram message
+    // =====================
+    // 8. Telegram message
+    // =====================
     const msg = `
 👀 <b>New Visitor Alert</b>
 
@@ -70,15 +116,16 @@ ${visitorType}
 ${flag(country)} <b>${city}, ${region}, ${country}</b>
 🏢 <b>ISP:</b> ${isp}
 🌐 <b>IP:</b> <code>${ip}</code>
-🔗 <b>Source:</b> ${referer}
+🔗 <b>Referrer:</b> ${referer}
+📢 <b>UTM:</b> ${utmInfo}
+🧭 <b>User-Agent:</b> ${userAgent}
 🕒 <b>Time:</b> ${timeIST}
 `;
 
-    // Send human normally, bots silently
+    // Send bots silently
     await notifyTelegram(msg, isBot);
 
     return res.status(200).json({ ok: true });
-
   } catch (err) {
     console.error("TRACK ERROR:", err);
     return res.status(500).json({ error: "track_failed" });
