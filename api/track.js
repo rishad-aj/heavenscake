@@ -65,28 +65,35 @@ export default async function handler(req, res) {
     // Bot detection
     const botDetected = isBot(userAgent, isp);
     
-    // Skip notification for bots
-    if (botDetected) {
-      console.log(`🤖 Bot detected: ${ip} - ${isp} - ${userAgent}`);
-      return res.status(200).json({ ok: true, bot: true });
-    }
+    // Message based on visitor type
+    const msg = botDetected
+      ? `
+🤖 <b>New Bot Visitor</b>
 
-    // Message for human visitors
-    const msg = `
+${flag(country)} <b>${city}, ${region}, ${country}</b>
+🏢 <b>ISP:</b> ${isp}
+🌐 <b>IP:</b> <code>${ip}</code>
+🔗 <b>Source:</b> ${referer}
+🖥️ <b>User-Agent:</b> ${userAgent.substring(0, 100)}${userAgent.length > 100 ? '...' : ''}
+🕒 <b>Time:</b> ${timeIST}
+⚠️ <i>Automated/Bot Traffic Detected</i>
+`
+      : `
 👤 <b>New Human Visitor</b>
 
 ${flag(country)} <b>${city}, ${region}, ${country}</b>
 🏢 <b>ISP:</b> ${isp}
 🌐 <b>IP:</b> <code>${ip}</code>
 🔗 <b>Source:</b> ${referer}
-🖥️ <b>Device:</b> ${userAgent.substring(0, 80)}${userAgent.length > 80 ? '...' : ''}
+🖥️ <b>Device:</b> ${userAgent.substring(0, 100)}${userAgent.length > 100 ? '...' : ''}
 🕒 <b>Time:</b> ${timeIST}
+✅ <i>Likely Human Visitor</i>
 `;
 
     // Send to Telegram
     await notifyTelegram(msg);
 
-    return res.status(200).json({ ok: true, bot: false });
+    return res.status(200).json({ ok: true, bot: botDetected });
 
   } catch (err) {
     console.error("TRACK ERROR:", err);
