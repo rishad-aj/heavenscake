@@ -13,9 +13,9 @@ const flag = (cc = "") =>
 
 // Bot detection patterns
 const BOT_PATTERNS = {
-  userAgent: /bot|crawler|spider|scraper|headless|phantom|selenium|puppeteer|curl|wget|python|java|perl|ruby|go-http|axios|okhttp|http\/1\.|apis-google/i,
+  userAgent: /bot|crawler|spider|scraper|headless|phantom|selenium|puppeteer|curl|wget|python|java|perl|ruby|go-http|axios|okhttp|http\/1\.|apis-google|facebookexternalhit|facebot|twitterbot|whatsapp|telegram|discordbot|slackbot|linkedinbot|pinterestbot|redditbot|tumblr|instagrambot|snapchat|tiktok|bytespider|bingpreview|slurp|duckduckbot|baiduspider|yandex|sogou|exabot|archive\.org|ia_archiver|mediapartners|adsbot|feedfetcher|applebot|googlebot|bingbot|yahoo|msnbot|teoma/i,
   
-  isp: /amazon|aws|google|gcp|azure|microsoft|digitalocean|linode|ovh|vultr|oracle|cloudflare|hetzner|contabo|hostinger|namecheap|godaddy|bluehost|dreamhost|liquidweb|rackspace|ibm cloud|alibaba|tencent|baidu|bytedance|huawei cloud|scaleway|upcloud|brightdata|luminati|oxylabs|smartproxy|geosurf|data center|hosting|colocation/i
+  isp: /amazon|aws|google|gcp|azure|microsoft|digitalocean|linode|ovh|vultr|oracle|cloudflare|hetzner|contabo|hostinger|namecheap|godaddy|bluehost|dreamhost|liquidweb|rackspace|ibm cloud|alibaba|tencent|baidu|bytedance|huawei cloud|scaleway|upcloud|brightdata|luminati|oxylabs|smartproxy|geosurf|data center|hosting|colocation|facebook|meta platforms|twitter|whatsapp|telegram|discord|reddit|pinterest|linkedin|instagram|snapchat|tiktok/i
 };
 
 // Check if visitor is a bot
