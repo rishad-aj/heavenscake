@@ -14,7 +14,7 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    z-index: 100000; /* Increased from 9999 to 100000 */
+    z-index: 100000;
     animation: fadeOut 1s ease-in-out 1s forwards;
 }
 
@@ -24,8 +24,6 @@
     border-radius: 20px;
 }
 
-
-
 @keyframes fadeOut {
     0% {
         opacity: 1;
@@ -33,16 +31,8 @@
     100% {
         opacity: 0;
         visibility: hidden;
-    }a
+    }
 }
-
-// In your boot animation JavaScript code
-document.body.classList.add('no-scroll');
-
-// After boot animation completes (after 2 seconds)
-setTimeout(() => {
-    document.body.classList.remove('no-scroll');
-}, 2000);
 
 /* When boot animation finishes, show content */
 #boot-animation.fade-out ~ * {
@@ -221,7 +211,7 @@ header {
     display: grid;
     gap: 20px;
     padding: 20px;
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(1, 1fr); /* Default: 1 column for mobile */
 }
 
 .cake-card {
@@ -413,6 +403,19 @@ header {
 
 /* ================= RESPONSIVE DESIGN ================= */
 
+/* Small Mobile (0px to 480px) - 1 column */
+@media (max-width: 480px) {
+    .menu-grid { grid-template-columns: repeat(1, 1fr); }
+    .logo2-svg { width: 150px; }
+    header > div:last-child { gap: 10px; }
+    .cake-img { width: 250px; height: 250px; }
+}
+
+/* Mobile (481px to 767px) - 2 columns */
+@media (min-width: 481px) and (max-width: 767px) {
+    .menu-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
 /* Tablet (768px to 1024px) - 3 columns */
 @media (min-width: 768px) and (max-width: 1024px) {
     .menu-grid { grid-template-columns: repeat(3, 1fr); }
@@ -462,13 +465,6 @@ header {
     .sidebar.active { z-index: 10000 !important; }
     .sidebar.active ~ header *:not(#nav-icon) { z-index: 1 !important; }
     #nav-icon { z-index: 10001 !important; }
-}
-
-/* Small Mobile */
-@media (max-width: 480px) {
-    .logo2-svg { width: 150px; }
-    header > div:last-child { gap: 10px; }
-    .cake-img { width: 250px; height: 250px; }
 }
 
 /* Utility */
