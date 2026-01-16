@@ -390,4 +390,18 @@ document.addEventListener('DOMContentLoaded', () => {
     new CakeSlideshow();
 });
 
+const services = document.querySelectorAll(".reveal");
 
+const observer = new IntersectionObserver(
+  entries => {
+    entries.forEach(entry => {
+      if(entry.isIntersecting){
+        entry.target.classList.add("show");
+        observer.unobserve(entry.target);
+      }
+    });
+  },
+  { threshold: 0.15, rootMargin: "0px 0px -50px 0px" }
+);
+
+services.forEach(service => observer.observe(service));
