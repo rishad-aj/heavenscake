@@ -260,7 +260,7 @@ document.addEventListener('DOMContentLoaded', function () {
     bootAnimation?.addEventListener('animationend', () => bootAnimation.remove());
 });
 
-// WebP slideshow
+// Enhanced WebP Image Slideshow
 class CakeSlideshow {
     constructor() {
         this.images = [
@@ -318,11 +318,13 @@ class CakeSlideshow {
         this.cakeImg = document.querySelector('.cake-img');
         this.currentIndex = 0;
         this.interval = null;
-        this.transitionTime = 500;
-        this.slideDuration = 3500;
+        this.transitionTime = 500; // Increased for smoother transition
+        this.slideDuration = 3500; // 3.5 seconds per slide
         this.isAnimating = false;
 
-        if (this.cakeImg) this.init();
+        if (this.cakeImg) {
+            this.init();
+        }
     }
 
     init() {
@@ -355,10 +357,10 @@ class CakeSlideshow {
 
         this.currentIndex = (this.currentIndex + 1) % this.images.length;
         const nextImg = this.images[this.currentIndex];
-
         this.cakeImg.src = `images/${nextImg.file}`;
         this.cakeImg.alt = nextImg.alt;
 
+        this.cakeImg.style.opacity = 0;
         requestAnimationFrame(() => {
             this.cakeImg.style.opacity = 1;
             this.isAnimating = false;
@@ -369,6 +371,7 @@ class CakeSlideshow {
         const firstImg = this.images[0];
         this.cakeImg.src = `images/${firstImg.file}`;
         this.cakeImg.alt = firstImg.alt;
+        this.cakeImg.loading = 'eager';
 
         this.interval = setInterval(() => this.changeSlide(), this.slideDuration);
     }
