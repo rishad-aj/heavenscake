@@ -193,23 +193,7 @@ header {
     padding: 10px;
 }
 
-/* ================= CONTENT ================= */
-.content {
-    text-align: center;
-    padding: 20px;
-}
 
-.container { width: 100%; padding: 20px; }
-
-.section {
-    border-bottom: 1px solid #734d40;
-    padding: 20px 0;
-}
-
-.section:last-child { border-bottom: none; }
-
-.section h2 { font-size: 24px; font-weight: bold; margin: 10px 0; }
-.section p { font-size: 16px; line-height: 1.5; margin: 10px 0; }
 
 /* ================= PRODUCT GRID ================= */
 .menu-grid {
