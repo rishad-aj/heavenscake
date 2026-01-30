@@ -80,7 +80,7 @@ header {
     width: 24px;
     height: 24px;
     cursor: pointer;
-    z-index: 1003; /* Changed from 1201 to 1003 */
+    z-index: 1003; /* Increase this to be above sidebar (1000) */
     position: relative;
 }
 
