@@ -55,10 +55,8 @@ body {
 
 .no-scroll { overflow: hidden; }
 
+/* ================= HEADER ================= */
 header {
-    position: sticky;
-    top: 0;
-    z-index: 1000;
     background: #734d40;
     padding: 10px;
     display: flex;
@@ -73,14 +71,13 @@ header {
     transition: transform 0.3s;
 }
 
-/* Hamburger Menu - Fixed z-index */
+/* Hamburger Menu */
 #nav-icon {
     width: 24px;
     height: 24px;
     cursor: pointer;
-    z-index: 1003;
+    z-index: 1001;
     position: relative;
-    pointer-events: all;
 }
 
 #nav-icon span {
@@ -175,7 +172,6 @@ header {
     overflow-y: auto;
     box-shadow: inset 0px 1px 2px 1px rgba(0,0,0,0.3);
 }
-
 
 .sidebar.active { left: 0; }
 
@@ -537,14 +533,15 @@ header {
     
     header > div:last-child {
         position: relative;
+        z-index: 1002;
         margin-left: auto;
     }
+    
+    /* Sidebar Z-Index Fix */
+    .sidebar.active { z-index: 10000 !important; }
+    .sidebar.active ~ header *:not(#nav-icon) { z-index: 1 !important; }
+    #nav-icon { z-index: 10001 !important; }
 }
 
-/* ================= HAMBURGER MENU VISIBILITY FIX ================= */
-@media (max-width: 1024px) {
-    #nav-icon {
-        z-index: 1003 !important;
-        position: relative;
-    }
-}
+/* Utility */
+.trending-heading { text-align: center; margin-bottom: 20px; }
