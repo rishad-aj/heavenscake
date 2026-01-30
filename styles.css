@@ -166,16 +166,14 @@ header {
 /* ================= SIDEBAR ================= */
 .sidebar {
     position: fixed;
+    top: 60px;          /* SAME as header height */
     left: -250px;
-    top: 0;
-    height: 100%;
+    height: calc(100% - 60px);
     width: 250px;
     background: #734d40;
-    padding-top: 60px;
     transition: left 0.3s ease;
-    z-index: 1000;
+    z-index: 1100;      /* higher than header */
     overflow-y: auto;
-    box-shadow: inset 0px 1px 2px 1px rgba(0,0,0,0.3);
 }
 
 .sidebar.active { left: 0; }
