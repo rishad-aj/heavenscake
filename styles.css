@@ -545,3 +545,77 @@ header {
 
 /* Utility */
 .trending-heading { text-align: center; margin-bottom: 20px; }
+
+
+/* SVG Styling for About Page */
+.about-container .section {
+    display: flex;
+    align-items: flex-start;
+    margin-bottom: 40px;
+    padding: 20px;
+}
+
+.about-container .section h2 {
+    margin-left: 20px;
+    margin-top: 0;
+    text-align: left;
+    flex: 1;
+}
+
+/* Center only the first heading */
+.about-container .section:first-child h2 {
+    text-align: center;
+    margin-left: 0;
+}
+
+.about-container .section:first-child {
+    flex-direction: column;
+    text-align: center;
+}
+
+.about-container .section:first-child p {
+    margin-top: 20px;
+}
+
+/* SVG container styling */
+.about-container .section svg,
+.about-container .section img[src*=".svg"] {
+    width: 60px;
+    height: 60px;
+    min-width: 60px;
+    fill: white;
+    stroke: white;
+    filter: brightness(0) invert(1);
+    margin-top: 5px;
+}
+
+/* Specific styling for SVGs with fill attributes */
+.about-container .section svg path,
+.about-container .section svg polygon {
+    fill: white;
+    stroke: white;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+    .about-container .section {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+    }
+    
+    .about-container .section h2 {
+        margin-left: 0;
+        margin-top: 20px;
+        text-align: center;
+    }
+    
+    .about-container .section:first-child h2 {
+        text-align: center;
+    }
+    
+    .about-container .section svg,
+    .about-container .section img[src*=".svg"] {
+        margin: 0 auto;
+    }
+}
