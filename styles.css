@@ -74,7 +74,23 @@ header {
     transition: transform 0.3s;
 }
 
-
+@media (max-width: 1024px) {
+    .logo2-svg {
+        position: absolute;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 180px;
+        z-index: 1001;
+    }
+    
+    header > div:last-child {
+        position: relative;
+        z-index: 1202; /* Increased from 1002 to 1202 */
+        margin-left: auto;
+        display: flex;
+        align-items: center;
+    }
+}
 #nav-icon {
     width: 24px;
     height: 24px;
