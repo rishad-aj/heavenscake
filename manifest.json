@@ -11,8 +11,8 @@
     "minimal-ui"
   ],
   "orientation": "portrait",
-  "background_color": "#FFF6F0",
-  "theme_color": "#D99872",
+  "background_color": "#d99872",
+  "theme_color": "#734d40",
   "lang": "en-IN",
   "categories": ["food", "business", "shopping"],
   "icons": [
