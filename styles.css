@@ -548,14 +548,14 @@ header {
 
 
 /* SVG Styling for About Page */
-.about-container .section {
+.container .section {
     display: flex;
     align-items: flex-start;
     margin-bottom: 40px;
     padding: 20px;
 }
 
-.about-container .section h2 {
+.container .section h2 {
     margin-left: 20px;
     margin-top: 0;
     text-align: left;
@@ -563,23 +563,23 @@ header {
 }
 
 /* Center only the first heading */
-.about-container .section:first-child h2 {
+.container .section:first-child h2 {
     text-align: center;
     margin-left: 0;
 }
 
-.about-container .section:first-child {
+.container .section:first-child {
     flex-direction: column;
     text-align: center;
 }
 
-.about-container .section:first-child p {
+.container .section:first-child p {
     margin-top: 20px;
 }
 
 /* SVG container styling */
-.about-container .section svg,
-.about-container .section img[src*=".svg"] {
+.container .section svg,
+.container .section img[src*=".svg"] {
     width: 60px;
     height: 60px;
     min-width: 60px;
@@ -590,32 +590,37 @@ header {
 }
 
 /* Specific styling for SVGs with fill attributes */
-.about-container .section svg path,
-.about-container .section svg polygon {
+.container .section svg path,
+.container .section svg polygon {
     fill: white;
     stroke: white;
 }
 
+/* Remove the fill override for YouTube SVG since it has special styling */
+.container .section svg#youtube-icon path {
+    fill: white !important;
+}
+
 /* Responsive design */
 @media (max-width: 768px) {
-    .about-container .section {
+    .container .section {
         flex-direction: column;
         align-items: center;
         text-align: center;
     }
     
-    .about-container .section h2 {
+    .container .section h2 {
         margin-left: 0;
         margin-top: 20px;
         text-align: center;
     }
     
-    .about-container .section:first-child h2 {
+    .container .section:first-child h2 {
         text-align: center;
     }
     
-    .about-container .section svg,
-    .about-container .section img[src*=".svg"] {
+    .container .section svg,
+    .container .section img[src*=".svg"] {
         margin: 0 auto;
     }
 }
