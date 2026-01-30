@@ -527,26 +527,20 @@ header {
 }
 
 @media (max-width: 1024px) {
-    .logo2-svg {
-        position: absolute;
-        left: 50%;
-        transform: translateX(-50%);
-        width: 180px;
-        z-index: 1002; /* Ensure logo is above sidebar */
-    }
+    /* ... other mobile styles ... */
     
-    header > div:last-child {
-        position: relative;
-        z-index: 1003; /* Changed from 1002 to 1003 */
-        margin-left: auto;
-    }
-    
-    /* Add this to ensure hamburger is always visible */
+    /* Add this to ensure hamburger is visible above sidebar */
     #nav-icon {
         position: relative;
-        z-index: 1003 !important;
+        z-index: 1003 !important; /* Force it to be above */
+    }
+    
+    /* Keep header at normal z-index */
+    header {
+        z-index: 1000; /* This is fine, it's lower than sidebar */
     }
 }
+    
     
 
 
