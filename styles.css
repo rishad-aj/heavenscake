@@ -540,11 +540,7 @@ header {
         margin-left: auto;
     }
     
-    /* Sidebar Z-Index Fix */
-    .sidebar.active { z-index: 10000 !important; }
-    .sidebar.active ~ header *:not(#nav-icon) { z-index: 1 !important; }
-    #nav-icon { z-index: 10001 !important; }
-}
+
 
 /* Utility */
 .trending-heading { text-align: center; margin-bottom: 20px; }
