@@ -547,42 +547,58 @@ header {
 .trending-heading { text-align: center; margin-bottom: 20px; }
 
 
-/* About Page SVG Styling */
-.container .section {
-    display: flex;
-    align-items: flex-start;
-    gap: 20px;
-    margin-bottom: 40px;
+/* ================= ABOUT PAGE ================= */
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
     padding: 20px;
 }
 
-/* First section (About us) - centered layout */
+/* First section - About Us (centered) */
 .container .section:first-child {
-    display: block;
     text-align: center;
+    margin-bottom: 40px;
+    padding: 20px 0;
 }
 
 .container .section:first-child h2 {
     text-align: center;
     margin-bottom: 20px;
+    font-size: 28px;
+    color: #fff;
 }
 
-/* Other sections - SVG on left, content on right */
+.container .section:first-child p {
+    text-align: center;
+    max-width: 800px;
+    margin: 0 auto;
+    line-height: 1.6;
+    font-size: 16px;
+}
+
+/* Other sections - SVG left, content right (desktop) */
 .container .section:not(:first-child) {
     display: flex;
     align-items: flex-start;
+    gap: 30px;
+    margin-bottom: 40px;
+    padding: 30px 0;
+    border-bottom: 1px solid rgba(115, 77, 64, 0.3);
+}
+
+.container .section:not(:first-child):last-child {
+    border-bottom: none;
 }
 
 /* SVG container styling */
 .container .section:not(:first-child) svg,
 .container .section:not(:first-child) img[src*=".svg"] {
-    width: 50px;
-    height: 50px;
-    min-width: 50px;
+    width: 70px;
+    height: 70px;
+    min-width: 70px;
     flex-shrink: 0;
     fill: white;
     stroke: white;
-    margin-top: 5px;
 }
 
 /* Make all SVG paths white */
@@ -599,41 +615,123 @@ header {
     filter: brightness(0) invert(1);
 }
 
-/* Content area styling */
-.container .section .section-content {
+/* Content area styling - stacked layout */
+.container .section:not(:first-child) .content-wrapper {
     flex: 1;
+    text-align: left;
 }
 
 .container .section:not(:first-child) h2 {
     margin-top: 0;
     margin-bottom: 15px;
     text-align: left;
+    font-size: 24px;
+    color: #fff;
 }
 
 .container .section:not(:first-child) p {
     text-align: left;
     margin: 0;
+    line-height: 1.6;
+    font-size: 16px;
+    color: rgba(255, 255, 255, 0.9);
 }
 
-/* Responsive design */
+/* Mobile view - vertical layout */
 @media (max-width: 768px) {
     .container .section:not(:first-child) {
         flex-direction: column;
         align-items: center;
         text-align: center;
-        gap: 15px;
+        gap: 20px;
+    }
+    
+    /* Mobile: SVG above heading, heading above description */
+    .container .section:not(:first-child) .content-wrapper {
+        text-align: center;
+        width: 100%;
     }
     
     .container .section:not(:first-child) h2 {
         text-align: center;
+        margin-top: 15px;
+        margin-bottom: 15px;
     }
     
     .container .section:not(:first-child) p {
         text-align: center;
+        margin: 0 auto;
+        max-width: 90%;
+    }
+    
+    /* SVG centered in mobile */
+    .container .section:not(:first-child) svg,
+    .container .section:not(:first-child) img[src*=".svg"] {
+        margin: 0 auto;
+        width: 60px;
+        height: 60px;
+    }
+}
+
+/* Desktop adjustments */
+@media (min-width: 769px) {
+    .container .section:not(:first-child) {
+        align-items: flex-start;
+        text-align: left;
+    }
+    
+    .container .section:not(:first-child) .content-wrapper {
+        text-align: left;
+    }
+    
+    .container .section:not(:first-child) h2 {
+        text-align: left;
+    }
+    
+    .container .section:not(:first-child) p {
+        text-align: left;
+    }
+}
+
+/* Adjust SVG positioning for better alignment */
+@media (min-width: 1024px) {
+    .container .section:not(:first-child) {
+        gap: 40px;
     }
     
     .container .section:not(:first-child) svg,
     .container .section:not(:first-child) img[src*=".svg"] {
-        margin: 0 auto;
+        width: 80px;
+        height: 80px;
+        margin-top: 5px;
+    }
+}
+
+/* Additional responsive tweaks */
+@media (max-width: 480px) {
+    .container {
+        padding: 15px;
+    }
+    
+    .container .section:first-child h2 {
+        font-size: 24px;
+    }
+    
+    .container .section:first-child p {
+        font-size: 15px;
+    }
+    
+    .container .section:not(:first-child) h2 {
+        font-size: 20px;
+    }
+    
+    .container .section:not(:first-child) p {
+        font-size: 15px;
+    }
+    
+    .container .section:not(:first-child) svg,
+    .container .section:not(:first-child) img[src*=".svg"] {
+        width: 50px;
+        height: 50px;
     }
 }
