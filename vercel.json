@@ -1,8 +1,28 @@
 {
   "rewrites": [
     {
+      "source": "/",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/about-us",
+      "destination": "/about-us.html"
+    },
+    {
+      "source": "/products",
+      "destination": "/products.html"
+    },
+    {
       "source": "/review",
       "destination": "/review.html"
+    },
+    {
+      "source": "/terms-conditions",
+      "destination": "/terms-conditions.html"
+    },
+    {
+      "source": "/404",
+      "destination": "/404.html"
     }
   ]
 }
