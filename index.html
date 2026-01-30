@@ -12,27 +12,8 @@
 <link rel="icon" type="image/png" href="/favicon.png">  
 <link rel="icon" type="image/svg+xml" href="/favicon.svg">   
 <link rel="manifest" href="/manifest.json">
-<meta name="theme-color" content="#734d40" id="theme-color-meta">
-<script>
-document.addEventListener("DOMContentLoaded", () => {
-  const themeMeta = document.getElementById("theme-color-meta");
+<meta name="theme-color" content="#734d40">
 
-  function setTheme(color) {
-    themeMeta.setAttribute("content", color);
-  }
-
-  // Initial state (header visible)
-  setTheme("#734d40");
-
-  window.addEventListener("scroll", () => {
-    if (window.scrollY > 120) {
-      setTheme("#d62828"); // body bg color
-    } else {
-      setTheme("#734d40"); // header color
-    }
-  });
-});
-</script>
 <!-- Open Graph -->    
 <meta property="og:type" content="website">  
 <meta property="og:url" content="https://heavenscake.vercel.app">  
