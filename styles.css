@@ -2,12 +2,13 @@
     box-sizing: border-box;
     font-family: "Inter", sans-serif;
 }
- :root{
-  --bg:#d99872;
-  --divider:#734d40;
-  --text:#fff;
-  font-family:Arial,Helvetica,sans-serif;
+:root {
+    --bg:#d99872;
+    --divider:#734d40;
+    --text:#fff;
+    font-family:Arial,Helvetica,sans-serif;
 }
+
 /* ================= BOOT ANIMATION ================= */
 #boot-animation {
     position: fixed;
@@ -30,20 +31,11 @@
 }
 
 @keyframes fadeOut {
-    0% {
-        opacity: 1;
-    }
-    100% {
-        opacity: 0;
-        visibility: hidden;
-    }
+    0% { opacity: 1; }
+    100% { opacity: 0; visibility: hidden; }
 }
 
-/* When boot animation finishes, show content */
-#boot-animation.fade-out ~ * {
-    visibility: visible;
-    opacity: 1;
-}
+#boot-animation.fade-out ~ * { visibility: visible; opacity: 1; }
 
 /* ================= BASE STYLES ================= */
 body {
@@ -62,10 +54,17 @@ header {
     display: flex;
     align-items: center;
     box-shadow: inset 1px 2px 3px rgba(0,0,0,0.3);
-    /* Add these lines for sticky header */
     position: sticky;
     top: 0;
-    z-index: 999;
+    z-index: 1002;
+}
+
+/* Header layout structure */
+header > div:first-child {
+    display: flex;
+    align-items: center;
+    z-index: 1003;
+    min-width: 40px; /* Ensure space for hamburger */
 }
 
 /* Logo */
@@ -75,13 +74,14 @@ header {
     transition: transform 0.3s;
 }
 
-/* Hamburger Menu */
+/* ================= HAMBURGER MENU ================= */
 #nav-icon {
     width: 24px;
     height: 24px;
     cursor: pointer;
-    z-index: 1001;
+    z-index: 1003;
     position: relative;
+    display: block; /* Ensure it's visible */
 }
 
 #nav-icon span {
@@ -102,6 +102,7 @@ header {
     transform: rotate(45deg);
     top: 8px;
 }
+
 #nav-icon.open span:nth-child(2) { opacity: 0; }
 #nav-icon.open span:nth-child(3) {
     transform: rotate(-45deg);
@@ -215,14 +216,12 @@ header {
     padding: 10px;
 }
 
-
-
 /* ================= PRODUCT GRID ================= */
 .menu-grid {
     display: grid;
     gap: 20px;
     padding: 20px;
-    grid-template-columns: repeat(1, 1fr); /* Default: 1 column for mobile */
+    grid-template-columns: repeat(1, 1fr);
 }
 
 .cake-card {
@@ -310,80 +309,77 @@ header {
     display: block;
 }
 
-.service-strip{
-  max-width:1100px;
-  margin:40px auto;
-  background:var(--bg);
-  display:flex;
-  align-items:center;
-  padding:28px 10px;
-}
-.service{
-  flex:1;
-  display:flex;
-  align-items:center;
-  gap:16px;
-  padding:0 22px;
-  opacity:0;
-  transform:translateY(30px);
-  transition:opacity .6s ease,transform .6s ease;
-}
-.service.show{
-  opacity:1;
-  transform:none;
-}
-.delay-1{transition-delay:.1s}
-.delay-2{transition-delay:.25s}
-.delay-3{transition-delay:.4s}
-.service img{
-  width:40px;
-  height:40px;
-  object-fit:contain;
-  filter:brightness(0) invert(1);
-  flex-shrink:0;
-}
-.service h3{
-  margin:0;
-  font-size:18px;
-  font-weight:600;
-  color:var(--text);
-}
-.service p{
-  margin:4px 0 0;
-  font-size:14px;
-  color:var(--text);
-}
-.service a{
-  color:var(--text);
-  text-decoration:none;
-}
-.service a.underline{
-  text-decoration:underline;
-}
-.divider{
-  width:1px;
-  height:55px;
-  background:var(--divider);
-}
-
-@media(max-width:768px){
-  .service-strip{flex-direction:column;gap:22px}
-  .divider{width:85%;height:1px}
-  .service.left{align-self:flex-start;margin-left:12%;transform:translateX(40px)}
-  .service.right{
-    align-self:flex-end;
-    margin-right:12%;
-    flex-direction:row-reverse;
-    text-align:right;
-    transform:translateX(-40px)
-  }
-  .service.show{transform:none}
-}
 .order-btn { background: #d99872; color: #fff; }
 .view-btn { background: #fff; color: #734d40; border: 1px solid #d99872; }
 
 .order-btn:hover, .view-btn:hover { transform: scale(1.02); }
 .order-btn:active, .view-btn:active { transform: scale(0.98); }
+
+/* ================= SERVICE STRIP ================= */
+.service-strip{
+    max-width:1100px;
+    margin:40px auto;
+    background:var(--bg);
+    display:flex;
+    align-items:center;
+    padding:28px 10px;
+}
+
+.service{
+    flex:1;
+    display:flex;
+    align-items:center;
+    gap:16px;
+    padding:0 22px;
+    opacity:0;
+    transform:translateY(30px);
+    transition:opacity .6s ease,transform .6s ease;
+}
+
+.service.show{
+    opacity:1;
+    transform:none;
+}
+
+.delay-1{transition-delay:.1s}
+.delay-2{transition-delay:.25s}
+.delay-3{transition-delay:.4s}
+
+.service img{
+    width:40px;
+    height:40px;
+    object-fit:contain;
+    filter:brightness(0) invert(1);
+    flex-shrink:0;
+}
+
+.service h3{
+    margin:0;
+    font-size:18px;
+    font-weight:600;
+    color:var(--text);
+}
+
+.service p{
+    margin:4px 0 0;
+    font-size:14px;
+    color:var(--text);
+}
+
+.service a{
+    color:var(--text);
+    text-decoration:none;
+}
+
+.service a.underline{
+    text-decoration:underline;
+}
+
+.divider{
+    width:1px;
+    height:55px;
+    background:var(--divider);
+}
 
 /* ================= SEARCH ================= */
 .input {
@@ -535,23 +531,47 @@ header {
         z-index: 1001;
     }
     
+    /* Ensure hamburger menu is visible */
+    #nav-icon {
+        display: block !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+        z-index: 1003 !important;
+    }
+    
+    header > div:first-child {
+        display: flex !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+        z-index: 1003 !important;
+        min-width: 40px;
+    }
+    
     header > div:last-child {
         position: relative;
         z-index: 1002;
         margin-left: auto;
     }
     
-    /* Hamburger icon must stay visible */
-    #nav-icon {
-        display: block !important;
-        visibility: visible !important;
-        opacity: 1 !important;
-    }
-    
     /* Sidebar Z-Index Fix */
     .sidebar.active { z-index: 10000 !important; }
     .sidebar.active ~ header *:not(#nav-icon) { z-index: 1 !important; }
     #nav-icon { z-index: 10001 !important; }
+}
+
+/* Service strip responsive */
+@media(max-width:768px){
+    .service-strip{flex-direction:column;gap:22px}
+    .divider{width:85%;height:1px}
+    .service.left{align-self:flex-start;margin-left:12%;transform:translateX(40px)}
+    .service.right{
+        align-self:flex-end;
+        margin-right:12%;
+        flex-direction:row-reverse;
+        text-align:right;
+        transform:translateX(-40px)
+    }
+    .service.show{transform:none}
 }
 
 /* Utility */
