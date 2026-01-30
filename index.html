@@ -12,8 +12,28 @@
 <link rel="icon" type="image/png" href="/favicon.png">  
 <link rel="icon" type="image/svg+xml" href="/favicon.svg">   
 <link rel="manifest" href="/manifest.json">
-<meta name="theme-color" content="#734d40">
+<meta name="theme-color" content="#ffffff" id="theme-color-meta">
+<script>
+  <script>
+  const themeMeta = document.getElementById("theme-color-meta");
 
+  function setTheme(color) {
+    themeMeta.setAttribute("content", color);
+  }
+
+  // Header color
+  setTheme("#d62828");
+
+  // Example: change on scroll
+  window.addEventListener("scroll", () => {
+    if (window.scrollY > 120) {
+      setTheme("#d62828"); // body bg color
+    } else {
+      setTheme("#734d40"); // header color
+    }
+  });
+</script>
+</script>
 <!-- Open Graph -->    
 <meta property="og:type" content="website">  
 <meta property="og:url" content="https://heavenscake.vercel.app">  
