@@ -49,6 +49,23 @@
       "https://wa.me/918301088697"
     ]
   }
+
+    // Animation for about page sections
+document.addEventListener('DOMContentLoaded', function() {
+    const sections = document.querySelectorAll('.container .section:not(:first-child)');
+    
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('show');
+            }
+        });
+    }, { threshold: 0.2 });
+    
+    sections.forEach(section => {
+        observer.observe(section);
+    });
+});
   </script>
 
   <!-- Styles -->
