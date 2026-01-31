@@ -260,10 +260,10 @@ document.addEventListener('DOMContentLoaded', function () {
     bootAnimation?.addEventListener('animationend', () => bootAnimation.remove());
 });
 
-// ================= 3D HERO CAKE SLIDESHOW =================
+// ================= 3D CAKE SLIDESHOW (ENHANCED) =================
 document.addEventListener('DOMContentLoaded', () => {
     
-    // 1. Your Full WebP Image List
+    // 1. Your Image List
     const images = [
         { file: "vanilla-cake.webp", alt: "Vanilla Cake" },
         { file: "whiteforest-cake.webp", alt: "White Forest Cake" },
@@ -317,9 +317,9 @@ document.addEventListener('DOMContentLoaded', () => {
     ];
 
     const wrapper = document.getElementById('hero-wrapper');
-    let heroSwiper;
-
-    // 2. Logic to Inject Images and Skip if 404
+    let heroSwiper; // Variable to store the swiper instance
+    
+    // 2. Inject Images with Error Handling
     if (wrapper) {
         images.forEach(img => {
             const slide = document.createElement('div');
@@ -330,9 +330,11 @@ document.addEventListener('DOMContentLoaded', () => {
             imageElement.alt = img.alt;
             imageElement.loading = "lazy";
 
-            // If image is not found, remove this slide automatically
+            // === ERROR HANDLING: If image not found, remove slide ===
             imageElement.onerror = function() {
+                // Remove the parent slide div
                 slide.remove(); 
+                // Tell Swiper to recalculate layout if it's already running
                 if (heroSwiper) heroSwiper.update();
             };
 
@@ -346,34 +348,37 @@ document.addEventListener('DOMContentLoaded', () => {
             grabCursor: true,
             centeredSlides: true,
             loop: true,
-            autoplay: {
-                delay: 3000,
-                disableOnInteraction: false,
-                pauseOnMouseEnter: true
-            },
+            
+            // Responsive Breakpoints
             breakpoints: {
-                // Mobile View: Shows 1 large central + portions of side cakes
+                // Mobile: 3 slides visible
                 320: {
-                    slidesPerView: "auto", 
+                    slidesPerView: 3, 
                     coverflowEffect: {
-                        rotate: 30,
-                        stretch: -10, // Small gap between slides
-                        depth: 200,
+                        rotate: 35,
+                        stretch: 0,
+                        depth: 100,
                         modifier: 1,
-                        slideShadows: true
+                        slideShadows: false // No shadows on mobile (cleaner/faster)
                     }
                 },
-                // Desktop View: Shows 5 cakes across
-                1024: {
+                // Tablet/PC: 5 slides visible
+                768: {
                     slidesPerView: 5,
                     coverflowEffect: {
-                        rotate: 25,
+                        rotate: 30,
                         stretch: 0,
                         depth: 150,
                         modifier: 1,
-                        slideShadows: true
+                        slideShadows: true // Nice shadows on PC
                     }
                 }
+            },
+            
+            autoplay: {
+                delay: 2500,
+                disableOnInteraction: false,
+                pauseOnMouseEnter: true // Pauses when user hovers mouse (PC only)
             }
         });
     }
