@@ -351,39 +351,34 @@ heroSwiper = new Swiper(".swiper-hero", {
     slidesPerView: "auto", // Default to auto to be safe
     loop: true,
     
-    // Responsive Breakpoints
-    breakpoints: {
-        // === MOBILE FIX ===
-        320: {
-            slidesPerView: "auto", // This allows the CSS width (70%) to work
-            spaceBetween: 20,      // Adds breathing room between cakes
-            coverflowEffect: {
-                rotate: 40,        // Higher rotation makes the 3D effect pop more on small screens
-                stretch: 0,
-                depth: 200,        // Deeper depth pushes side cakes back
-                modifier: 1,
-                slideShadows: false
+    // ... inside heroSwiper = new Swiper ...
+
+        breakpoints: {
+            // Mobile: Use "auto" so it respects your CSS width: 75%
+            320: {
+                slidesPerView: "auto",  // <--- CHANGED FROM 3 TO "auto"
+                coverflowEffect: {
+                    rotate: 35,
+                    stretch: 0,
+                    depth: 100,
+                    modifier: 1,
+                    slideShadows: false
+                }
+            },
+            // Tablet/PC: Keep as is
+            768: {
+                slidesPerView: 5,
+                coverflowEffect: {
+                    rotate: 30,
+                    stretch: 0,
+                    depth: 150,
+                    modifier: 1,
+                    slideShadows: true
+                }
             }
         },
-        // TABLET / PC
-        768: {
-            slidesPerView: 4,      // 4 or 5 looks good on desktop
-            coverflowEffect: {
-                rotate: 30,
-                stretch: 0,
-                depth: 150,
-                modifier: 1,
-                slideShadows: true
-            }
-        }
-    },
-    
-    autoplay: {
-        delay: 2500,
-        disableOnInteraction: false,
-        pauseOnMouseEnter: true
-    }
-});
+
+// ... rest of code
 
 const services = document.querySelectorAll(".reveal");
 
