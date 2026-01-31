@@ -3,7 +3,7 @@
    <head>
       <meta charset="UTF-8">
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      <title>oops!-error</title>
+      <title>oops!-404</title>
       <link rel="stylesheet" href="styles.css">
       <link rel="stylesheet" href="styles2.css">
       <!-- Google tag (gtag.js) -->
@@ -56,8 +56,8 @@
 </header>
 <main class="err-container">
    <div class="err-section">
-      <h1 class="err-code" id="err-title">Error</h1>
-      <p class="err-msg" id="err-description">Something went wrong.</p>
+      <h1 class="err-code" id="err-title">oops - 404</h1>
+      <p class="err-msg" id="err-description">sorry, the page not found</p>
       
       <a href="/" class="shop-button">Go home</a>
    </div>
@@ -151,33 +151,7 @@
             <p>© 2025 Heaven's cake. All rights reserved.</p>
          </div>
       </div>
-      <script>
-        document.addEventListener("DOMContentLoaded", () => {
-    const title = document.getElementById('err-title');
-    const desc = document.getElementById('err-description');
-
-    // Vercel usually sends the status in the headers, 
-    // but for a simple frontend fix, we can check common scenarios
-    const path = window.location.pathname;
-
-    // You can also use URL parameters if you redirect with them
-    // Example: error.html?code=504
-    const urlParams = new URLSearchParams(window.location.search);
-    const code = urlParams.get('code');
-
-    if (code === '504' || path.includes('504')) {
-        title.innerText = "504 - Timeout";
-        desc.innerText = "The server took too long to respond. Please try again later.";
-    } else if (code === '500' || path.includes('500')) {
-        title.innerText = "500 - Server Error";
-        desc.innerText = "Oops! Something went wrong on our end.";
-    } else {
-        // Default to 404
-        title.innerText = "404 - Not Found";
-        desc.innerText = "The page you're looking for doesn't exist (yet)!";
-    }
-});
-</script>
+      
       <script src="script.js"></script>
    </body>
 </html>
