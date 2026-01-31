@@ -623,3 +623,93 @@ header {
     opacity: 0.9;
 }
 
+/* About Page SVG Styling */
+.container .section {
+    display: flex;
+    align-items: flex-start;
+    gap: 20px;
+    margin-bottom: 40px;
+    padding: 20px;
+}
+
+/* First section (About us) - centered layout */
+.container .section:first-child {
+    display: block;
+    text-align: center;
+}
+
+.container .section:first-child h2 {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+/* Other sections - SVG on left, content on right */
+.container .section:not(:first-child) {
+    display: flex;
+    align-items: flex-start;
+}
+
+/* SVG container styling */
+.container .section:not(:first-child) svg,
+.container .section:not(:first-child) img[src*=".svg"] {
+    width: 50px;
+    height: 50px;
+    min-width: 50px;
+    flex-shrink: 0;
+    fill: white;
+    stroke: white;
+    margin-top: 5px;
+}
+
+/* Make all SVG paths white */
+.container .section:not(:first-child) svg path,
+.container .section:not(:first-child) svg polygon,
+.container .section:not(:first-child) svg circle,
+.container .section:not(:first-child) svg rect {
+    fill: white !important;
+    stroke: white !important;
+}
+
+/* Specific fix for delivery SVG (external image) */
+.container .section:not(:first-child) img[src*=".svg"] {
+    filter: brightness(0) invert(1);
+}
+
+/* Content area styling */
+.container .section .section-content {
+    flex: 1;
+}
+
+.container .section:not(:first-child) h2 {
+    margin-top: 0;
+    margin-bottom: 15px;
+    text-align: left;
+}
+
+.container .section:not(:first-child) p {
+    text-align: left;
+    margin: 0;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+    .container .section:not(:first-child) {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        gap: 15px;
+    }
+    
+    .container .section:not(:first-child) h2 {
+        text-align: center;
+    }
+    
+    .container .section:not(:first-child) p {
+        text-align: center;
+    }
+    
+    .container .section:not(:first-child) svg,
+    .container .section:not(:first-child) img[src*=".svg"] {
+        margin: 0 auto;
+    }
+}
