@@ -260,7 +260,7 @@ document.addEventListener('DOMContentLoaded', function () {
     bootAnimation?.addEventListener('animationend', () => bootAnimation.remove());
 });
 
-// ================= 3D CAKE SLIDESHOW (ENHANCED) =================
+// ================= 3D CAKE SLIDESHOW =================
 document.addEventListener('DOMContentLoaded', () => {
     
     // 1. Your Image List
@@ -317,33 +317,18 @@ document.addEventListener('DOMContentLoaded', () => {
     ];
 
     const wrapper = document.getElementById('hero-wrapper');
-    let heroSwiper; // Variable to store the swiper instance
     
-    // 2. Inject Images with Error Handling
+    // 2. Inject Images into DOM
     if (wrapper) {
         images.forEach(img => {
             const slide = document.createElement('div');
             slide.className = 'swiper-slide';
-            
-            const imageElement = document.createElement('img');
-            imageElement.src = `images/${img.file}`;
-            imageElement.alt = img.alt;
-            imageElement.loading = "lazy";
-
-            // === ERROR HANDLING: If image not found, remove slide ===
-            imageElement.onerror = function() {
-                // Remove the parent slide div
-                slide.remove(); 
-                // Tell Swiper to recalculate layout if it's already running
-                if (heroSwiper) heroSwiper.update();
-            };
-
-            slide.appendChild(imageElement);
+            slide.innerHTML = `<img src="images/${img.file}" alt="${img.alt}" loading="lazy">`;
             wrapper.appendChild(slide);
         });
 
-        // 3. Initialize Swiper
-        heroSwiper = new Swiper(".swiper-hero", {
+        // 3. Initialize Swiper with 3D Config
+        new Swiper(".swiper-hero", {
             effect: "coverflow",
             grabCursor: true,
             centeredSlides: true,
@@ -351,7 +336,7 @@ document.addEventListener('DOMContentLoaded', () => {
             
             // Responsive Breakpoints
             breakpoints: {
-                // Mobile: 3 slides visible
+                // Mobile: 3 slides visible (1 center + 2 sides)
                 320: {
                     slidesPerView: 3, 
                     coverflowEffect: {
@@ -359,18 +344,18 @@ document.addEventListener('DOMContentLoaded', () => {
                         stretch: 0,
                         depth: 100,
                         modifier: 1,
-                        slideShadows: false // No shadows on mobile (cleaner/faster)
+                        slideShadows: false // Lighter on mobile
                     }
                 },
-                // Tablet/PC: 5 slides visible
-                768: {
+                // PC: 5 slides visible
+                1024: {
                     slidesPerView: 5,
                     coverflowEffect: {
                         rotate: 30,
                         stretch: 0,
                         depth: 150,
                         modifier: 1,
-                        slideShadows: true // Nice shadows on PC
+                        slideShadows: true
                     }
                 }
             },
@@ -378,7 +363,6 @@ document.addEventListener('DOMContentLoaded', () => {
             autoplay: {
                 delay: 2500,
                 disableOnInteraction: false,
-                pauseOnMouseEnter: true // Pauses when user hovers mouse (PC only)
             }
         });
     }
