@@ -342,27 +342,27 @@ document.addEventListener('DOMContentLoaded', () => {
             wrapper.appendChild(slide);
         });
 
-
-
+        // 3. Initialize Swiper
         heroSwiper = new Swiper(".swiper-hero", {
             effect: "coverflow",
             grabCursor: true,
             centeredSlides: true,
             loop: true,
             
+            // Responsive Breakpoints
             breakpoints: {
-                // Mobile View
+                // Mobile: 3 slides visible
                 320: {
-                    slidesPerView: "auto", // Set to auto to respect the CSS width
+                    slidesPerView: 3, 
                     coverflowEffect: {
-                        rotate: 30,    // Less rotation for larger images
-                        stretch: -20,  // Pulls the side slides slightly away
-                        depth: 200,    // Pushes side slides further back
+                        rotate: 35,
+                        stretch: 0,
+                        depth: 100,
                         modifier: 1,
-                        slideShadows: true 
+                        slideShadows: false // No shadows on mobile (cleaner/faster)
                     }
                 },
-                // Tablet/PC View
+                // Tablet/PC: 5 slides visible
                 768: {
                     slidesPerView: 5,
                     coverflowEffect: {
@@ -370,7 +370,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         stretch: 0,
                         depth: 150,
                         modifier: 1,
-                        slideShadows: true
+                        slideShadows: true // Nice shadows on PC
                     }
                 }
             },
@@ -378,10 +378,11 @@ document.addEventListener('DOMContentLoaded', () => {
             autoplay: {
                 delay: 2500,
                 disableOnInteraction: false,
-                pauseOnMouseEnter: true
+                pauseOnMouseEnter: true // Pauses when user hovers mouse (PC only)
             }
         });
     }
+});
 
 const services = document.querySelectorAll(".reveal");
 
