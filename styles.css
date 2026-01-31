@@ -546,36 +546,47 @@ header {
 /* Utility */
 .trending-heading { text-align: center; margin-bottom: 20px; }
 
-/* --- Hero 3D Slider Styles (Fixed) --- */
+/* --- Hero 3D Slider Styles (Mobile Optimized) --- */
 .swiper-hero {
     width: 100%;
     padding-top: 20px;
-    padding-bottom: 50px;
-    perspective: 1200px; /* Better depth */
-    overflow: visible;   /* Crucial: Prevents 3D edges from being cut off */
+    padding-bottom: 60px; /* Increased padding to protect the shop button */
+    perspective: 1200px;
+    overflow: hidden; 
 }
 
-/* Base Slide Style */
 .swiper-hero .swiper-slide {
     background-position: center;
     background-size: cover;
-    aspect-ratio: 1 / 1;
+    aspect-ratio: 1 / 1; 
     border-radius: 15px;
-    box-shadow: 0 10px 25px rgba(0,0,0,0.3);
-    /* border: 2px solid rgba(255,255,255,0.2);  <-- Removed: Borders often look glitchy during 3D rotation */
-    width: 300px; /* Default desktop width (fallback) */
+    box-shadow: 0 10px 25px rgba(0,0,0,0.3); 
+    border: 2px solid rgba(255,255,255,0.2); 
+    overflow: hidden;
 }
 
-/* MOBILE FIX */
+/* MOBILE ONLY: 1.5x Size Increase */
 @media (max-width: 480px) {
+    .swiper-hero .swiper-slide {
+        /* Increasing from ~50% to ~75% width makes it look 1.5x larger */
+        width: 75% !important; 
+        aspect-ratio: 1 / 1.1; /* Slightly taller for a more "premium" feel */
+    }
+    
     .swiper-hero {
         padding-bottom: 40px;
-        padding-top: 10px;
     }
+}
 
-    .swiper-hero .swiper-slide {
-        /* FIX: Set width to 70% and let JS 'auto' handle the centering */
-        width: 70% !important; 
-        aspect-ratio: 1 / 1.15; 
-    }
+.swiper-hero .swiper-slide img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.content .shop-button {
+    position: relative;
+    z-index: 100;
+    margin-top: 10px;
 }
