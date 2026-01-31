@@ -342,27 +342,27 @@ document.addEventListener('DOMContentLoaded', () => {
             wrapper.appendChild(slide);
         });
 
-        // 3. Initialize Swiper
+
+
         heroSwiper = new Swiper(".swiper-hero", {
             effect: "coverflow",
             grabCursor: true,
             centeredSlides: true,
             loop: true,
             
-            // Responsive Breakpoints
             breakpoints: {
-                // Mobile: 3 slides visible
+                // Mobile View
                 320: {
-                    slidesPerView: 3, 
+                    slidesPerView: "auto", // Set to auto to respect the CSS width
                     coverflowEffect: {
-                        rotate: 35,
-                        stretch: 0,
-                        depth: 100,
+                        rotate: 30,    // Less rotation for larger images
+                        stretch: -20,  // Pulls the side slides slightly away
+                        depth: 200,    // Pushes side slides further back
                         modifier: 1,
-                        slideShadows: false // No shadows on mobile (cleaner/faster)
+                        slideShadows: true 
                     }
                 },
-                // Tablet/PC: 5 slides visible
+                // Tablet/PC View
                 768: {
                     slidesPerView: 5,
                     coverflowEffect: {
@@ -370,7 +370,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         stretch: 0,
                         depth: 150,
                         modifier: 1,
-                        slideShadows: true // Nice shadows on PC
+                        slideShadows: true
                     }
                 }
             },
@@ -378,11 +378,10 @@ document.addEventListener('DOMContentLoaded', () => {
             autoplay: {
                 delay: 2500,
                 disableOnInteraction: false,
-                pauseOnMouseEnter: true // Pauses when user hovers mouse (PC only)
+                pauseOnMouseEnter: true
             }
         });
     }
-});
 
 const services = document.querySelectorAll(".reveal");
 
