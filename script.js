@@ -342,45 +342,46 @@ document.addEventListener('DOMContentLoaded', () => {
             wrapper.appendChild(slide);
         });
 
-        // 3. Initialize Swiper
-        heroSwiper = new Swiper(".swiper-hero", {
-            effect: "coverflow",
-            grabCursor: true,
-            centeredSlides: true,
-            loop: true,
-            
-            // Responsive Breakpoints
-            breakpoints: {
-                // Mobile: 3 slides visible
-                320: {
-                    slidesPerView: 3, 
-                    coverflowEffect: {
-                        rotate: 35,
-                        stretch: 0,
-                        depth: 100,
-                        modifier: 1,
-                        slideShadows: false // No shadows on mobile (cleaner/faster)
-                    }
-                },
-                // Tablet/PC: 5 slides visible
-                768: {
-                    slidesPerView: 5,
-                    coverflowEffect: {
-                        rotate: 30,
-                        stretch: 0,
-                        depth: 150,
-                        modifier: 1,
-                        slideShadows: true // Nice shadows on PC
-                    }
-                }
-            },
-            
-            autoplay: {
-                delay: 2500,
-                disableOnInteraction: false,
-                pauseOnMouseEnter: true // Pauses when user hovers mouse (PC only)
+        // ... inside your Swiper config ...
+
+heroSwiper = new Swiper(".swiper-hero", {
+    effect: "coverflow",
+    grabCursor: true,
+    centeredSlides: true,
+    slidesPerView: "auto", // Default to auto to be safe
+    loop: true,
+    
+    // Responsive Breakpoints
+    breakpoints: {
+        // === MOBILE FIX ===
+        320: {
+            slidesPerView: "auto", // This allows the CSS width (70%) to work
+            spaceBetween: 20,      // Adds breathing room between cakes
+            coverflowEffect: {
+                rotate: 40,        // Higher rotation makes the 3D effect pop more on small screens
+                stretch: 0,
+                depth: 200,        // Deeper depth pushes side cakes back
+                modifier: 1,
+                slideShadows: false
             }
-        });
+        },
+        // TABLET / PC
+        768: {
+            slidesPerView: 4,      // 4 or 5 looks good on desktop
+            coverflowEffect: {
+                rotate: 30,
+                stretch: 0,
+                depth: 150,
+                modifier: 1,
+                slideShadows: true
+            }
+        }
+    },
+    
+    autoplay: {
+        delay: 2500,
+        disableOnInteraction: false,
+        pauseOnMouseEnter: true
     }
 });
 
