@@ -383,7 +383,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 });
-    
 
 const services = document.querySelectorAll(".reveal");
 
