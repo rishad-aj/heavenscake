@@ -547,36 +547,24 @@ header {
 .trending-heading { text-align: center; margin-bottom: 20px; }
 
 
-/* --- Hero 3D Slider Styles (Mobile Optimized) --- */
+/* --- Hero 3D Slider Styles --- */
 .swiper-hero {
     width: 100%;
     padding-top: 20px;
-    padding-bottom: 60px; /* Increased padding to protect the shop button */
-    perspective: 1200px;
-    overflow: hidden; 
+    padding-bottom: 30px;
+    perspective: 1000px;
+    overflow: hidden; /* Keeps the 3D effect contained */
 }
 
 .swiper-hero .swiper-slide {
     background-position: center;
     background-size: cover;
+    /* Make slides square or slightly rectangular for cakes */
     aspect-ratio: 1 / 1; 
     border-radius: 15px;
-    box-shadow: 0 10px 25px rgba(0,0,0,0.3); 
-    border: 2px solid rgba(255,255,255,0.2); 
     overflow: hidden;
-}
-
-/* MOBILE ONLY: 1.5x Size Increase */
-@media (max-width: 480px) {
-    .swiper-hero .swiper-slide {
-        /* Increasing from ~50% to ~75% width makes it look 1.5x larger */
-        width: 75% !important; 
-        aspect-ratio: 1 / 1.1; /* Slightly taller for a more "premium" feel */
-    }
-    
-    .swiper-hero {
-        padding-bottom: 40px;
-    }
+    box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+    /* Images inside the slide */
 }
 
 .swiper-hero .swiper-slide img {
@@ -586,9 +574,10 @@ header {
     object-fit: cover;
 }
 
+/* Ensure the Shop button stays properly spaced below */
 .content .shop-button {
+    margin-top: 25px; 
+    z-index: 10;
     position: relative;
-    z-index: 100;
-    margin-top: 10px;
 }
 
