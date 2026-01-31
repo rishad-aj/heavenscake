@@ -715,7 +715,18 @@ header {
 
 /* Mobile view - vertical layout */
 @media (max-width: 768px) {
-
+    .container .section:not(:first-child) {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        gap: 20px;
+    }
+    
+    /* Mobile: SVG above heading, heading above description */
+    .container .section:not(:first-child) .content-wrapper {
+        text-align: center;
+        width: 100%;
+    }
     
     .container .section:not(:first-child) h2 {
         text-align: center;
@@ -723,6 +734,11 @@ header {
         margin-bottom: 15px;
     }
     
+    .container .section:not(:first-child) p {
+        text-align: center;
+        margin: 0 auto;
+        max-width: 90%;
+    }
     
     /* SVG centered in mobile */
     .container .section:not(:first-child) svg,
