@@ -561,7 +561,6 @@ header {
     background-size: cover;
     aspect-ratio: 1 / 1; 
     border-radius: 15px;
-    box-shadow: 0 10px 25px rgba(0,0,0,0.3); 
     border: 2px solid rgba(255,255,255,0.2); 
     overflow: hidden;
 }
