@@ -342,43 +342,47 @@ document.addEventListener('DOMContentLoaded', () => {
             wrapper.appendChild(slide);
         });
 
-        // ... inside your Swiper config ...
-
-heroSwiper = new Swiper(".swiper-hero", {
-    effect: "coverflow",
-    grabCursor: true,
-    centeredSlides: true,
-    slidesPerView: "auto", // Default to auto to be safe
-    loop: true,
-    
-    // ... inside heroSwiper = new Swiper ...
-
-        breakpoints: {
-            // Mobile: Use "auto" so it respects your CSS width: 75%
-            320: {
-                slidesPerView: "auto",  // <--- CHANGED FROM 3 TO "auto"
-                coverflowEffect: {
-                    rotate: 35,
-                    stretch: 0,
-                    depth: 100,
-                    modifier: 1,
-                    slideShadows: false
+        // 3. Initialize Swiper
+        heroSwiper = new Swiper(".swiper-hero", {
+            effect: "coverflow",
+            grabCursor: true,
+            centeredSlides: true,
+            loop: true,
+            
+            // Responsive Breakpoints
+            breakpoints: {
+                // Mobile: 3 slides visible
+                320: {
+                    slidesPerView: 3, 
+                    coverflowEffect: {
+                        rotate: 35,
+                        stretch: 0,
+                        depth: 100,
+                        modifier: 1,
+                        slideShadows: false // No shadows on mobile (cleaner/faster)
+                    }
+                },
+                // Tablet/PC: 5 slides visible
+                768: {
+                    slidesPerView: 5,
+                    coverflowEffect: {
+                        rotate: 30,
+                        stretch: 0,
+                        depth: 150,
+                        modifier: 1,
+                        slideShadows: true // Nice shadows on PC
+                    }
                 }
             },
-            // Tablet/PC: Keep as is
-            768: {
-                slidesPerView: 5,
-                coverflowEffect: {
-                    rotate: 30,
-                    stretch: 0,
-                    depth: 150,
-                    modifier: 1,
-                    slideShadows: true
-                }
+            
+            autoplay: {
+                delay: 2500,
+                disableOnInteraction: false,
+                pauseOnMouseEnter: true // Pauses when user hovers mouse (PC only)
             }
-        },
-
-// ... rest of code
+        });
+    }
+});
 
 const services = document.querySelectorAll(".reveal");
 
