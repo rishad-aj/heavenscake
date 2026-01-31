@@ -260,10 +260,10 @@ document.addEventListener('DOMContentLoaded', function () {
     bootAnimation?.addEventListener('animationend', () => bootAnimation.remove());
 });
 
-// ================= 3D CAKE SLIDESHOW (ENHANCED) =================
+// ================= 3D HERO CAKE SLIDESHOW =================
 document.addEventListener('DOMContentLoaded', () => {
     
-    // 1. Your Image List
+    // 1. Your Full WebP Image List
     const images = [
         { file: "vanilla-cake.webp", alt: "Vanilla Cake" },
         { file: "whiteforest-cake.webp", alt: "White Forest Cake" },
@@ -317,9 +317,9 @@ document.addEventListener('DOMContentLoaded', () => {
     ];
 
     const wrapper = document.getElementById('hero-wrapper');
-    let heroSwiper; // Variable to store the swiper instance
-    
-    // 2. Inject Images with Error Handling
+    let heroSwiper;
+
+    // 2. Logic to Inject Images and Skip if 404
     if (wrapper) {
         images.forEach(img => {
             const slide = document.createElement('div');
@@ -330,11 +330,9 @@ document.addEventListener('DOMContentLoaded', () => {
             imageElement.alt = img.alt;
             imageElement.loading = "lazy";
 
-            // === ERROR HANDLING: If image not found, remove slide ===
+            // If image is not found, remove this slide automatically
             imageElement.onerror = function() {
-                // Remove the parent slide div
                 slide.remove(); 
-                // Tell Swiper to recalculate layout if it's already running
                 if (heroSwiper) heroSwiper.update();
             };
 
@@ -342,44 +340,44 @@ document.addEventListener('DOMContentLoaded', () => {
             wrapper.appendChild(slide);
         });
 
+        // 3. Initialize Swiper
         heroSwiper = new Swiper(".swiper-hero", {
             effect: "coverflow",
             grabCursor: true,
             centeredSlides: true,
             loop: true,
-            
+            autoplay: {
+                delay: 3000,
+                disableOnInteraction: false,
+                pauseOnMouseEnter: true
+            },
             breakpoints: {
-                // Mobile View
+                // Mobile View: Shows 1 large central + portions of side cakes
                 320: {
-                    slidesPerView: "auto", // Set to auto to respect the CSS width
-                    coverflowEffect: {
-                        rotate: 30,    // Less rotation for larger images
-                        stretch: -20,  // Pulls the side slides slightly away
-                        depth: 200,    // Pushes side slides further back
-                        modifier: 1,
-                        slideShadows: true 
-                    }
-                },
-                // Tablet/PC View
-                768: {
-                    slidesPerView: 5,
+                    slidesPerView: "auto", 
                     coverflowEffect: {
                         rotate: 30,
+                        stretch: -10, // Small gap between slides
+                        depth: 200,
+                        modifier: 1,
+                        slideShadows: true
+                    }
+                },
+                // Desktop View: Shows 5 cakes across
+                1024: {
+                    slidesPerView: 5,
+                    coverflowEffect: {
+                        rotate: 25,
                         stretch: 0,
                         depth: 150,
                         modifier: 1,
                         slideShadows: true
                     }
                 }
-            },
-            
-            autoplay: {
-                delay: 2500,
-                disableOnInteraction: false,
-                pauseOnMouseEnter: true
             }
         });
     }
+});
     
 
 const services = document.querySelectorAll(".reveal");
