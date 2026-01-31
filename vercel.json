@@ -7,11 +7,5 @@
     { "source": "/products", "destination": "/products.html" },
     { "source": "/review", "destination": "/review.html" },
     { "source": "/terms-conditions", "destination": "/terms-conditions.html" }
-  ],
-  "errorPages": [
-    { "status": 404, "path": "/error.html" },
-    { "status": 403, "path": "/error.html" },
-    { "status": 500, "path": "/error.html" },
-    { "status": 504, "path": "/error.html" }
   ]
 }
