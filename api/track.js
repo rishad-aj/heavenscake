@@ -1,3 +1,4 @@
+
 // /api/track.js
 import fetch from "node-fetch";
 
@@ -13,7 +14,7 @@ const flag = (cc = "") =>
 // Bot detection patterns
 const BOT_PATTERNS = {
   userAgent: /bot|crawler|spider|scraper|headless|phantom|selenium|puppeteer|curl|wget|python|java|perl|ruby|go-http|axios|okhttp|http\/1\.|apis-google|facebookexternalhit|facebot|twitterbot|whatsapp|telegram|discordbot|slackbot|linkedinbot|pinterestbot|redditbot|tumblr|instagrambot|snapchat|tiktok|bytespider|bingpreview|slurp|duckduckbot|baiduspider|yandex|sogou|exabot|archive\.org|ia_archiver|mediapartners|adsbot|feedfetcher|applebot|googlebot|bingbot|yahoo|msnbot|teoma/i,
-
+  
   isp: /amazon|aws|google|gcp|azure|microsoft|digitalocean|linode|ovh|vultr|oracle|cloudflare|hetzner|contabo|hostinger|namecheap|godaddy|bluehost|dreamhost|liquidweb|rackspace|ibm cloud|alibaba|tencent|baidu|bytedance|huawei cloud|scaleway|upcloud|brightdata|luminati|oxylabs|smartproxy|geosurf|data center|hosting|colocation|facebook|meta platforms|twitter|whatsapp|telegram|discord|reddit|pinterest|linkedin|instagram|snapchat|tiktok/i
 };
 
@@ -24,18 +25,16 @@ const isBot = (userAgent, isp) => {
   return false;
 };
 
-// Small in-memory store to keep full details for each "view details" button.
-// NOTE: This is ephemeral. In serverless (Vercel/Lambda) this will not survive cold starts.
-// For production reliability use Redis / a DB and read/write by id instead.
-const detailStore = new Map();
-const DETAILS_TTL_MS = 5 * 60 * 1000; // keep for 5 minutes
-
-// Telegram sender with optional reply_markup
-const notifyTelegram = (payload) =>
+// Telegram sender (reused)
+const notifyTelegram = (text) =>
   fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(payload)
+    body: JSON.stringify({
+      chat_id: TELEGRAM_ADMIN_CHAT_ID,
+      text,
+      parse_mode: "HTML"
+    })
   });
 
 export default async function handler(req, res) {
@@ -66,53 +65,20 @@ export default async function handler(req, res) {
     // Bot detection
     const botDetected = isBot(userAgent, isp);
     
-    // Compose full details (this will be revealed when button clicked)
-    const fullDetails = `
-${flag(country)} ${city}, ${region}, ${country}
-🏢 ISP: ${isp}
-🌐 IP: ${ip}
-🔗 Source: ${referer}
-🖥️ User-Agent: ${userAgent}
-🕒 Time: ${timeIST}
-    `.trim();
+    // Message based on visitor type
+    const msg = botDetected
+      ? `
+🤖 <b>New Bot Visitor</b>
 
-    // If bot detected: send a short message + inline button "view details"
-    if (botDetected) {
-      // create a short summary message (single-line like you requested)
-      const shortMsg = `🤖 New Bot Visitor\n\n${flag(country)} ${city}, ${region}, ${country}\n🏢 ISP: ${isp.split(" ")[0] ?? isp}  [🔎 view details]`;
-
-      // store full details under a short id
-      const id = `${Date.now()}_${Math.random().toString(36).slice(2,8)}`;
-      detailStore.set(id, fullDetails);
-
-      // schedule removal after TTL
-      setTimeout(() => detailStore.delete(id), DETAILS_TTL_MS);
-
-      // send message with inline keyboard — callback_data identifies the id for the webhook handler
-      const payload = {
-        chat_id: TELEGRAM_ADMIN_CHAT_ID,
-        text: `🤖 New Bot Visitor\n\n${flag(country)} <b>${city}, ${region}, ${country}</b>\n🏢 <b>ISP:</b> ${isp}`,
-        parse_mode: "HTML",
-        reply_markup: {
-          inline_keyboard: [
-            [
-              {
-                text: "view details🔎",
-                // callback_data must be short — prefix + id
-                callback_data: `VIEW_DETAILS:${id}`
-              }
-            ]
-          ]
-        }
-      };
-
-      await notifyTelegram(payload);
-
-      return res.status(200).json({ ok: true, bot: true });
-    }
-
-    // For humans: keep existing message (unchanged behavior)
-    const humanMsg = `
+${flag(country)} <b>${city}, ${region}, ${country}</b>
+🏢 <b>ISP:</b> ${isp}
+🌐 <b>IP:</b> <code>${ip}</code>
+🔗 <b>Source:</b> ${referer}
+🖥️ <b>User-Agent:</b> ${userAgent.substring(0, 100)}${userAgent.length > 100 ? '...' : ''}
+🕒 <b>Time:</b> ${timeIST}
+⚠️ <i>Automated/Bot Traffic Detected</i>
+`
+      : `
 👤 <b>New Human Visitor</b>
 
 ${flag(country)} <b>${city}, ${region}, ${country}</b>
@@ -122,21 +88,15 @@ ${flag(country)} <b>${city}, ${region}, ${country}</b>
 🖥️ <b>Device:</b> ${userAgent.substring(0, 100)}${userAgent.length > 100 ? '...' : ''}
 🕒 <b>Time:</b> ${timeIST}
 ✅ <i>Likely Human Visitor</i>
-`.trim();
+`;
 
-    await notifyTelegram({
-      chat_id: TELEGRAM_ADMIN_CHAT_ID,
-      text: humanMsg,
-      parse_mode: "HTML"
-    });
+    // Send to Telegram
+    await notifyTelegram(msg);
 
-    return res.status(200).json({ ok: true, bot: false });
+    return res.status(200).json({ ok: true, bot: botDetected });
 
   } catch (err) {
     console.error("TRACK ERROR:", err);
     return res.status(500).json({ error: "track_failed" });
   }
 }
-
-// Export store helper for the webhook file to access (only works if the webhook runs in same process).
-export { detailStore };
