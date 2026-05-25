@@ -873,7 +873,7 @@ header {
 .feed-wrapper{
   position:relative;
   width:100%;
-  background:#000;
+
   overflow:hidden;
 }
 
@@ -885,7 +885,7 @@ header {
   bottom:0;
   width:100%;
   height:0px; /* adjust if needed */
-  background:#000;
+
   z-index:999999;
   pointer-events:none;
 }
