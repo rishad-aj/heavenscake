@@ -1,0 +1,21 @@
+name: Deploy to Firebase Hosting
+on:
+  push:
+    branches:
+      - main # Change this to "master" if your default branch is master
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      # Step 1: Pull your files from GitHub
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      # Step 2: Deploy those files to Firebase Hosting
+      - name: Deploy to Firebase
+        uses: FirebaseExtended/action-hosting-deploy@v0
+        with:
+          repoToken: "${{ secrets.GITHUB_TOKEN }}"
+          firebaseServiceAccount: "${{ secrets.FIREBASE_SERVICE_ACCOUNT }}" # Replace with your secret name if you named it differently
+          projectId: heavens-cake
+          channelId: live
