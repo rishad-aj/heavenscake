@@ -13,12 +13,24 @@
   justify-content: center;
 }
 
+.login-btn{
+    color: #fff;
+  text-decoration: none;
+  font-size: 15px;
+  padding: 8px 15px;
+  border-radius: 20px;
+  transition: all 0.3s;
+  white-space: nowrap;
+  font-weight: 500;
+  background: #d99872;
+  transform: translateY(-2px);
+}
 /* Modal Content Box */
 .auth-modal-content {
-  background-color: #734d40; /* Matching Heaven's Cake dark theme */
+  background-color: #d99872; /* Matching Heaven's Cake dark theme */
   color: #fff;
   padding: 30px;
-  border: 2px solid #d99872; /* Matching primary brand color */
+  border: 2px solid #734d40; /* Matching primary brand color */
   border-radius: 15px;
   width: 90%;
   max-width: 400px;
@@ -30,7 +42,7 @@
 
 /* Close Button */
 .close-auth {
-  color: #d99872;
+  color: #734d40;
   position: absolute;
   top: 10px;
   right: 15px;
@@ -58,7 +70,7 @@
   padding: 12px 20px;
   border-radius: 100px; /* Matching the site's search input style */
   border: none;
-  background-color: #d99872;
+  background-color: #734d40;
   color: #fff;
   font-size: 16px;
   box-shadow: inset 1px 2px 3px rgba(0,0,0,0.3);
@@ -141,7 +153,7 @@
 
 /* Error Text */
 .auth-error {
-  color: #ffcccc; /* Softer red to blend with brown background */
+  color: red; /* Softer red to blend with brown background */
   font-size: 14px;
   margin: 0;
   min-height: 20px;
