@@ -1,3 +1,145 @@
+/* Auth Modal Background Overlay */
+/* Google Login Button Styles */
+.google-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  background-color: #fff;
+  color: #333;
+  border: 1px solid #ccc;
+  padding: 10px 12px;
+  font-size: 16px;
+  font-weight: bold;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.3s;
+  width: 100%;
+}
+
+.google-btn:hover {
+  background-color: #f1f1f1;
+}
+
+.google-btn svg {
+  flex-shrink: 0;
+}
+.auth-modal {
+  display: none; 
+  position: fixed; 
+  z-index: 9999; 
+  left: 0;
+  top: 0;
+  width: 100%; 
+  height: 100%; 
+  background-color: rgba(0,0,0,0.6); 
+  backdrop-filter: blur(5px);
+  align-items: center;
+  justify-content: center;
+}
+
+/* Modal Content Box */
+.auth-modal-content {
+  background-color: #1a1a1a; /* Matching dark theme */
+  color: #fff;
+  padding: 30px;
+  border: 1px solid #333;
+  border-radius: 12px;
+  width: 90%;
+  max-width: 400px;
+  position: relative;
+  text-align: center;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+  animation: fadeIn 0.3s ease;
+}
+
+/* Close Button */
+.close-auth {
+  color: #aaa;
+  position: absolute;
+  top: 10px;
+  right: 15px;
+  font-size: 28px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+
+.close-auth:hover,
+.close-auth:focus {
+  color: #fff;
+  text-decoration: none;
+}
+
+/* Form Styles */
+#auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  margin-top: 20px;
+}
+
+#auth-form input {
+  padding: 12px;
+  border-radius: 6px;
+  border: 1px solid #444;
+  background-color: #2a2a2a;
+  color: #fff;
+  font-size: 16px;
+}
+
+#auth-form input:focus {
+  outline: none;
+  border-color: #fff;
+}
+
+#auth-submit-btn, #logout-btn {
+  background-color: #fff;
+  color: #000;
+  border: none;
+  padding: 12px;
+  font-size: 16px;
+  font-weight: bold;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.3s;
+  margin-top: 10px;
+}
+
+#auth-submit-btn:hover, #logout-btn:hover {
+  background-color: #ddd;
+}
+
+/* Toggle Link */
+.auth-toggle {
+  margin-top: 15px;
+  font-size: 14px;
+  color: #aaa;
+}
+
+#auth-toggle-text {
+  cursor: pointer;
+  text-decoration: underline;
+  transition: color 0.2s;
+}
+
+#auth-toggle-text:hover {
+  color: #fff;
+}
+
+/* Error Text */
+.auth-error {
+  color: #ff4a4a;
+  font-size: 14px;
+  margin: 0;
+  min-height: 20px;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
 * {
   box-sizing: border-box;
   font-family: "Inter", sans-serif;
@@ -865,27 +1007,4 @@ header {
   .container .section:not(:first-child) img[src*=".svg"] {
     margin: 0 auto;
   }
-}
-
-
-/* FEED WRAPPER */
-
-.feed-wrapper{
-  position:relative;
-  width:100%;
-
-  overflow:hidden;
-}
-
-/* COVER THE ELFSIGHT BADGE */
-
-.widget-cover{
-  position:absolute;
-  left:0;
-  bottom:0;
-  width:100%;
-  height:0px; /* adjust if needed */
-
-  z-index:999999;
-  pointer-events:none;
 }
