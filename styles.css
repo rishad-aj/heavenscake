@@ -1,29 +1,4 @@
-/* Auth Modal Background Overlay */
-/* Google Login Button Styles */
-.google-btn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
-  background-color: #fff;
-  color: #333;
-  border: 1px solid #ccc;
-  padding: 10px 12px;
-  font-size: 16px;
-  font-weight: bold;
-  border-radius: 6px;
-  cursor: pointer;
-  transition: background 0.3s;
-  width: 100%;
-}
-
-.google-btn:hover {
-  background-color: #f1f1f1;
-}
-
-.google-btn svg {
-  flex-shrink: 0;
-}
+/* ================= AUTHENTICATION STYLES ================= */
 .auth-modal {
   display: none; 
   position: fixed; 
@@ -40,11 +15,11 @@
 
 /* Modal Content Box */
 .auth-modal-content {
-  background-color: #1a1a1a; /* Matching dark theme */
+  background-color: #734d40; /* Matching Heaven's Cake dark theme */
   color: #fff;
   padding: 30px;
-  border: 1px solid #333;
-  border-radius: 12px;
+  border: 2px solid #d99872; /* Matching primary brand color */
+  border-radius: 15px;
   width: 90%;
   max-width: 400px;
   position: relative;
@@ -55,7 +30,7 @@
 
 /* Close Button */
 .close-auth {
-  color: #aaa;
+  color: #d99872;
   position: absolute;
   top: 10px;
   right: 15px;
@@ -80,56 +55,93 @@
 }
 
 #auth-form input {
-  padding: 12px;
-  border-radius: 6px;
-  border: 1px solid #444;
-  background-color: #2a2a2a;
+  padding: 12px 20px;
+  border-radius: 100px; /* Matching the site's search input style */
+  border: none;
+  background-color: #d99872;
   color: #fff;
   font-size: 16px;
+  box-shadow: inset 1px 2px 3px rgba(0,0,0,0.3);
+}
+
+#auth-form input::placeholder {
+  color: #fff;
+  opacity: 0.8;
 }
 
 #auth-form input:focus {
   outline: none;
-  border-color: #fff;
+  box-shadow: inset 1px 2px 3px rgba(0,0,0,0.4), 0 0 5px #fff;
 }
 
 #auth-submit-btn, #logout-btn {
   background-color: #fff;
-  color: #000;
+  color: #734d40;
   border: none;
   padding: 12px;
   font-size: 16px;
   font-weight: bold;
-  border-radius: 6px;
+  border-radius: 100px;
   cursor: pointer;
-  transition: background 0.3s;
+  transition: all 0.3s;
   margin-top: 10px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
 }
 
 #auth-submit-btn:hover, #logout-btn:hover {
-  background-color: #ddd;
+  background-color: #f8f8f8;
+  transform: scale(1.02);
+}
+
+/* Google Login Button Styles */
+.google-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  background-color: #fff;
+  color: #734d40;
+  border: 1px solid #d99872;
+  padding: 10px 12px;
+  font-size: 16px;
+  font-weight: bold;
+  border-radius: 100px;
+  cursor: pointer;
+  transition: all 0.3s;
+  width: 100%;
+  margin-top: 10px;
+}
+
+.google-btn:hover {
+  background-color: #f1f1f1;
+  transform: scale(1.02);
+}
+
+.google-btn svg {
+  flex-shrink: 0;
 }
 
 /* Toggle Link */
 .auth-toggle {
   margin-top: 15px;
   font-size: 14px;
-  color: #aaa;
+  color: #ffd9b3;
 }
 
 #auth-toggle-text {
   cursor: pointer;
   text-decoration: underline;
   transition: color 0.2s;
+  color: #fff;
 }
 
 #auth-toggle-text:hover {
-  color: #fff;
+  color: #d99872;
 }
 
 /* Error Text */
 .auth-error {
-  color: #ff4a4a;
+  color: #ffcccc; /* Softer red to blend with brown background */
   font-size: 14px;
   margin: 0;
   min-height: 20px;
@@ -812,9 +824,11 @@ header {
 /* Mobile Specific Fixes */
 @media (max-width: 1024px) {
   .logo2-svg {
-    position: absolute;
-    left: 50%;
-    transform: translateX(-50%);
+    /* Adjusted from absolute centering to relative positioning to avoid overlap */
+    position: relative;
+    left: 0;
+    transform: none;
+    margin-left: 15px; 
     width: 180px;
     z-index: 1001;
   }
