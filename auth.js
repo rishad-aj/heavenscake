@@ -44,6 +44,7 @@ const authNameInput = document.getElementById("auth-name");
 
 const authFormContainer = document.getElementById("auth-form-container");
 const loggedInContainer = document.getElementById("logged-in-container");
+const profileAvatarContainer = document.getElementById("profile-avatar-container");
 const userNameDisplay = document.getElementById("user-name-display");
 const userEmailDisplay = document.getElementById("user-email-display");
 const logoutBtn = document.getElementById("logout-btn");
@@ -51,24 +52,16 @@ const logoutBtn = document.getElementById("logout-btn");
 // State
 let isLoginMode = true;
 
-// Modal Toggles (Listen to both header elements)
-openAuthBtn.addEventListener("click", () => {
-  authModal.style.display = "flex";
-});
-
-navLoginBtn.addEventListener("click", () => {
-  authModal.style.display = "flex";
-});
-
+// Modal Toggles
+openAuthBtn.addEventListener("click", () => { authModal.style.display = "flex"; });
+navLoginBtn.addEventListener("click", () => { authModal.style.display = "flex"; });
 closeAuthBtn.addEventListener("click", () => {
   authModal.style.display = "none";
   authError.textContent = ""; 
 });
 
 window.addEventListener("click", (e) => {
-  if (e.target === authModal) {
-    authModal.style.display = "none";
-  }
+  if (e.target === authModal) { authModal.style.display = "none"; }
 });
 
 // Switch between Login and Signup modes
@@ -80,13 +73,13 @@ authToggleText.addEventListener("click", () => {
     authTitle.textContent = "Login";
     authSubmitBtn.textContent = "Login";
     authToggleText.textContent = "Don't have an account? Sign Up";
-    authNameInput.style.display = "none"; // Hide name for login
+    authNameInput.style.display = "none";
     authNameInput.removeAttribute("required");
   } else {
     authTitle.textContent = "Sign Up";
     authSubmitBtn.textContent = "Sign Up";
     authToggleText.textContent = "Already have an account? Login";
-    authNameInput.style.display = "block"; // Show name for signup
+    authNameInput.style.display = "block";
     authNameInput.setAttribute("required", "true");
   }
 });
@@ -104,13 +97,11 @@ authForm.addEventListener("submit", (e) => {
 
   if (isLoginMode) {
     signInWithEmailAndPassword(auth, email, password)
-      .then((userCredential) => {
+      .then(() => {
         authModal.style.display = "none";
         authForm.reset();
       })
-      .catch((error) => {
-        authError.textContent = getFriendlyErrorMessage(error.code);
-      })
+      .catch((error) => { authError.textContent = getFriendlyErrorMessage(error.code); })
       .finally(() => {
         authSubmitBtn.disabled = false;
         authSubmitBtn.textContent = "Login";
@@ -118,18 +109,16 @@ authForm.addEventListener("submit", (e) => {
   } else {
     createUserWithEmailAndPassword(auth, email, password)
       .then((userCredential) => {
-        // Update user profile with name provided during sign up
-        return updateProfile(userCredential.user, {
-          displayName: name
-        });
+        // Explicitly tie the typed name to the new user account[cite: 1]
+        return updateProfile(userCredential.user, { displayName: name });
       })
       .then(() => {
+        // Force immediate rendering update to clear race conditions
+        userNameDisplay.textContent = name; 
         authModal.style.display = "none";
         authForm.reset();
       })
-      .catch((error) => {
-        authError.textContent = getFriendlyErrorMessage(error.code);
-      })
+      .catch((error) => { authError.textContent = getFriendlyErrorMessage(error.code); })
       .finally(() => {
         authSubmitBtn.disabled = false;
         authSubmitBtn.textContent = "Sign Up";
@@ -137,48 +126,52 @@ authForm.addEventListener("submit", (e) => {
   }
 });
 
-// Google Login
+// Google Login[cite: 1]
 googleLoginBtn.addEventListener("click", () => {
   authError.textContent = "";
   signInWithPopup(auth, googleProvider)
-    .then((result) => {
-      authModal.style.display = "none";
-    })
-    .catch((error) => {
-      authError.textContent = getFriendlyErrorMessage(error.code);
-    });
+    .then(() => { authModal.style.display = "none"; })
+    .catch((error) => { authError.textContent = getFriendlyErrorMessage(error.code); });
 });
 
 // Logout Handling
 logoutBtn.addEventListener("click", () => {
-  signOut(auth).catch((error) => {
-    console.error("Sign out error", error);
-  });
+  signOut(auth).catch((error) => { console.error("Sign out error", error); });
 });
 
 // Listen for Auth State Changes (Updates Header & Modal UI automatically)
 onAuthStateChanged(auth, (user) => {
   if (user) {
-    // User is signed in
     authFormContainer.style.display = "none";
     loggedInContainer.style.display = "block";
     
-    // Header adjustments
-    navLoginBtn.style.display = "none"; // Hide text button
-    openAuthBtn.style.display = "block"; // Show user icon
+    // Header visibility flips
+    navLoginBtn.style.display = "none"; 
+    openAuthBtn.style.display = "block"; 
 
-    // Set Profile Info
-    userNameDisplay.textContent = user.displayName ? user.displayName : "Cake Lover"; // Fallback name
+    // Extract precise display info[cite: 1]
+    userNameDisplay.textContent = user.displayName || "No Name Provided";
     userEmailDisplay.textContent = user.email;
-    
+
+    // Handle profile visual state (Image vs Element Icon)[cite: 1]
+    if (user.photoURL) {
+      profileAvatarContainer.innerHTML = `
+        <img src="${user.photoURL}" alt="Profile Picture" style="width: 60px; height: 60px; border-radius: 50%; border: 2px solid #fff; object-fit: cover;">
+      `;
+    } else {
+      profileAvatarContainer.innerHTML = `
+        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="width: 50px; height: 50px;">
+          <path d="M20 21V19C20 17.8954 19.1046 17 18 17H6C4.89543 17 4 17.8954 4 19V21M16 7C16 9.20914 14.2091 11 12 11C9.79086 11 8 9.20914 8 7C8 4.79086 9.79086 3 12 3C14.2091 3 16 4.79086 16 7Z" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
+        </svg>
+      `;
+    }
   } else {
-    // User is signed out
     authFormContainer.style.display = "block";
     loggedInContainer.style.display = "none";
     
-    // Header adjustments
-    navLoginBtn.style.display = "block"; // Show text button
-    openAuthBtn.style.display = "none"; // Hide user icon
+    navLoginBtn.style.display = "block"; 
+    openAuthBtn.style.display = "none"; 
+    profileAvatarContainer.innerHTML = "";
   }
 });
 
