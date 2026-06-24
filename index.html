@@ -188,20 +188,20 @@ OneSignalDeferred.push(async function(OneSignal) {
     <path d="M20.71 19.29l-5.63-5.63C15.27 12.17 16 10.67 16 9c0-3.87-3.13-7-7-7s-7 3.13-7 7 3.13 7 7 7c1.67 0 3.17-.73 4.22-1.89l5.63 5.63c.39.39 1.02.39 1.41 0 .38-.38.39-1.02 0-1.41zM3 9c0-3.31 2.69-6 6-6s6 2.69 6 6-2.69 6-6 6-6-2.69-6-6z" stroke="#ffffff" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"></path>
   </svg>
 
-  <!-- Login Button (Shows when logged out) -->
-  <button id="nav-login-btn" style="background-color: #fff; color: #000; border: none; padding: 6px 12px; border-radius: 4px; font-weight: bold; cursor: pointer;">Login</button>
-
-  <!-- User / Auth Icon (Shows when logged in) -->
-  <svg id="open-auth-modal" class="user-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="width: 24px; height: 24px; cursor: pointer; display: none;">
-      <path d="M20 21V19C20 17.8954 19.1046 17 18 17H6C4.89543 17 4 17.8954 4 19V21M16 7C16 9.20914 14.2091 11 12 11C9.79086 11 8 9.20914 8 7C8 4.79086 9.79086 3 12 3C14.2091 3 16 4.79086 16 7Z" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
-  </svg>
-
   <!-- Bag Icon -->
   <a href="products">
     <svg class="bag-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="width: 24px; height: 24px;">
       <path d="M9 11V6C9 4.34315 10.3431 3 12 3C13.6569 3 15 4.34315 15 6V10.9673M10.4 21H13.6C15.8402 21 16.9603 21 17.816 20.564C18.5686 20.1805 19.1805 19.5686 19.564 18.816C20 17.9603 20 16.8402 20 14.6V12.2C20 11.0799 20 10.5198 19.782 10.092C19.5903 9.71569 19.2843 9.40973 18.908 9.21799C18.4802 9 17.9201 9 16.8 9H7.2C6.0799 9 5.51984 9 5.09202 9.21799C4.71569 9.40973 4.40973 9.71569 4.21799 10.092C4 10.5198 4 11.0799 4 12.2V14.6C4 16.8402 4 17.9603 4.43597 18.816C4.81947 19.5686 5.43139 20.1805 6.18404 20.564C7.03968 21 8.15979 21 10.4 21Z" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
     </svg>
   </a>
+  
+    <!-- Login Button (Shows when logged out) -->
+  <button id="nav-login-btn" class="login-btn">Login</button>
+
+  <!-- User / Auth Icon (Shows when logged in) -->
+  <svg id="open-auth-modal" class="user-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="width: 24px; height: 24px; cursor: pointer; display: none;">
+      <path d="M20 21V19C20 17.8954 19.1046 17 18 17H6C4.89543 17 4 17.8954 4 19V21M16 7C16 9.20914 14.2091 11 12 11C9.79086 11 8 9.20914 8 7C8 4.79086 9.79086 3 12 3C14.2091 3 16 4.79086 16 7Z" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
+  </svg>
 </div>
 </header>
 
@@ -450,7 +450,7 @@ OneSignalDeferred.push(async function(OneSignal) {
         <p id="auth-error" class="auth-error"></p>
         <button type="submit" id="auth-submit-btn">Login</button>
         
-        <div style="margin: 10px 0; color: #aaa;">OR</div>
+        <div style="margin: 10px 0; color: #734d40;">OR</div>
         
         <!-- Google Login Button -->
         <button type="button" id="google-login-btn" class="google-btn">
@@ -473,8 +473,8 @@ OneSignalDeferred.push(async function(OneSignal) {
     <!-- Populated dynamically via auth.js -->
   </div>
 
-  <h3 id="user-name-display" style="margin-bottom: 5px; color: #f2ba36; font-size: 20px;"></h3>
-  <p id="user-email-display" style="margin-bottom: 15px; color: #aaa; font-size: 14px;"></p>
+  <h3 id="user-name-display" style="margin-bottom: 5px; color: #fff; font-size: 20px;"></h3>
+  <p id="user-email-display" style="margin-bottom: 15px; color: #fff; font-size: 14px;"></p>
   <button id="logout-btn">Logout</button>
 </div>
 
