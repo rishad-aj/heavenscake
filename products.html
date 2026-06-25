@@ -1,7 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <!-- Basic Meta -->
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
@@ -11,25 +10,20 @@
 
   <meta name="keywords" content="menu, cake, heavens cake, mannarkkad, palakkad, cake shop, homemade cakes, custom cake designs, cake delivery mannarkkad, birthday cakes, anniversary cakes, wedding cakes, FSSAI cakes, special cakes, vanilla, chocolate, red velvet, tres leches, butterscotch, mango, kitkat, ferrero rocher, nutella, oreo cake, blueberry cake, lotus biscoff cake">
 
-  <!-- Favicon -->
   <link rel="icon" type="image/png" href="favicon.png">
 
-  <!-- Canonical URL -->
   <link rel="canonical" href="https://heavenscake.vercel.app/products">
 
-  <!-- Open Graph -->
   <meta property="og:type" content="website">
   <meta property="og:title" content="Heaven's Cake Menu – Homemade Fresh Cakes">
   <meta property="og:description" content="Browse our full menu of homemade fresh cakes. Order custom-made cakes with delivery in Mannarkkad.">
   <meta property="og:url" content="https://heavenscake.vercel.app/products">
   <meta property="og:site_name" content="Heaven's Cake">
 
-  <!-- Twitter Card -->
   <meta name="twitter:card" content="summary">
   <meta name="twitter:title" content="Heaven's Cake Menu – Homemade Fresh Cakes">
   <meta name="twitter:description" content="Explore our full menu of custom-made cakes. Fresh, homemade, and delivered in Mannarkkad.">
 
-  <!-- Schema.org JSON-LD (Menu Page) -->
   <script type="application/ld+json">
     {
       "@context": "https://schema.org",
@@ -51,11 +45,91 @@
     }
   </script>
 
-  <!-- Styles -->
   <link rel="stylesheet" href="styles.css">
   <link rel="stylesheet" href="styles2.css">
 
-  <!-- Google Analytics -->
+  <style>
+    /* Aligned elements cleanly to the left with internal padding offsets */
+    .rating-summary-container {
+      display: inline-flex;
+      align-items: center;
+      justify-content: flex-start;
+      width: 100%;
+      padding: 6px 12px;
+      margin: 8px 0;
+      background: rgba(115, 77, 64, 0.05);
+      border-radius: 6px;
+      cursor: pointer;
+      box-sizing: border-box;
+      transition: background 0.2s ease;
+    }
+    .rating-summary-container:hover {
+      background: rgba(115, 77, 64, 0.12);
+    }
+    
+    /* Hide view-btn by default and transition seamlessly on card hover */
+    .cake-card .view-btn {
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.3s ease, visibility 0.3s ease;
+    }
+    .cake-card:hover .view-btn {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    /* Fixed alignment layout to perfectly center the modal wrapper on viewport overlays */
+    #review-modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.5);
+      justify-content: center;
+      align-items: center;
+      z-index: 2000;
+    }
+
+    .star-rating-input .star-opt {
+      transition: transform 0.1s ease, color 0.1s ease;
+      display: inline-block;
+      padding: 0 2px;
+    }
+    .star-rating-input .star-opt:hover {
+      transform: scale(1.25);
+    }
+    .add-review-action-btn {
+      background-color: transparent;
+      border: 1px solid #734d40;
+      color: #734d40;
+      padding: 8px 12px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-weight: bold;
+      transition: all 0.2s ease;
+    }
+    .add-review-action-btn:hover {
+      background-color: #734d40 !important;
+      color: white !important;
+    }
+    #reviews-list::-webkit-scrollbar {
+      width: 6px;
+    }
+    #reviews-list::-webkit-scrollbar-track {
+      background: #f5f5f5;
+      border-radius: 4px;
+    }
+    #reviews-list::-webkit-scrollbar-thumb {
+      background: #c5b6b1;
+      border-radius: 4px;
+    }
+    #reviews-list::-webkit-scrollbar-thumb:hover {
+      background: #734d40;
+    }
+  </style>
+
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-J3K1YP4B6F"></script>
   <script>
     window.dataLayer = window.dataLayer || [];
@@ -72,11 +146,19 @@
     .then(res => res.ok)
     .catch(() => {});
   </script>
-  <div id="boot-animation">
+  
+<div id="boot-animation">
     <div class="logo">
-      <img src="favicon.svg" alt="Logo of heaven's cake">
+        <img src="favicon.svg" alt="Heaven's Cake Logo">
+
+        <div class="loader">
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
     </div>
-  </div>
+</div>
+
   <header>
     <div id="nav-icon">
       <span></span>
@@ -84,10 +166,8 @@
       <span></span>
     </div>
 
-    <!-- Logo with proper classes -->
     <img src="logo2.svg" alt="Heaven's Cake Logo" class="logo2-svg">
 
-    <!-- PC Navigation for Products Page -->
     <nav class="pc-nav">
       <a href="index">Home</a>
       <a href="products" class="active">All Products</a>
@@ -98,7 +178,6 @@
     </nav>
 
     <div style="display: flex; align-items: center; gap: 15px;">
-      <!-- Search Icon -->
       <svg class="search-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="width: 24px; height: 24px;">
         <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
         <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
@@ -107,674 +186,43 @@
         </g>
       </svg>
 
+      <a href="index">
+        <svg class="home-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="width: 24px; height: 24px;">
+          <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
+          <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
+          <g id="SVGRepo_iconCarrier">
+            <path fill-rule="evenodd" clip-rule="evenodd" d="M4.18753 11.3788C4.03002 11.759 4 11.9533 4 12V20.0018C4 20.5529 4.44652 21 5 21H8V15C8 13.8954 8.89543 13 10 13H14C15.1046 13 16 13.8954 16 15V21H19C19.5535 21 20 20.5529 20 20.0018V12C20 11.9533 19.97 11.759 19.8125 11.3788C19.6662 11.0256 19.4443 10.5926 19.1547 10.1025C18.5764 9.1238 17.765 7.97999 16.8568 6.89018C15.9465 5.79788 14.9639 4.78969 14.0502 4.06454C13.5935 3.70204 13.1736 3.42608 12.8055 3.2444C12.429 3.05862 12.1641 3 12 3C11.8359 3 11.571 3.05862 11.1945 3.2444C10.8264 3.42608 10.4065 3.70204 9.94978 4.06454C9.03609 4.78969 8.05348 5.79788 7.14322 6.89018C6.23505 7.97999 5.42361 9.1238 4.8453 10.1025C4.55568 10.5926 4.33385 11.0256 4.18753 11.3788ZM10.3094 1.45091C10.8353 1.19138 11.4141 1 12 1C12.5859 1 13.1647 1.19138 13.6906 1.45091C14.2248 1.71454 14.7659 2.07921 15.2935 2.49796C16.3486 3.33531 17.4285 4.45212 18.3932 5.60982C19.3601 6.77001 20.2361 8.0012 20.8766 9.08502C21.1963 9.62614 21.4667 10.1462 21.6602 10.6134C21.8425 11.0535 22 11.5467 22 12V20.0018C22 21.6599 20.6557 23 19 23H16C14.8954 23 14 22.1046 14 21V15H10V21C10 22.1046 9.10457 23 8 23H5C3.34434 23 2 21.6599 2 20.0018V12C2 11.5467 2.15748 11.0535 2.33982 10.6134C2.53334 10.1462 2.80369 9.62614 3.12345 9.08502C3.76389 8.0012 4.63995 6.77001 5.60678 5.60982C6.57152 4.45212 7.65141 3.33531 8.70647 2.49796C9.2341 2.07921 9.77521 1.71454 10.3094 1.45091Z" fill="#ffffff"></path>
+          </g>
+        </svg>
+      </a>
 
-        <a href="index">
-          <svg class="home-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="width: 24px; height: 24px;">
-            <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
-            <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
-            <g id="SVGRepo_iconCarrier">
-              <path fill-rule="evenodd" clip-rule="evenodd" d="M4.18753 11.3788C4.03002 11.759 4 11.9533 4 12V20.0018C4 20.5529 4.44652 21 5 21H8V15C8 13.8954 8.89543 13 10 13H14C15.1046 13 16 13.8954 16 15V21H19C19.5535 21 20 20.5529 20 20.0018V12C20 11.9533 19.97 11.759 19.8125 11.3788C19.6662 11.0256 19.4443 10.5926 19.1547 10.1025C18.5764 9.1238 17.765 7.97999 16.8568 6.89018C15.9465 5.79788 14.9639 4.78969 14.0502 4.06454C13.5935 3.70204 13.1736 3.42608 12.8055 3.2444C12.429 3.05862 12.1641 3 12 3C11.8359 3 11.571 3.05862 11.1945 3.2444C10.8264 3.42608 10.4065 3.70204 9.94978 4.06454C9.03609 4.78969 8.05348 5.79788 7.14322 6.89018C6.23505 7.97999 5.42361 9.1238 4.8453 10.1025C4.55568 10.5926 4.33385 11.0256 4.18753 11.3788ZM10.3094 1.45091C10.8353 1.19138 11.4141 1 12 1C12.5859 1 13.1647 1.19138 13.6906 1.45091C14.2248 1.71454 14.7659 2.07921 15.2935 2.49796C16.3486 3.33531 17.4285 4.45212 18.3932 5.60982C19.3601 6.77001 20.2361 8.0012 20.8766 9.08502C21.1963 9.62614 21.4667 10.1462 21.6602 10.6134C21.8425 11.0535 22 11.5467 22 12V20.0018C22 21.6599 20.6557 23 19 23H16C14.8954 23 14 22.1046 14 21V15H10V21C10 22.1046 9.10457 23 8 23H5C3.34434 23 2 21.6599 2 20.0018V12C2 11.5467 2.15748 11.0535 2.33982 10.6134C2.53334 10.1462 2.80369 9.62614 3.12345 9.08502C3.76389 8.0012 4.63995 6.77001 5.60678 5.60982C6.57152 4.45212 7.65141 3.33531 8.70647 2.49796C9.2341 2.07921 9.77521 1.71454 10.3094 1.45091Z" fill="#ffffff"></path>
-            </g>
-          </svg>
-        </a>
-            <!-- Login Button (Shows when logged out) -->
-  <button id="nav-login-btn" class="login-btn">Login</button>
+      <button id="nav-login-btn" class="login-btn">Login</button>
 
-  <!-- User / Auth Icon (Shows when logged in) -->
-  <svg id="open-auth-modal" class="user-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="width: 24px; height: 24px; cursor: pointer; display: none;">
-      <path d="M20 21V19C20 17.8954 19.1046 17 18 17H6C4.89543 17 4 17.8954 4 19V21M16 7C16 9.20914 14.2091 11 12 11C9.79086 11 8 9.20914 8 7C8 4.79086 9.79086 3 12 3C14.2091 3 16 4.79086 16 7Z" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
-  </svg>
-      </div>
-    </header>
+      <svg id="open-auth-modal" class="user-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="width: 24px; height: 24px; cursor: pointer; display: none;">
+        <path d="M20 21V19C20 17.8954 19.1046 17 18 17H6C4.89543 17 4 17.8954 4 19V21M16 7C16 9.20914 14.2091 11 12 11C9.79086 11 8 9.20914 8 7C8 4.79086 9.79086 3 12 3C14.2091 3 16 4.79086 16 7Z" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
+      </svg>
+    </div>
+  </header>
 
-    <div class="search-container">
-      <input id="searchBar" placeholder="Search" class="input" name="text" autocomplete="off" type="text" />
+  <div class="search-container">
+    <input id="searchBar" placeholder="Search" class="input" name="text" autocomplete="off" type="text" />
     <div id="suggestions" class="suggestions-box">
       <ul></ul>
     </div>
   </div>
-  <!-- New Menu Grid for Cakes -->
+
   <div class="content">
     <h2>Cakes</h2>
   </div>
-  <div class="menu-grid">
-    <!-- Cakes Section -->
-    <!-- Vanilla -->
-    <div class="cake-card">
-      <img src="images/vanilla-cake.webp" alt="Vanilla Cake" class="cake-image"> <!-- Image added -->
-      <div class="cake-info">
-        <h3 class="cake-name">Vanilla</h3>
-        <p class="cake-description">
-          Classic vanilla sponge cake with smooth vanilla buttercream.
-        </p>
-        <div class="button-container"></div>
-      </div>
+  <div class="menu-grid" id="cakes-grid">
     </div>
-    <!-- White Forest -->
-    <div class="cake-card">
-      <img src="images/whiteforest-cake.webp" alt="Whiteforest Cake" class="cake-image">
-      <div class="cake-info">
-        <h3 class="cake-name">White Forest</h3>
-        <p class="cake-description">
-          Layers of vanilla sponge, whipped cream, and cherries. Topped with white chocolate shavings.
-        </p>
-        <div class="button-container"></div>
-      </div>
-    </div>
-    <!-- Black Forest -->
-    <div class="cake-card">
-      <img src="images/blackforest-cake.webp" alt="Blackforest Cake" class="cake-image">
-      <div class="cake-info">
-        <h3 class="cake-name">Black Forest</h3>
-        <p class="cake-description">
-          Layers of chocolate sponge, whipped cream, and cherries. Topped with chocolate shavings.
-        </p>
-        <div class="button-container"></div>
-      </div>
-    </div>
-    <!-- German Black Forest -->
-    <div class="cake-card">
-      <img src="images/germanblackforest-cake.webp" alt="German Black Forest Cake" class="cake-image">
-      <div class="cake-info">
-        <h3 class="cake-name">German Black Forest</h3>
-        <p class="cake-description">
-          Authentic German-style Black Forest cake with rich chocolate and cherry layers.
-        </p>
-        <div class="button-container"></div>
-      </div>
-    </div>
-    <!-- Chocolate Cake -->
-    <div class="cake-card">
-      <img src="images/chocolate-cake.webp" alt="Chocolate Cake" class="cake-image">
-      <div class="cake-info">
-        <h3 class="cake-name">Chocolate Cake</h3>
-        <p class="cake-description">
-          Rich and moist chocolate cake layered with chocolate ganache. A chocolate lover's dream.
-        </p>
-        <div class="button-container"></div>
-      </div>
-    </div>
-    <!-- Chocolate Truffle -->
-    <div class="cake-card">
-      <img src="images/images.png" alt="Chocolate Truffle Cake" class="cake-image">
-      <div class="cake-info">
-        <h3 class="cake-name">Chocolate Truffle</h3>
-        <p class="cake-description">
-          Decadent chocolate truffle cake with layers of chocolate mousse and ganache.
-        </p>
-        <div class="button-container"></div>
-      </div>
-    </div>
-    <!-- White Choco Truffle -->
-    <div class="cake-card">
-      <img src="images/whitechocotruffle-cake.webp" alt="White Choco Truffle Cake" class="cake-image">
-      <div class="cake-info">
-        <h3 class="cake-name">White Choco Truffle</h3>
-        <p class="cake-description">
-          Luxurious white chocolate truffle cake with a creamy and smooth texture.
-        </p>
-        <div class="button-container"></div>
-      </div>
-    </div>
-    <!-- Vancho -->
-    <div class="cake-card">
-      <img src="images/vancho-cake.webp" alt="Vancho Cake" class="cake-image">
-      <div class="cake-info">
-        <h3 class="cake-name">Vancho</h3>
-        <p class="cake-description">
-          A delightful combination of vanilla and chocolate layers. Perfect for all tastes.
-        </p>
-        <div class="button-container"></div>
-      </div>
-    </div>
-    <!-- Kitkat -->
-    <div class="cake-card">
-      <img src="images/kitkat-cake.webp" alt="Kitkat Cake" class="cake-image">
-      <div class="cake-info">
-        <h3 class="cake-name">Kitkat</h3>
-        <p class="cake-description">
-          Chocolate cake surrounded by KitKat bars and topped with colorful candies.
-        </p>
-        <div class="button-container"></div>
-      </div>
-    </div>
-    <!-- Ferrero Rocher -->
-    <div class="cake-card">
-      <img src="images/ferrerorocher-cake.webp" alt="Ferrero Rocher Cake" class="cake-image">
-      <div class="cake-info">
-        <h3 class="cake-name">Ferrero Rocher</h3>
-        <p class="cake-description">
-          Indulgent chocolate cake with Ferrero Rocher chocolates and hazelnut filling.
-        </p>
-        <div class="button-container"></div>
-      </div>
-    </div>
-    <!-- Nutella -->
-    <div class="cake-card">
-      <img src="images/nutella-cake.webp" alt="Nutella Cake" class="cake-image">
-      <div class="cake-info">
-        <h3 class="cake-name">Nutella</h3>
-        <p class="cake-description">
-          Rich chocolate cake filled and topped with creamy Nutella. A hazelnut delight.
-        </p>
-        <div class="button-container"></div>
-      </div>
-    </div>
-    <!-- Snickers -->
-    <div class="cake-card">
-      <img src="images/images.png" alt="Snickers Cake" class="cake-image">
-      <div class="cake-info">
-        <h3 class="cake-name">Snickers</h3>
-        <p class="cake-description">
-          Chocolate cake with layers of caramel, peanuts, and nougat. Just like the candy bar.
-        </p>
-        <div class="button-container"></div>
-      </div>
-    </div>
-    <!-- Oreo Cake -->
-    <div class="cake-card">
-      <img src="images/oreo-cake.webp" alt="Oreo Cake" class="cake-image">
-      <div class="cake-info">
-        <h3 class="cake-name">Oreo Cake</h3>
-        <p class="cake-description">
-          Chocolate cake with Oreo cookie crumbs and creamy Oreo frosting.
-        </p>
-        <div class="button-container"></div>
-      </div>
-    </div>
-    <!-- Nutty Bubble -->
-    <div class="cake-card">
-      <img src="images/nuttybubble-cake.webp" alt="Nutty Bubble" class="cake-image">
-      <div class="cake-info">
-        <h3 class="cake-name">Nutty Bubble</h3>
-        <p class="cake-description">
-          A nutty delight with layers of chocolate, nuts, and a creamy filling.
-        </p>
-        <div class="button-container"></div>
-      </div>
-    </div>
-    <!-- Red Velvet -->
-    <div class="cake-card">
-      <img src="images/redvelvet-cake.webp" alt="Red Velvet Cake" class="cake-image">
-      <div class="cake-info">
-        <h3 class="cake-name">Red Velvet</h3>
-        <p class="cake-description">
-          Velvety crimson layers with cream cheese frosting. A classic favorite.
-        </p>
-        <div class="button-container"></div>
-      </div>
-    </div>
-    <!-- Red Velvet Cream Cheese -->
-    <div class="cake-card">
-      <img src="images/redvelvetcreamcheese-cake.webp" alt="Red Velvet Cream" class="cake-image">
-      <div class="cake-info">
-        <h3 class="cake-name">Red Velvet Cream Cheese</h3>
-        <p class="cake-description">
-          Red velvet cake with a rich cream cheese frosting. Perfectly balanced flavors.
-        </p>
-        <div class="button-container"></div>
-      </div>
-    </div>
-    <!-- Juan's Rainbow Cake -->
-    <div class="cake-card">
-      <img src="images/juansrainbow-cake.webp" alt="Juan's Rainbow Cake" class="cake-image">
-      <div class="cake-info">
-        <h3 class="cake-name">Juan's Rainbow Cake</h3>
-        <p class="cake-description">
-          A vibrant rainbow cake with layers of colorful sponge and creamy frosting.
-        </p>
-        <div class="button-container"></div>
-      </div>
-    </div>
-    <!-- Raffaello Cake -->
-    <div class="cake-card">
-      <img src="images/raffaello-cake.webp" alt="Raffaello Cake" class="cake-image">
-      <div class="cake-info">
-        <h3 class="cake-name">Raffaello Cake</h3>
-        <p class="cake-description">
-          Coconut and almond cake inspired by the Raffaello chocolates. Light and delicious.
-        </p>
-        <div class="button-container"></div>
-      </div>
-    </div>
-    <!-- Toffee Cake -->
-    <div class="cake-card">
-      <img src="images/images.png" alt="Toffee Cake" class="cake-image">
-      <div class="cake-info">
-        <h3 class="cake-name">Toffee Cake</h3>
-        <p class="cake-description">
-          Buttery cake with layers of toffee and caramel. A sweet and rich treat.
-        </p>
-        <div class="button-container"></div>
-      </div>
-    </div>
-    <!-- Tender Coconut -->
-    <div class="cake-card">
-      <img src="images/tendercoconut-cake.webp" alt="Tender Coconut Cake" class="cake-image">
-      <div class="cake-info">
-        <h3 class="cake-name">Tender Coconut</h3>
-        <p class="cake-description">
-          Moist coconut cake with tender coconut pieces. A tropical delight.
-        </p>
-        <div class="button-container"></div>
-      </div>
-    </div>
-    <!-- Butterscotch -->
-    <div class="cake-card">
-      <img src="images/butterscotch-cake.webp" alt="Butterscotch Cake" class="cake-image">
-      <div class="cake-info">
-        <h3 class="cake-name">Butterscotch</h3>
-        <p class="cake-description">
-          Rich butterscotch cake with layers of caramel and butterscotch cream.
-        </p>
-        <div class="button-container"></div>
-      </div>
-    </div>
-    <!-- Russian Honey Cake -->
-    <div class="cake-card">
-      <img src="images/russianhoney-cake.webp" alt="Russian Honey cake" class="cake-image">
-      <div class="cake-info">
-        <h3 class="cake-name">Russian Honey Cake</h3>
-        <p class="cake-description">
-          Layered honey cake with creamy frosting. A traditional Russian dessert.
-        </p>
-        <div class="button-container"></div>
-      </div>
-    </div>
-    <!-- Tres Leches Cake -->
-    <div class="cake-card">
-      <img src="images/tresleches-cake.webp" alt="Tres Leches cake" class="cake-image">
-      <div class="cake-info">
-        <h3 class="cake-name">Tres Leches Cake</h3>
-        <p class="cake-description">
-          Sponge cake soaked in three kinds of milk. Moist and delicious.
-        </p>
-        <div class="button-container"></div>
-      </div>
-    </div>
-    <!-- Milky Nut -->
-    <div class="cake-card">
-      <img src="images/milkynut-cake.webp" alt="Milky Nut cake" class="cake-image">
-      <div class="cake-info">
-        <h3 class="cake-name">Milky Nut</h3>
-        <p class="cake-description">
-          A nutty cake with layers of creamy milk frosting and nuts.
-        </p>
-        <div class="button-container"></div>
-      </div>
-    </div>
-    <!-- Mexican Toffee -->
-    <div class="cake-card">
-      <img src="images/mexicantoffee-cake.webp" alt="Mexican Toffee cake" class="cake-image">
-      <div class="cake-info">
-        <h3 class="cake-name">Mexican Toffee</h3>
-        <p class="cake-description">
-          Spicy and sweet toffee cake with a hint of Mexican flavors.
-        </p>
-        <div class="button-container"></div>
-      </div>
-    </div>
-    <!-- Red Bee Cake -->
-    <div class="cake-card">
-      <img src="images/redbee-cake.webp" alt="Red Bee Cake" class="cake-image">
-      <div class="cake-info">
-        <h3 class="cake-name">Red Bee Cake</h3>
-        <p class="cake-description">
-          A unique cake with red velvet layers and a honeycomb design.
-        </p>
-        <div class="button-container"></div>
-      </div>
-    </div>
-    <!-- Golden Vancho -->
-    <div class="cake-card">
-      <img src="images/goldenvancho-cake.webp" alt="Golden Vancho cake" class="cake-image">
-      <div class="cake-info">
-        <h3 class="cake-name">Golden Vancho</h3>
-        <p class="cake-description">
-          A luxurious combination of vanilla and chocolate with golden accents.
-        </p>
-        <div class="button-container"></div>
-      </div>
-    </div>
-    <!-- Kulfi Cake -->
-    <div class="cake-card">
-      <img src="images/kulfi-cake.webp" alt="Kulfi cake" class="cake-image">
-      <div class="cake-info">
-        <h3 class="cake-name">Kulfi Cake</h3>
-        <p class="cake-description">
-          Inspired by the traditional Indian kulfi, this cake is rich and creamy.
-        </p>
-        <div class="button-container"></div>
-      </div>
-    </div>
-    <!-- Choco Velvet -->
-    <div class="cake-card">
-      <img src="images/chocovelvet-cake.webp" alt="Choco Velvet cake" class="cake-image">
-      <div class="cake-info">
-        <h3 class="cake-name">Choco Velvet</h3>
-        <p class="cake-description">
-          A fusion of red velvet and chocolate. Perfect for chocolate lovers.
-        </p>
-        <div class="button-container"></div>
-      </div>
-    </div>
-    <!-- Choco Nuts -->
-    <div class="cake-card">
-      <img src="images/choconuts-cake.webp" alt="Choco Nuts cake" class="cake-image">
-      <div class="cake-info">
-        <h3 class="cake-name">Choco Nuts</h3>
-        <p class="cake-description">
-          Chocolate cake loaded with nuts for a crunchy and rich flavor.
-        </p>
-        <div class="button-container"></div>
-      </div>
-    </div>
-    <!-- Loaded Chocolate -->
-    <div class="cake-card">
-      <img src="images/loadedchocolate-cake.webp" alt="Loaded Chocolate cake" class="cake-image">
-      <div class="cake-info">
-        <h3 class="cake-name">Loaded Chocolate</h3>
-        <p class="cake-description">
-          An overload of chocolate with layers of chocolate mousse, ganache, and more.
-        </p>
-        <div class="button-container"></div>
-      </div>
-    </div>
-    <!-- Dream cake -->
-    <div class="cake-card">
-      <img src="images/dream-cake.webp" alt="Dream cake" class="cake-image">
-      <div class="cake-info">
-        <h3 class="cake-name">Dream cake</h3>
-        <p class="cake-description">
-          A rich indulgence layered with velvety chocolate mousse, luscious ganache, and soft chocolate sponge — every bite is a dream for chocolate lovers.
-        </p>
-        <div class="button-container"></div>
-      </div>
-    </div>
-    <!-- Spanish Delight -->
-    <div class="cake-card">
-      <img src="images/spanishdelight-cake.webp" alt="Spanish Delight cake" class="cake-image">
-      <div class="cake-info">
-        <h3 class="cake-name">Spanish Delight</h3>
-        <p class="cake-description">
-          A Spanish-inspired cake with rich flavors and a creamy texture.
-        </p>
-        <div class="button-container"></div>
-      </div>
-    </div>
-    <!-- Lotus Biscoff -->
-    <div class="cake-card">
-      <img src="images/lotusbiscoff-cake.webp" alt="Lotus Biscoff Cake" class="cake-image">
-      <div class="cake-info">
-        <h3 class="cake-name">Lotus Biscoff</h3>
-        <p class="cake-description">
-          Cake infused with Lotus Biscoff spread and topped with Biscoff crumbs.
-        </p>
-        <div class="button-container"></div>
-      </div>
-    </div>
-    <!-- Kifaya -->
-    <div class="cake-card">
-      <img src="images/kifaya-cake.webp" alt="Kifaya Cake" class="cake-image">
-      <div class="cake-info">
-        <h3 class="cake-name">Kifaya</h3>
-        <p class="cake-description">
-          A rich and decadent cake with layers of chocolate and caramel.
-        </p>
-        <div class="button-container"></div>
-      </div>
-    </div>
-    <!-- Loaded Cashew -->
-    <div class="cake-card">
-      <img src="images/images.png" alt="Loaded Cashew Cake" class="cake-image">
-      <div class="cake-info">
-        <h3 class="cake-name">Loaded Cashew</h3>
-        <p class="cake-description">
-          A nutty cake loaded with cashews and a creamy filling.
-        </p>
-        <div class="button-container"></div>
-      </div>
-    </div>
-    <!-- Rasmalai Cake -->
-    <div class="cake-card">
-      <img src="images/rasmalai-cake.webp" alt="Rasmalai Cake" class="cake-image">
-      <div class="cake-info">
-        <h3 class="cake-name">Rasmalai Cake</h3>
-        <p class="cake-description">
-          Inspired by the Indian dessert, this cake is soft, creamy, and flavorful.
-        </p>
-        <div class="button-container"></div>
-      </div>
-    </div>
-    <!-- Honey Almond -->
-    <div class="cake-card">
-      <img src="images/honeyalmond-cake.webp" alt="Honey Almond Cake" class="cake-image">
-      <div class="cake-info">
-        <h3 class="cake-name">Honey Almond</h3>
-        <p class="cake-description">
-          A sweet and nutty cake with layers of honey and almond cream.
-        </p>
-        <div class="button-container"></div>
-      </div>
-    </div>
-    <!-- Pineapple -->
-    <div class="cake-card">
-      <img src="images/pineapple-cake.webp" alt="Pineapple Cake" class="cake-image">
-      <div class="cake-info">
-        <h3 class="cake-name">Pineapple</h3>
-        <p class="cake-description">
-          Moist pineapple cake with a tropical flavor. Perfect for summer.
-        </p>
-        <div class="button-container"></div>
-      </div>
-    </div>
-    <!-- Rainbow -->
-    <div class="cake-card">
-      <img src="images/rainbow-cake.webp" alt="Rainbow Cake" class="cake-image">
-      <div class="cake-info">
-        <h3 class="cake-name">Rainbow</h3>
-        <p class="cake-description">
-          A colorful cake with layers of rainbow sponge and creamy frosting.
-        </p>
-        <div class="button-container"></div>
-      </div>
-    </div>
-    <!-- Strawberry -->
-    <div class="cake-card">
-      <img src="images/strawberry-cake.webp" alt="Strawberry Cake" class="cake-image">
-      <div class="cake-info">
-        <h3 class="cake-name">Strawberry</h3>
-        <p class="cake-description">
-          Fresh strawberry cake with layers of strawberry cream and fruit.
-        </p>
-        <div class="button-container"></div>
-      </div>
-    </div>
-    <!-- Pistachio -->
-    <div class="cake-card">
-      <img src="images/pistachio-cake.webp" alt="Pistachio Cake" class="cake-image">
-      <div class="cake-info">
-        <h3 class="cake-name">Pistachio</h3>
-        <p class="cake-description">
-          A nutty and rich cake with layers of pistachio cream and nuts.
-        </p>
-        <div class="button-container"></div>
-      </div>
-    </div>
-    <!-- Blueberry -->
-    <div class="cake-card">
-      <img src="images/blueberry-cake.webp" alt="Blueberry Cake" class="cake-image">
-      <div class="cake-info">
-        <h3 class="cake-name">Blueberry</h3>
-        <p class="cake-description">
-          Moist blueberry cake with layers of blueberry cream and fresh berries.
-        </p>
-        <div class="button-container"></div>
-      </div>
-    </div>
-    <!-- Orange Truffle -->
-    <div class="cake-card">
-      <img src="images/orangetruffle-cake.webp" alt="Orange Truffle Cake" class="cake-image">
-      <div class="cake-info">
-        <h3 class="cake-name">Orange Truffle</h3>
-        <p class="cake-description">
-          A citrusy delight with layers of orange truffle and chocolate.
-        </p>
-        <div class="button-container"></div>
-      </div>
-    </div>
-    <!-- Mango Truffle -->
-    <div class="cake-card">
-      <img src="images/mangotruffle-cake.webp" alt="Mango Truffle Cake" class="cake-image">
-      <div class="cake-info">
-        <h3 class="cake-name">Mango Truffle</h3>
-        <p class="cake-description">
-          A tropical treat with layers of mango truffle and creamy frosting.
-        </p>
-        <div class="button-container"></div>
-      </div>
-    </div>
-    <!-- Van Strawberry -->
-    <div class="cake-card">
-      <img src="images/vanstrawberry-cake.webp" alt="Van Strawberry Cake" class="cake-image">
-      <div class="cake-info">
-        <h3 class="cake-name">Van Strawberry</h3>
-        <p class="cake-description">
-          A combination of vanilla and strawberry flavors. Light and refreshing.
-        </p>
-        <div class="button-container"></div>
-      </div>
-    </div>
-    <!-- Neapolitan Cake -->
-    <div class="cake-card">
-      <img src="images/neapolitan-cake.webp" alt="Neapolitan Cake" class="cake-image">
-      <div class="cake-info">
-        <h3 class="cake-name">Neapolitan Cake</h3>
-        <p class="cake-description">
-          Layers of chocolate, vanilla, and strawberry. A classic favorite.
-        </p>
-        <div class="button-container"></div>
-      </div>
-    </div>
-    <!-- Mango Strawberry -->
-    <div class="cake-card">
-      <img src="images/mangostrawberry-cake.webp" alt="Mango Strawberry Cake" class="cake-image">
-      <div class="cake-info">
-        <h3 class="cake-name">Mango Strawberry</h3>
-        <p class="cake-description">
-          A fruity combination of mango and strawberry. Perfect for summer.
-        </p>
-        <div class="button-container"></div>
-      </div>
-    </div>
-    <!-- Tres Leches Pudding -->
-    <div class="cake-card">
-      <img src="images/images.png" alt="Tres Leches Pudding Cake" class="cake-image">
-      <div class="cake-info">
-        <h3 class="cake-name">Tres Leches Pudding</h3>
-        <p class="cake-description">
-          A creamy and moist milk cake soaked in three kinds of milk.
-        </p>
-        <div class="button-container"></div>
-      </div>
-    </div>
-    <!-- Pista Tres Leches -->
-    <div class="cake-card">
-      <img src="images/pistatresleches-cake.webp" alt="Pista Tres Leches" class="cake-image">
-      <div class="cake-info">
-        <h3 class="cake-name">Pista Tres Leches</h3>
-        <p class="cake-description">
-          A pistachio-flavored version of the classic Tres Leches cake.
-        </p>
-        <div class="button-container"></div>
-      </div>
-    </div>
-  </div>
-  <!-- Desserts Section -->
+
   <div class="content">
     <h2>Other Desserts & Products</h2>
   </div>
-  <!-- New Menu Grid for Desserts -->
-  <div class="menu-grid">
-    <!-- Donuts -->
-    <div class="cake-card">
-      <img src="images/donuts.webp" alt="Donuts" class="cake-image">
-      <div class="cake-info">
-        <h3 class="cake-name">Donuts</h3>
-        <p class="cake-description">
-          Delicious donuts with various toppings and flavors.
-        </p>
-        <div class="button-container"></div>
-      </div>
+  <div class="menu-grid" id="desserts-grid">
     </div>
-    <!-- Cupcakes -->
-    <div class="cake-card">
-      <img src="images/cupcake.webp" alt="Cupcakes" class="cake-image">
-      <div class="cake-info">
-        <h3 class="cake-name">Cupcakes</h3>
-        <p class="cake-description">
-          Soft and fluffy cupcakes with creamy frosting.
-        </p>
-        <div class="button-container"></div>
-      </div>
-    </div>
-    <!-- Cakepops -->
-    <div class="cake-card">
-      <img src="images/cakepops.webp" alt="Cakepops" class="cake-image">
-      <div class="cake-info">
-        <h3 class="cake-name">Cakepops</h3>
-        <p class="cake-description">
-          Bite-sized cake pops coated in chocolate or candy.
-        </p>
-        <div class="button-container"></div>
-      </div>
-    </div>
-    <!-- Cakesickles -->
-    <div class="cake-card">
-      <img src="images/cakesickles.webp" alt="Cakesickles" class="cake-image">
-      <div class="cake-info">
-        <h3 class="cake-name">Cakesickles</h3>
-        <p class="cake-description">
-          Cake on a stick, perfect for parties and events.
-        </p>
-        <div class="button-container"></div>
-      </div>
-    </div>
-    <!-- Brownies -->
-    <div class="cake-card">
-      <img src="images/brownies-cake.webp" alt="Brownies" class="cake-image">
-      <div class="cake-info">
-        <h3 class="cake-name">Brownies</h3>
-        <p class="cake-description">
-          Rich and fudgy brownies with a chocolatey goodness.
-        </p>
-        <div class="button-container"></div>
-      </div>
-    </div>
-    <!-- Pudding -->
-    <div class="cake-card">
-      <img src="images/pudding.webp" alt="Pudding" class="cake-image">
-      <div class="cake-info">
-        <h3 class="cake-name">Pudding</h3>
-        <p class="cake-description">
-          Creamy and smooth pudding in various flavors.
-        </p>
-        <div class="button-container"></div>
-      </div>
-    </div>
-    <!-- Hampers -->
-    <div class="cake-card">
-      <img src="images/hampers.webp" alt="Hampers" class="cake-image">
-      <div class="cake-info">
-        <h3 class="cake-name">Hampers</h3>
-        <p class="cake-description">
-          Hampers are gift baskets filled with chocolates, flowers, and sweet surprises.
-        </p>
-        <div class="button-container"></div>
-      </div>
-    </div>
-  </div>
-  <!-- Special Cake Designs Section -->
+
   <div class="container">
     <div class="section">
       <h2>Special Cake Designs:</h2>
@@ -802,10 +250,9 @@
       </p>
     </div>
   </div>
-  <!-- Need Help Section -->
+
   <div class="help-section">
     <div class="help-content">
-      <!-- Left Section -->
       <div class="help-box">
         <h2>Need Help?</h2>
         <p>
@@ -814,29 +261,24 @@
             <h2>+91 8301088697</h2>
           </a>
         </p>
-        <!-- Social Media Icons Section -->
         <div id="social-icons">
           <a href="https://www.instagram.com/heaven_s_cake?igsh=MXM2ZXlhYmRoeTMycg==" target="_blank" aria-label="Instagram">
             <svg class="social-icon" id="instagram-icon" xmlns="http://www.w3.org/2000/svg" width="64px" height="64px" viewBox="0 0 24 24">
-              <!-- Instagram SVG Path -->
-              <path fill-rule="evenodd" clip-rule="evenodd" d="M11.9962 0.0078125C8.73824 0.0078125 8.32971 0.021622 7.05019 0.080003C5.77333 0.138241 4.90129 0.341051 4.13824 0.637622C3.34938 0.944146 2.68038 1.35434 2.01343 2.02124C1.34652 2.68819 0.936333 3.35719 0.629809 4.14605C0.333238 4.9091 0.130429 5.78115 0.0721905 7.058C0.0138095 8.33753 0 8.74605 0 12.0041C0 15.262 0.0138095 15.6705 0.0721905 16.9501C0.130429 18.2269 0.333238 19.099 0.629809 19.862C0.936333 20.6509 1.34652 21.3199 2.01343 21.9868C2.68038 22.6537 3.34938 23.0639 4.13824 23.3705C4.90129 23.667 5.77333 23.8698 7.05019 23.9281C8.32971 23.9864 8.73824 24.0002 11.9962 24.0002C15.2542 24.0002 15.6627 23.9864 16.9422 23.9281C18.2191 23.8698 19.0911 23.667 19.8542 23.3705C20.643 23.0639 21.312 22.6537 21.979 21.9868C22.6459 21.3199 23.0561 20.6509 23.3627 19.862C23.6592 19.099 23.862 18.2269 23.9202 16.9501C23.9786 15.6705 23.9924 15.262 23.9924 12.0041C23.9924 8.74605 23.9786 8.33753 23.9202 7.058C23.862 5.78115 23.6592 4.9091 23.3627 4.14605C23.0561 3.35719 22.6459 2.68819 21.979 2.02124C21.312 1.35434 20.643 0.944146 19.8542 0.637622C19.0911 0.341051 18.2191 0.138241 16.9422 0.080003C15.6627 0.021622 15.2542 0.0078125 11.9962 0.0078125ZM11.9962 2.16929C15.1993 2.16929 15.5788 2.18153 16.8437 2.23924C18.0133 2.29257 18.6485 2.488 19.0712 2.65229C19.6312 2.86991 20.0308 3.12986 20.4506 3.54967C20.8704 3.96943 21.1303 4.36905 21.348 4.929C21.5122 5.35172 21.7077 5.98691 21.761 7.15653C21.8187 8.42148 21.831 8.80091 21.831 12.0041C21.831 15.2071 21.8187 15.5866 21.761 16.8515C21.7077 18.0211 21.5122 18.6563 21.348 19.0791C21.1303 19.639 20.8704 20.0386 20.4506 20.4584C20.0308 20.8782 19.6312 21.1381 19.0712 21.3558C18.6485 21.5201 18.0133 21.7155 16.8437 21.7688C15.579 21.8265 15.1996 21.8388 11.9962 21.8388C8.79286 21.8388 8.41352 21.8265 7.14871 21.7688C5.97909 21.7155 5.3439 21.5201 4.92119 21.3558C4.36124 21.1381 3.96162 20.8782 3.54186 20.4584C3.1221 20.0386 2.8621 19.639 2.64448 19.0791C2.48019 18.6563 2.28476 18.0211 2.23143 16.8515C2.17371 15.5866 2.16148 15.2071 2.16148 12.0041C2.16148 8.80091 2.17371 8.42148 2.23143 7.15653C2.28476 5.98691 2.48019 5.35172 2.64448 4.929C2.8621 4.36905 3.12205 3.96943 3.54186 3.54967C3.96162 3.12986 4.36124 2.86991 4.92119 2.65229C5.3439 2.488 5.97909 2.29257 7.14871 2.23924C8.41367 2.18153 8.7931 2.16929 11.9962 2.16929ZM11.9962 16.0028C9.78776 16.0028 7.99748 14.2125 7.99748 12.0041C7.99748 9.79558 9.78776 8.00529 11.9962 8.00529C14.2047 8.00529 15.995 9.79558 15.995 12.0041C15.995 14.2125 14.2047 16.0028 11.9962 16.0028ZM11.9962 5.84381C8.594 5.84381 5.836 8.60181 5.836 12.0041C5.836 15.4062 8.594 18.1642 11.9962 18.1642C15.3984 18.1642 18.1564 15.4062 18.1564 12.0041C18.1564 8.60181 15.3984 5.84381 11.9962 5.84381ZM18.3998 7.03996C19.1949 7.03996 19.8394 6.39548 19.8394 5.60043C19.8394 4.80538 19.1949 4.16086 18.3998 4.16086C17.6048 4.16086 16.9603 4.80538 16.9603 5.60043C16.9603 6.39548 17.6048 7.03996 18.3998 7.03996Z" fill="#fff"></path>
+              <path fill-rule="evenodd" clip-rule="evenodd" d="M11.9962 0.0078125C8.73824 0.0078125 8.32971 0.021622 7.05019 0.080003C5.77333 0.138241 4.90129 0.341051 4.13824 0.637622C3.34938 0.944146 2.68038 1.35434 2.01343 2.02124C1.34652 2.68819 0.936333 3.35719 0.629809 4.14605C0.333238 4.9091 0.130429 5.78115 0.0721905 7.058C0.0138095 8.33753 0 8.74605 0 12.0041C0 15.262 0.0138095 15.6705 0.0721905 16.9501C0.130429 18.2269 0.333238 19.099 0.629809 19.862C0.936333 20.6509 1.34652 21.3199 2.01343 21.9868C2.68038 22.6537 3.34938 23.0639 4.13824 23.3705C4.90129 23.667 5.77333 23.8698 7.05019 23.9281C8.32971 23.9864 8.73824 24.0002 11.9962 24.0002C15.2542 24.0002 15.6627 23.9864 16.9422 23.9281C18.2191 23.8698 19.0911 23.667 19.8542 23.3705C20.643 23.0639 21.312 22.6537 21.979 21.9868C22.6459 21.3199 23.0561 20.6509 23.3627 19.862C23.6592 19.099 23.862 18.2269 23.9202 16.9501C23.9786 15.6705 23.9924 15.262 23.9924 12.0041C23.9924 8.74605 23.9786 8.33753 23.9202 7.058C23.862 5.78115 23.6592 4.9091 23.3627 4.14605C23.0561 3.35719 22.6459 2.68819 21.979 2.02124C21.312 1.35434 20.643 0.944146 19.8542 0.637622C19.0911 0.341051 18.2191 0.138241 16.9422 0.080003C15.6627 0.021622 15.2542 0.0078125 11.9962 0.0078125ZM11.9962 2.16929C15.1993 2.16929 15.5788 2.18153 16.8437 2.23924C18.0133 2.29257 18.6485 2.488 19.0712 2.65229C19.6312 2.86991 20.0308 3.12986 20.4506 3.54967C20.8704 3.96943 21.1303 4.36905 21.348 4.929C21.5122 5.35172 21.7077 5.98691 21.761 7.15653C21.8187 8.42148 21.831 8.80091 21.831 12.0041C21.831 15.2071 21.8187 15.5866 21.761 16.8515C21.7077 18.0211 21.5122 18.6563 21.348 19.0791C21.1303 19.639 20.8704 20.0386 20.4506 20.4584C20.0308 20.8782 19.6312 21.1381 19.0712 21.3558C18.6485 21.5201 18.0133 21.7155 16.8437 21.7688C15.579 21.8265 15.1996 21.8388 11.9962 21.8388C8.79286 21.8388 8.41352 21.8265 7.14871 21.7688C5.97909 21.7155 5.3439 21.5201 4.92119 21.3558C4.36124 21.1381 3.96162 20.0386 3.54186 20.4584C3.1221 20.0386 2.8621 19.639 2.64448 19.0791C2.48019 18.6563 2.28476 18.0211 2.23143 16.8515C2.17371 15.5866 2.16148 15.2071 2.16148 12.0041C2.16148 8.80091 2.17371 8.42148 2.23143 7.15653C2.28476 5.98691 2.48019 5.35172 2.64448 4.929C2.8621 4.36905 3.12205 3.96943 3.54186 3.54967C3.96162 3.12986 4.36124 2.86991 4.92119 2.65229C5.3439 2.488 5.97909 2.29257 7.14871 2.23924C8.41367 2.18153 8.7931 2.16929 11.9962 2.16929ZM11.9962 16.0028C9.78776 16.0028 7.99748 14.2125 7.99748 12.0041C7.99748 9.79558 9.78776 8.00529 11.9962 8.00529C14.2047 8.00529 15.995 9.79558 15.995 12.0041C15.995 14.2125 14.2047 16.0028 11.9962 16.0028ZM11.9962 5.84381C8.594 5.84381 5.836 8.60181 5.836 12.0041C5.836 15.4062 8.594 18.1642 11.9962 18.1642C15.3984 18.1642 18.1564 15.4062 18.1564 12.0041C18.1564 8.60181 15.3984 5.84381 11.9962 5.84381ZM18.3998 7.03996C19.1949 7.03996 19.8394 6.39548 19.8394 5.60043C19.8394 4.80538 19.1949 4.16086 18.3998 4.16086C17.6048 4.16086 16.9603 4.80538 16.9603 5.60043C16.9603 6.39548 17.6048 7.03996 18.3998 7.03996Z" fill="#fff"></path>
             </svg>
           </a>
           <a href="https://www.facebook.com/share/13oYGrFZDs/" target="_blank" aria-label="Facebook">
             <svg class="social-icon" id="facebook-icon" xmlns="http://www.w3.org/2000/svg" width="64px" height="64px" viewBox="0 0 24 24">
-              <!-- Facebook SVG Path -->
               <path fill-rule="evenodd" clip-rule="evenodd" d="M24 12C24 5.37258 18.6274 0 12 0C5.37258 0 0 5.37258 0 12C0 17.9895 4.38823 22.954 10.125 23.8542V15.4688H7.07812V12H10.125V9.35625C10.125 6.34875 11.9165 4.6875 14.6576 4.6875C15.9705 4.6875 17.3438 4.92188 17.3438 4.92188V7.875H15.8306C14.3399 7.875 13.875 8.80001 13.875 9.74899V12H17.2031L16.6711 15.4688H13.875V23.8542C19.6118 22.954 24 17.9895 24 12Z" fill="#fff"></path>
             </svg>
           </a>
           <a href="https://wa.me/918301088697" target="_blank" aria-label="WhatsApp">
             <svg class="social-icon" id="whatsapp-icon" xmlns="http://www.w3.org/2000/svg" width="64px" height="64px" viewBox="0 0 24 24">
-              <!-- WhatsApp SVG Path -->
               <path fill-rule="evenodd" clip-rule="evenodd" d="M20.5129 3.4866C18.2882 1.24722 15.2597 -0.00837473 12.1032 4.20445e-05C5.54964 4.20445e-05 0.216056 5.33306 0.213776 11.8883C0.210977 13.9746 0.75841 16.0247 1.80085 17.8319L0.114014 23.9932L6.41672 22.34C8.15975 23.2898 10.1131 23.7874 12.0981 23.7874H12.1032C18.6556 23.7874 23.9897 18.4538 23.992 11.8986C24.0022 8.74248 22.7494 5.71347 20.5129 3.4866ZM12.1032 21.7768H12.0992C10.3294 21.7776 8.59195 21.3025 7.06888 20.4012L6.70803 20.1874L2.96836 21.1685L3.96713 17.52L3.73169 17.1461C2.74331 15.5709 2.22039 13.7484 2.22328 11.8889C2.22328 6.44185 6.65615 2.00783 12.1072 2.00783C14.7284 2.00934 17.2417 3.05207 19.0941 4.90662C20.9465 6.76117 21.9863 9.27564 21.9848 11.8969C21.9825 17.3456 17.5496 21.7768 12.1032 21.7768ZM17.5234 14.3755C17.2264 14.2267 15.7659 13.5085 15.4934 13.4064C15.2209 13.3044 15.0231 13.2576 14.8253 13.5552C14.6275 13.8528 14.058 14.5215 13.8847 14.7199C13.7114 14.9182 13.5381 14.9427 13.241 14.794C12.944 14.6452 11.9869 14.3316 10.8519 13.3198C9.96884 12.5319 9.36969 11.5594 9.19867 11.2618C9.02765 10.9642 9.18043 10.8057 9.32922 10.6552C9.46261 10.5224 9.62622 10.3086 9.77444 10.1348C9.92266 9.9609 9.97283 9.83776 10.0714 9.63938C10.1701 9.44099 10.121 9.26769 10.0469 9.1189C9.97283 8.97011 9.37824 7.50788 9.13083 6.9133C8.88969 6.3341 8.64513 6.4122 8.46271 6.40023C8.29169 6.39168 8.09102 6.38997 7.89264 6.38997C7.58822 6.39793 7.30097 6.53267 7.10024 6.76166C6.82831 7.05923 6.061 7.77752 6.061 9.23976C6.061 10.702 7.12532 12.1146 7.27354 12.313C7.42176 12.5114 9.36855 15.5117 12.3472 16.7989C12.9004 17.0375 13.4657 17.2468 14.0409 17.426C14.7523 17.654 15.3999 17.6204 15.9118 17.544C16.4819 17.4585 17.6694 16.8251 17.9173 16.1313C18.1653 15.4376 18.1648 14.8424 18.0884 14.7187C18.012 14.595 17.8204 14.5266 17.5234 14.3778V14.3755Z" fill="#fff"></path>
             </svg>
           </a>
           <a href="https://youtube.com/@heaven_s_cake?si=HxUZZEsJxsAugTDQ" target="_blank" aria-label="YouTube">
-            <svg class="social-icon" id="youtube-icon" fill="#fff" height="64px" width="64px" version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="-143 145 512 512" xml:space="preserve">
-              <!-- YouTube SVG Path -->
+            <svg class="social-icon" id="youtube-icon" fill="#fff" height="64px" width="64px" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="-143 145 512 512" xml:space="preserve">
               <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
               <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
               <g id="SVGRepo_iconCarrier">
@@ -849,7 +291,6 @@
           </a>
         </div>
       </div>
-      <!-- Middle  Section -->
       <div class="help-box">
         <h2>Info</h2>
         <p>
@@ -871,7 +312,6 @@
           <a href="terms-conditions#refund-policy" style="text-decoration: underline; color: #fff">Refund Policy</a>
         </p>
       </div>
-      <!-- Right Section -->
       <div class="help-box">
         <h2>Follow Us</h2>
         <p>
@@ -889,7 +329,7 @@
       </div>
     </div>
   </div>
-  <!-- Sidebar -->
+
   <div class="sidebar" id="sidebar">
     <div class="location-icon" id="location-icon" onclick="openLocation()">
       <svg id="locationsvg" width="24px" height="24px" viewBox="-1.5 0 15 15" xmlns="http://www.w3.org/2000/svg" fill="#ffffff">
@@ -906,59 +346,81 @@
     <a href="https://wa.me/918301088697" target="_blank">Customer Support</a>
     <a href="products">Most Popular</a>
     <a href="products?search=Hampers">Hampers</a>
-    <!-- Copyright Notice -->
     <div class="copyright">
       <p>
         © 2025 Heaven's cake. All rights reserved.
       </p>
     </div>
   </div>
-  <!-- Auth Modal (NEW) -->
-<div id="auth-modal" class="auth-modal">
-  <div class="auth-modal-content">
-    <span id="close-auth-modal" class="close-auth">&times;</span>
-    
-    <!-- Login / Signup Form -->
-    <div id="auth-form-container">
-      <h2 id="auth-title">Login</h2>
-      <form id="auth-form">
-        <input type="text" id="auth-name" placeholder="Full Name" style="display: none;">
-        <input type="email" id="auth-email" placeholder="Email" required>
-        <input type="password" id="auth-password" placeholder="Password" required>
-        <p id="auth-error" class="auth-error"></p>
-        <button type="submit" id="auth-submit-btn">Login</button>
-        
-        <div style="margin: 10px 0; color: #734d40;">OR</div>
-        
-        <!-- Google Login Button -->
-        <button type="button" id="google-login-btn" class="google-btn">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
-          Continue with Google
-        </button>
-      </form>
 
-      <p class="auth-toggle">
-        <span id="auth-toggle-text">Don't have an account? Sign Up</span>
-      </p>
+  <div id="auth-modal" class="auth-modal">
+    <div class="auth-modal-content">
+      <span id="close-auth-modal" class="close-auth">×</span>
+      
+      <div id="auth-form-container">
+        <h2 id="auth-title">Login</h2>
+        <form id="auth-form">
+          <input type="text" id="auth-name" placeholder="Full Name" style="display: none;">
+          <input type="email" id="auth-email" placeholder="Email" required>
+          <input type="password" id="auth-password" placeholder="Password" required>
+          <p id="auth-error" class="auth-error"></p>
+          <button type="submit" id="auth-submit-btn">Login</button>
+          
+          <div style="margin: 10px 0; color: #734d40;">OR</div>
+          
+          <button type="button" id="google-login-btn" class="google-btn">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
+            Continue with Google
+          </button>
+        </form>
+
+        <p class="auth-toggle">
+          <span id="auth-toggle-text">Don't have an account? Sign Up</span>
+        </p>
+      </div>
+
+      <div id="logged-in-container" style="display: none;">
+        <h2>Welcome!</h2>
+        <div id="profile-avatar-container" style="margin: 15px auto; width: 64px; height: 64px; display: flex; align-items: center; justify-content: center;">
+          </div>
+        <h3 id="user-name-display" style="margin-bottom: 5px; color: #fff; font-size: 20px;"></h3>
+        <p id="user-email-display" style="margin-bottom: 15px; color: #fff; font-size: 14px;"></p>
+        <button id="logout-btn">Logout</button>
+      </div>
     </div>
-
-<!-- Logged In View -->
-<div id="logged-in-container" style="display: none;">
-  <h2>Welcome!</h2>
-  
-  <!-- Profile Picture / Icon Container -->
-  <div id="profile-avatar-container" style="margin: 15px auto; width: 64px; height: 64px; display: flex; align-items: center; justify-content: center;">
-    <!-- Populated dynamically via auth.js -->
   </div>
 
-  <h3 id="user-name-display" style="margin-bottom: 5px; color: #fff; font-size: 20px;"></h3>
-  <p id="user-email-display" style="margin-bottom: 15px; color: #fff; font-size: 14px;"></p>
-  <button id="logout-btn">Logout</button>
-</div>
+  <div id="review-modal" class="auth-modal">
+    <div class="auth-modal-content" style="max-height: 85vh; overflow-y: auto;">
+      <span id="close-review-modal" class="close-auth">×</span>
+      <h2 id="review-modal-title" style="color: #734d40; margin-bottom: 10px;">Product Reviews</h2>
+      
+      <div id="modal-rating-summary" style="margin-bottom: 15px; font-size: 16px; font-weight: bold; color: #555;"></div>
+
+      <div id="reviews-list" style="margin-bottom: 20px; max-height: 250px; overflow-y: auto; border-bottom: 1px solid #ddd; padding-bottom: 10px;">
+        <p style="color: #777; font-style: italic;">Loading reviews...</p>
+      </div>
+      
+      <div id="add-review-container">
+        <h3 style="color: #734d40; margin-bottom: 5px;">Write a Review</h3>
+        
+        <div class="star-rating-input" id="star-selector" style="font-size: 32px; color: #ccc; cursor: pointer; display: inline-block; margin-bottom: 10px;">
+          <span class="star-opt" data-value="1">★</span>
+          <span class="star-opt" data-value="2">★</span>
+          <span class="star-opt" data-value="3">★</span>
+          <span class="star-opt" data-value="4">★</span>
+          <span class="star-opt" data-value="5">★</span>
+        </div>
+        
+        <textarea id="review-text-input" placeholder="Type your experience here..." rows="3" style="width: 100%; padding: 10px; border-radius: 5px; border: 1px solid #734d40; background: #fffdfb; color: #333; font-family: inherit; box-sizing: border-box; resize: vertical;"></textarea>
+        <p id="review-submit-error" class="auth-error" style="color: red; margin: 5px 0; font-size: 14px;"></p>
+        <button id="submit-review-btn" style="margin-top: 10px; width: 100%; background-color: #734d40; color: white; border: none; padding: 12px; border-radius: 5px; cursor: pointer; font-weight: bold; font-size: 16px;">Submit Review</button>
+      </div>
+    </div>
+  </div>
 
   <script src="script.js"></script> 
-  
-  <!-- Firebase initialization and Auth Logic (Moved entirely to auth.js to keep home clean) -->
   <script type="module" src="auth.js"></script>
+<script type="module" src="rating.js"></script>>
 </body>
 </html>
