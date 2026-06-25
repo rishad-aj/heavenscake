@@ -255,9 +255,22 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 
 // Boot animation remove
-document.addEventListener('DOMContentLoaded', function () {
-    const bootAnimation = document.getElementById('boot-animation');
-    bootAnimation?.addEventListener('animationend', () => bootAnimation.remove());
+// Prevent scrolling while splash screen is visible
+document.body.classList.add("loading");
+
+window.addEventListener("load", () => {
+    const boot = document.getElementById("boot-animation");
+
+    // Keep the splash for at least 1 second
+    setTimeout(() => {
+        boot.classList.add("hide");
+
+        boot.addEventListener("transitionend", () => {
+            boot.remove();
+            document.body.classList.remove("loading");
+        }, { once: true });
+
+    }, 1000);
 });
 
 // ================= 3D CAKE SLIDESHOW (ENHANCED) =================
