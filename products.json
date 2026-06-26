@@ -1,0 +1,348 @@
+{
+    "cakes": [
+        {
+            "image": "images/vanilla-cake.webp",
+            "alt": "Vanilla Cake",
+            "name": "Vanilla",
+            "description": "Classic vanilla sponge cake with smooth vanilla buttercream."
+        },
+        {
+            "image": "images/whiteforest-cake.webp",
+            "alt": "Whiteforest Cake",
+            "name": "White Forest",
+            "description": "Layers of vanilla sponge, whipped cream, and cherries. Topped with white chocolate shavings."
+        },
+        {
+            "image": "images/blackforest-cake.webp",
+            "alt": "Blackforest Cake",
+            "name": "Black Forest",
+            "description": "Layers of chocolate sponge, whipped cream, and cherries. Topped with chocolate shavings."
+        },
+        {
+            "image": "images/germanblackforest-cake.webp",
+            "alt": "German Black Forest Cake",
+            "name": "German Black Forest",
+            "description": "Authentic German-style Black Forest cake with rich chocolate and cherry layers."
+        },
+        {
+            "image": "images/chocolate-cake.webp",
+            "alt": "Chocolate Cake",
+            "name": "Chocolate Cake",
+            "description": "Rich and moist chocolate cake layered with chocolate ganache. A chocolate lover's dream."
+        },
+        {
+            "image": "images/images.png",
+            "alt": "Chocolate Truffle Cake",
+            "name": "Chocolate Truffle",
+            "description": "Decadent chocolate truffle cake with layers of chocolate mousse and ganache."
+        },
+        {
+            "image": "images/whitechocotruffle-cake.webp",
+            "alt": "White Choco Truffle Cake",
+            "name": "White Choco Truffle",
+            "description": "Luxurious white chocolate truffle cake with a creamy and smooth texture."
+        },
+        {
+            "image": "images/vancho-cake.webp",
+            "alt": "Vancho Cake",
+            "name": "Vancho",
+            "description": "A delightful combination of vanilla and chocolate layers. Perfect for all tastes."
+        },
+        {
+            "image": "images/kitkat-cake.webp",
+            "alt": "Kitkat Cake",
+            "name": "Kitkat",
+            "description": "Chocolate cake surrounded by KitKat bars and topped with colorful candies."
+        },
+        {
+            "image": "images/ferrerorocher-cake.webp",
+            "alt": "Ferrero Rocher Cake",
+            "name": "Ferrero Rocher",
+            "description": "Indulgent chocolate cake with Ferrero Rocher chocolates and hazelnut filling."
+        },
+        {
+            "image": "images/nutella-cake.webp",
+            "alt": "Nutella Cake",
+            "name": "Nutella",
+            "description": "Rich chocolate cake filled and topped with creamy Nutella. A hazelnut delight."
+        },
+        {
+            "image": "images/images.png",
+            "alt": "Snickers Cake",
+            "name": "Snickers",
+            "description": "Chocolate cake with layers of caramel, peanuts, and nougat. Just like the candy bar."
+        },
+        {
+            "image": "images/oreo-cake.webp",
+            "alt": "Oreo Cake",
+            "name": "Oreo Cake",
+            "description": "Chocolate cake with Oreo cookie crumbs and creamy Oreo frosting."
+        },
+        {
+            "image": "images/nuttybubble-cake.webp",
+            "alt": "Nutty Bubble",
+            "name": "Nutty Bubble",
+            "description": "A nutty delight with layers of chocolate, nuts, and a creamy filling."
+        },
+        {
+            "image": "images/redvelvet-cake.webp",
+            "alt": "Red Velvet Cake",
+            "name": "Red Velvet",
+            "description": "Velvety crimson layers with cream cheese frosting. A classic favorite."
+        },
+        {
+            "image": "images/redvelvetcreamcheese-cake.webp",
+            "alt": "Red Velvet Cream",
+            "name": "Red Velvet Cream Cheese",
+            "description": "Red velvet cake with a rich cream cheese frosting. Perfectly balanced flavors."
+        },
+        {
+            "image": "images/juansrainbow-cake.webp",
+            "alt": "Juan's Rainbow Cake",
+            "name": "Juan's Rainbow Cake",
+            "description": "A vibrant rainbow cake with layers of colorful sponge and creamy frosting."
+        },
+        {
+            "image": "images/raffaello-cake.webp",
+            "alt": "Raffaello Cake",
+            "name": "Raffaello Cake",
+            "description": "Coconut and almond cake inspired by the Raffaello chocolates. Light and delicious."
+        },
+        {
+            "image": "images/images.png",
+            "alt": "Toffee Cake",
+            "name": "Toffee Cake",
+            "description": "Buttery cake with layers of toffee and caramel. A sweet and rich treat."
+        },
+        {
+            "image": "images/tendercoconut-cake.webp",
+            "alt": "Tender Coconut Cake",
+            "name": "Tender Coconut",
+            "description": "Moist coconut cake with tender coconut pieces. A tropical delight."
+        },
+        {
+            "image": "images/butterscotch-cake.webp",
+            "alt": "Butterscotch Cake",
+            "name": "Butterscotch",
+            "description": "Rich butterscotch cake with layers of caramel and butterscotch cream."
+        },
+        {
+            "image": "images/russianhoney-cake.webp",
+            "alt": "Russian Honey cake",
+            "name": "Russian Honey Cake",
+            "description": "Layered honey cake with creamy frosting. A traditional Russian dessert."
+        },
+        {
+            "image": "images/tresleches-cake.webp",
+            "alt": "Tres Leches cake",
+            "name": "Tres Leches Cake",
+            "description": "Sponge cake soaked in three kinds of milk. Moist and delicious."
+        },
+        {
+            "image": "images/milkynut-cake.webp",
+            "alt": "Milky Nut cake",
+            "name": "Milky Nut",
+            "description": "A nutty cake with layers of creamy milk frosting and nuts."
+        },
+        {
+            "image": "images/mexicantoffee-cake.webp",
+            "alt": "Mexican Toffee cake",
+            "name": "Mexican Toffee",
+            "description": "Spicy and sweet toffee cake with a hint of Mexican flavors."
+        },
+        {
+            "image": "images/redbee-cake.webp",
+            "alt": "Red Bee Cake",
+            "name": "Red Bee Cake",
+            "description": "A unique cake with red velvet layers and a honeycomb design."
+        },
+        {
+            "image": "images/goldenvancho-cake.webp",
+            "alt": "Golden Vancho cake",
+            "name": "Golden Vancho",
+            "description": "A luxurious combination of vanilla and chocolate with golden accents."
+        },
+        {
+            "image": "images/kulfi-cake.webp",
+            "alt": "Kulfi cake",
+            "name": "Kulfi Cake",
+            "description": "Inspired by the traditional Indian kulfi, this cake is rich and creamy."
+        },
+        {
+            "image": "images/chocovelvet-cake.webp",
+            "alt": "Choco Velvet cake",
+            "name": "Choco Velvet",
+            "description": "A fusion of red velvet and chocolate. Perfect for chocolate lovers."
+        },
+        {
+            "image": "images/choconuts-cake.webp",
+            "alt": "Choco Nuts cake",
+            "name": "Choco Nuts",
+            "description": "Chocolate cake loaded with nuts for a crunchy and rich flavor."
+        },
+        {
+            "image": "images/loadedchocolate-cake.webp",
+            "alt": "Loaded Chocolate cake",
+            "name": "Loaded Chocolate",
+            "description": "An overload of chocolate with layers of chocolate mousse, ganache, and more."
+        },
+        {
+            "image": "images/dream-cake.webp",
+            "alt": "Dream cake",
+            "name": "Dream cake",
+            "description": "A rich indulgence layered with velvety chocolate mousse, luscious ganache, and soft chocolate sponge — every bite is a dream for chocolate lovers."
+        },
+        {
+            "image": "images/spanishdelight-cake.webp",
+            "alt": "Spanish Delight cake",
+            "name": "Spanish Delight",
+            "description": "A Spanish-inspired cake with rich flavors and a creamy texture."
+        },
+        {
+            "image": "images/lotusbiscoff-cake.webp",
+            "alt": "Lotus Biscoff Cake",
+            "name": "Lotus Biscoff",
+            "description": "Cake infused with Lotus Biscoff spread and topped with Biscoff crumbs."
+        },
+        {
+            "image": "images/kifaya-cake.webp",
+            "alt": "Kifaya Cake",
+            "name": "Kifaya",
+            "description": "A rich and decadent cake with layers of chocolate and caramel."
+        },
+        {
+            "image": "images/images.png",
+            "alt": "Loaded Cashew Cake",
+            "name": "Loaded Cashew",
+            "description": "A nutty cake loaded with cashews and a creamy filling."
+        },
+        {
+            "image": "images/rasmalai-cake.webp",
+            "alt": "Rasmalai Cake",
+            "name": "Rasmalai Cake",
+            "description": "Inspired by the Indian dessert, this cake is soft, creamy, and flavorful."
+        },
+        {
+            "image": "images/honeyalmond-cake.webp",
+            "alt": "Honey Almond Cake",
+            "name": "Honey Almond",
+            "description": "A sweet and nutty cake with layers of honey and almond cream."
+        },
+        {
+            "image": "images/pineapple-cake.webp",
+            "alt": "Pineapple Cake",
+            "name": "Pineapple",
+            "description": "Moist pineapple cake with a tropical flavor. Perfect for summer."
+        },
+        {
+            "image": "images/rainbow-cake.webp",
+            "alt": "Rainbow Cake",
+            "name": "Rainbow",
+            "description": "A colorful cake with layers of rainbow sponge and creamy frosting."
+        },
+        {
+            "image": "images/strawberry-cake.webp",
+            "alt": "Strawberry Cake",
+            "name": "Strawberry",
+            "description": "Fresh strawberry cake with layers of strawberry cream and fruit."
+        },
+        {
+            "image": "images/pistachio-cake.webp",
+            "alt": "Pistachio Cake",
+            "name": "Pistachio",
+            "description": "A nutty and rich cake with layers of pistachio cream and nuts."
+        },
+        {
+            "image": "images/blueberry-cake.webp",
+            "alt": "Blueberry Cake",
+            "name": "Blueberry",
+            "description": "Moist blueberry cake with layers of blueberry cream and fresh berries."
+        },
+        {
+            "image": "images/orangetruffle-cake.webp",
+            "alt": "Orange Truffle Cake",
+            "name": "Orange Truffle",
+            "description": "A citrusy delight with layers of orange truffle and chocolate."
+        },
+        {
+            "image": "images/mangotruffle-cake.webp",
+            "alt": "Mango Truffle Cake",
+            "name": "Mango Truffle",
+            "description": "A tropical treat with layers of mango truffle and creamy frosting."
+        },
+        {
+            "image": "images/vanstrawberry-cake.webp",
+            "alt": "Van Strawberry Cake",
+            "name": "Van Strawberry",
+            "description": "A combination of vanilla and strawberry flavors. Light and refreshing."
+        },
+        {
+            "image": "images/neapolitan-cake.webp",
+            "alt": "Neapolitan Cake",
+            "name": "Neapolitan Cake",
+            "description": "Layers of chocolate, vanilla, and strawberry. A classic favorite."
+        },
+        {
+            "image": "images/mangostrawberry-cake.webp",
+            "alt": "Mango Strawberry Cake",
+            "name": "Mango Strawberry",
+            "description": "A fruity combination of mango and strawberry. Perfect for summer."
+        },
+        {
+            "image": "images/images.png",
+            "alt": "Tres Leches Pudding Cake",
+            "name": "Tres Leches Pudding",
+            "description": "A creamy and moist milk cake soaked in three kinds of milk."
+        },
+        {
+            "image": "images/pistatresleches-cake.webp",
+            "alt": "Pista Tres Leches",
+            "name": "Pista Tres Leches",
+            "description": "A pistachio-flavored version of the classic Tres Leches cake."
+        }
+    ],
+    "desserts": [
+        {
+            "image": "images/donuts.webp",
+            "alt": "Donuts",
+            "name": "Donuts",
+            "description": "Delicious donuts with various toppings and flavors."
+        },
+        {
+            "image": "images/cupcake.webp",
+            "alt": "Cupcakes",
+            "name": "Cupcakes",
+            "description": "Soft and fluffy cupcakes with creamy frosting."
+        },
+        {
+            "image": "images/cakepops.webp",
+            "alt": "Cakepops",
+            "name": "Cakepops",
+            "description": "Bite-sized cake pops coated in chocolate or candy."
+        },
+        {
+            "image": "images/cakesickles.webp",
+            "alt": "Cakesickles",
+            "name": "Cakesickles",
+            "description": "Cake on a stick, perfect for parties and events."
+        },
+        {
+            "image": "images/brownies-cake.webp",
+            "alt": "Brownies",
+            "name": "Brownies",
+            "description": "Rich and fudgy brownies with a chocolatey goodness."
+        },
+        {
+            "image": "images/pudding.webp",
+            "alt": "Pudding",
+            "name": "Pudding",
+            "description": "Creamy and smooth pudding in various flavors."
+        },
+        {
+            "image": "images/hampers.webp",
+            "alt": "Hampers",
+            "name": "Hampers",
+            "description": "Hampers are gift baskets filled with chocolates, flowers, and sweet surprises."
+        }
+    ]
+}
