@@ -1,21 +1,23 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>https://heavenscake.vercel.app/</loc>
+    <loc>https://heavens-cake.web.app/</loc>
+    <lastmod>2026-06-30</lastmod>
   </url>
   <url>
-    <loc>https://heavenscake.vercel.app/about-us.html</loc>
+    <loc>https://heavens-cake.web.app/about-us.html</loc>
+    <lastmod>2026-06-30</lastmod>
   </url>
   <url>
-    <loc>https://heavenscake.vercel.app/products.html</loc>
+    <loc>https://heavens-cake.web.app/products.html</loc>
+    <lastmod>2026-06-30</lastmod>
   </url>
   <url>
-    <loc>https://heavenscake.vercel.app/review.html</loc>
+    <loc>https://heavens-cake.web.app/review.html</loc>
+    <lastmod>2026-06-30</lastmod>
   </url>
   <url>
-    <loc>https://heavenscake.vercel.app/terms-conditions.html</loc>
-  </url>
-  <url>
-    <loc>https://heavenscake.vercel.app/404.html</loc>
+    <loc>https://heavens-cake.web.app/terms-conditions.html</loc>
+    <lastmod>2026-06-30</lastmod>
   </url>
 </urlset>
