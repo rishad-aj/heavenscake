@@ -1,9 +1,13 @@
+// ==========================================
+// 1. UI & NAVIGATION (Sidebar, Splash, Scroll)
+// ==========================================
+
 // Location icon in sidebar
 function openLocation() {
     window.open('https://maps.app.goo.gl/Ccc5uSfPwaU4ZJDN7', '_blank');
 }
 
-// Sidebar Toggle Script
+// Sidebar Toggle & Touch Script
 document.addEventListener('DOMContentLoaded', function () {
     const navIcon = document.getElementById('nav-icon');
     const sidebar = document.getElementById('sidebar');
@@ -28,184 +32,311 @@ document.addEventListener('DOMContentLoaded', function () {
             document.body.classList.remove('no-scroll');
         }
     });
+
+    // Focus Input on search icon click
+    document.querySelector('.search-icon')?.addEventListener('click', function () {
+        document.querySelector('.input')?.focus();
+    });
 });
 
-// Focus Input on search icon click
-document.querySelector('.search-icon')?.addEventListener('click', function () {
-    document.querySelector('.input')?.focus();
+// Boot animation remove (Splash Screen)
+document.body.classList.add("loading");
+window.addEventListener("load", () => {
+    const boot = document.getElementById("boot-animation");
+    if(boot) {
+        setTimeout(() => {
+            boot.classList.add("hide");
+            boot.addEventListener("transitionend", () => {
+                boot.remove();
+                document.body.classList.remove("loading");
+            }, { once: true });
+        }, 1000);
+    } else {
+        document.body.classList.remove("loading");
+    }
 });
 
-// Cake list for suggestion
-const cakes = [
-    'Vanilla','White Forest','Black Forest','German Black Forest','Chocolate Cake','Chocolate Truffle',
-    'White Choco Truffle','Vancho','Kitkat','Ferrero Rocher','Nutella','Snickers','Oreo Cake','Nutty Bubble',
-    'Red Velvet','Red Velvet Cream Cheese','Raffaello Cake','Toffee Cake','Tender Coconut','Butterscotch',
-    'Russian Honey Cake','Tres Leches Cake','Milky Nut','Mexican Toffee','Red Bee Cake','Golden Vancho',
-    'Kulfi Cake','Choco Velvet','Choco Nuts','Loaded Chocolate','Spanish Delight','Lotus Biscoff','Kifaya',
-    'Loaded Cashew','Rasmalai Cake','Honey Almond','Pineapple','Rainbow','Strawberry','Pista','Blueberry',
-    'Orange Truffle','Mango Truffle','Van Strawberry','Neapolitan Cake','Mango Strawberry','Tres Leches Pudding',
-    'Pista Tres Leches','Dream Cake','Donuts','Cupcakes','Cakepops','Cakesickles','Brownies','Pudding','Hampers'
-];
+// Scroll Reveal Observer
+document.addEventListener('DOMContentLoaded', () => {
+    const services = document.querySelectorAll(".reveal");
+    const observer = new IntersectionObserver(
+        entries => {
+            entries.forEach(entry => {
+                if(entry.isIntersecting){
+                    entry.target.classList.add("show");
+                    observer.unobserve(entry.target);
+                }
+            });
+        },
+        { threshold: 0.15, rootMargin: "0px 0px -50px 0px" }
+    );
+    services.forEach(service => observer.observe(service));
+});
 
-const searchBar = document.getElementById('searchBar');
-const suggestionsBox = document.getElementById('suggestions')?.querySelector('ul');
 
-// Enhanced search function
-function performSearch(searchQuery) {
+// ==========================================
+// 2. DATA FETCHING & DYNAMIC APP INIT
+// ==========================================
+
+let globalCakesData = [];
+let globalCakeNames = [];
+
+document.addEventListener('DOMContentLoaded', () => {
+    // Fetch products dynamically instead of hardcoding
+    fetch('products.json')
+        .then(response => response.json())
+        .then(data => {
+            if (data && data.cakes) {
+                globalCakesData = data.cakes;
+                globalCakeNames = globalCakesData.map(cake => cake.name);
+                
+                // Initialize features that depend on JSON data
+                initSearchLogic();
+                initSlideshow();
+                initProductCardButtons();
+            }
+        })
+        .catch(error => console.error("Error loading products.json:", error));
+});
+
+
+// ==========================================
+// 3. SEARCH CONTROLLER (Home vs Products)
+// ==========================================
+
+function initSearchLogic() {
+    const searchBar = document.getElementById('searchBar');
+    const suggestionsContainer = document.getElementById('suggestions');
+    const suggestionsBox = suggestionsContainer?.querySelector('ul');
+
+    if (!searchBar) return;
+
+    // SCENARIO A: HOME PAGE (Suggestions Box Exists)
+    if (suggestionsBox) {
+        searchBar.addEventListener('input', () => {
+            const query = searchBar.value.trim().toLowerCase();
+            suggestionsBox.innerHTML = '';
+
+            if (!query) {
+                document.querySelector('.suggestions-box').style.display = 'none';
+                return;
+            }
+
+            let startingMatches = globalCakeNames.filter(cake => cake.toLowerCase().startsWith(query)).sort((a, b) => a.localeCompare(b));
+            let containingMatches = globalCakeNames.filter(cake => !startingMatches.includes(cake) && cake.toLowerCase().includes(query)).sort((a, b) => a.localeCompare(b));
+            
+            const allMatches = [...startingMatches, ...containingMatches];
+            const matches = allMatches.slice(0, 5);
+
+            if (matches.length === 0) {
+                const noResults = document.createElement('li');
+                noResults.textContent = 'No results found!';
+                Object.assign(noResults.style, { textAlign: 'center', pointerEvents: 'none', color: 'white' });
+                suggestionsBox.appendChild(noResults);
+            } else {
+                matches.forEach(match => {
+                    const suggestion = document.createElement('li');
+                    suggestion.textContent = match;
+                    suggestion.addEventListener('click', () => performSearchRedirect(match));
+                    suggestionsBox.appendChild(suggestion);
+                });
+
+                if (allMatches.length > 5) {
+                    const moreResults = document.createElement('li');
+                    moreResults.textContent = 'More results...';
+                    Object.assign(moreResults.style, { textAlign: 'center', cursor: 'pointer', color: 'white' });
+                    moreResults.addEventListener('click', () => displayAllResults(allMatches, suggestionsBox, searchBar));
+                    suggestionsBox.appendChild(moreResults);
+                }
+            }
+            document.querySelector('.suggestions-box').style.display = 'block';
+        });
+
+        // Form submit + Enter support
+        searchBar.closest('form')?.addEventListener('submit', (e) => {
+            e.preventDefault();
+            performSearchRedirect(searchBar.value.trim());
+        });
+        searchBar.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                performSearchRedirect(searchBar.value.trim());
+            }
+        });
+    } 
+    // SCENARIO B: PRODUCTS PAGE (No Suggestions Box -> LIVE SEARCH)
+    else {
+        // Prevent form submission redirect on product page
+        searchBar.closest('form')?.addEventListener('submit', (e) => e.preventDefault());
+
+        // Check if user came from home page with a search query in the URL
+        const params = new URLSearchParams(window.location.search);
+        const urlSearchTerm = params.get("search");
+
+        if (urlSearchTerm) {
+            searchBar.value = urlSearchTerm;
+            performLiveFilter(urlSearchTerm); // Filter immediately
+        }
+
+        // Live typing filter
+        searchBar.addEventListener('input', (e) => {
+            performLiveFilter(e.target.value);
+            
+            // Optional: Update URL without reloading so sharing links works for current filter
+            const newUrl = e.target.value.trim() 
+                ? `${window.location.pathname}?search=${encodeURIComponent(e.target.value.trim())}` 
+                : window.location.pathname;
+            window.history.replaceState({}, '', newUrl);
+        });
+    }
+}
+
+// Redirect Helper for Home Page
+function performSearchRedirect(searchQuery) {
     if (searchQuery && searchQuery.trim()) {
         window.location.href = `products.html?search=${encodeURIComponent(searchQuery.trim())}`;
     }
 }
 
-// Suggestions logic
-searchBar?.addEventListener('input', () => {
-    const query = searchBar.value.trim().toLowerCase();
+// Helper to expand suggestions on Home Page
+function displayAllResults(matches, suggestionsBox, searchBar) {
     suggestionsBox.innerHTML = '';
-
-    if (!query) {
-        document.querySelector('.suggestions-box').style.display = 'none';
-        return;
-    }
-
-    let startingMatches = cakes.filter(cake => cake.toLowerCase().startsWith(query));
-    startingMatches.sort((a, b) => a.localeCompare(b));
-
-    let containingMatches = cakes.filter(cake =>
-        !startingMatches.includes(cake) && cake.toLowerCase().includes(query)
-    );
-    containingMatches.sort((a, b) => a.localeCompare(b));
-
-    const allMatches = [...startingMatches, ...containingMatches];
-    const matches = allMatches.slice(0, 5);
-
-    if (matches.length === 0) {
-        const noResults = document.createElement('li');
-        noResults.textContent = 'No results found!';
-        Object.assign(noResults.style, {
-            textAlign: 'center',
-            pointerEvents: 'none',
-            color: 'white'
-        });
-        suggestionsBox.appendChild(noResults);
-    } else {
-        matches.forEach(match => {
-            const suggestion = document.createElement('li');
-            suggestion.textContent = match;
-            suggestion.addEventListener('click', () => {
-                performSearch(match);
-            });
-            suggestionsBox.appendChild(suggestion);
-        });
-
-        if (allMatches.length > 5) {
-            const moreResults = document.createElement('li');
-            moreResults.textContent = 'More results...';
-            Object.assign(moreResults.style, {
-                textAlign: 'center',
-                cursor: 'pointer',
-                color: 'white'
-            });
-            moreResults.addEventListener('click', () => {
-                displayAllResults(allMatches);
-            });
-            suggestionsBox.appendChild(moreResults);
-        }
-    }
-
-    document.querySelector('.suggestions-box').style.display = 'block';
-});
-
-// Form submit + Enter support
-document.querySelector('.search-bar')?.addEventListener('submit', function (e) {
-    e.preventDefault();
-    performSearch(searchBar.value.trim());
-});
-
-searchBar?.addEventListener('keypress', function (e) {
-    if (e.key === 'Enter') performSearch(searchBar.value.trim());
-});
-
-function displayAllResults(matches) {
-    suggestionsBox.innerHTML = '';
-    matches.sort((a, b) => a.localeCompare(b));
-
     matches.forEach(match => {
         const suggestion = document.createElement('li');
         suggestion.textContent = match;
-        suggestion.addEventListener('click', () => performSearch(match));
+        suggestion.addEventListener('click', () => performSearchRedirect(match));
         suggestionsBox.appendChild(suggestion);
     });
 
     const closeResults = document.createElement('li');
     closeResults.textContent = 'Show less';
-    Object.assign(closeResults.style, {
-        textAlign: 'center',
-        cursor: 'pointer',
-        color: 'white'
-    });
-    closeResults.addEventListener('click', () => {
-        searchBar.dispatchEvent(new Event('input'));
-    });
+    Object.assign(closeResults.style, { textAlign: 'center', cursor: 'pointer', color: 'white' });
+    closeResults.addEventListener('click', () => searchBar.dispatchEvent(new Event('input')));
     suggestionsBox.appendChild(closeResults);
 }
 
-// Product filter with search param
-function filterCakes(retryCount = 10) {
-    const params = new URLSearchParams(window.location.search);
-    const searchTerm = params.get("search");
+// ==========================================
+// Live Search Engine for Products Page (Gap Fix)
+// ==========================================
 
-    if (searchTerm) {
-        if (searchBar) searchBar.value = searchTerm;
+function performLiveFilter(searchTerm) {
+    const allProducts = document.querySelectorAll(".cake-card");
+    const searchTerms = searchTerm.toLowerCase().trim().split(' ').filter(term => term.length);
+    let foundResults = false;
 
-        const allProducts = document.querySelectorAll(".cake-card");
-        if (allProducts.length === 0 && retryCount > 0) {
-            setTimeout(() => filterCakes(retryCount - 1), 100);
-            return;
+    allProducts.forEach(card => {
+        const name = card.querySelector(".cake-name")?.textContent.toLowerCase() || "";
+        const matchesAll = searchTerms.every(term => name.includes(term));
+
+        // FIX: Find the closest layout wrapper. If your card is inside a column 
+        // div, a list item (li), or a swiper-slide, we must hide THAT parent wrapper 
+        // to prevent empty spaces in your grid layout.
+        const swiperParent = card.closest('.swiper-slide');
+        const listParent = card.closest('li');
+        const colParent = card.closest('.col'); // Assuming Bootstrap or similar grid classes
+        
+        // Target the layout wrapper if it exists, otherwise target the card itself
+        const elementToHide = swiperParent || listParent || colParent || card;
+
+        if (matchesAll) {
+            // Using "" instead of "block" restores the element's original CSS layout property
+            elementToHide.style.display = ""; 
+            foundResults = true;
+        } else {
+            elementToHide.style.display = "none";
         }
+    });
 
-        const searchTerms = searchTerm.toLowerCase().split(' ').filter(term => term.length);
-        let foundResults = false;
+    // If these are inside a regular product Swiper, update Swiper to recalculate spacing
+    const swiperInstanceElement = document.querySelector('.card-wrapper');
+    if (swiperInstanceElement && swiperInstanceElement.swiper) {
+        swiperInstanceElement.swiper.update();
+    }
 
-        allProducts.forEach(card => {
-            const name = card.querySelector(".cake-name")?.textContent.toLowerCase();
-
-            const matchesAll = name && searchTerms.every(term => name.includes(term));
-
-            card.style.display = matchesAll ? "block" : "none";
-            if (matchesAll) foundResults = true;
-        });
-
-        document.querySelector('.no-results-message')?.remove();
-
-        if (!foundResults) showNoResultsMessage();
+    // Handle "No Results" Message
+    let noResMsg = document.querySelector('.no-results-message');
+    
+    if (!foundResults) {
+        if (!noResMsg) {
+            noResMsg = document.createElement('div');
+            noResMsg.className = 'no-results-message';
+            noResMsg.textContent = 'No results found for your search.';
+            noResMsg.style.cssText = `text-align: center; padding: 2rem; color: white; font-size: 1.2rem; width: 100%;`;
+            const menuGrid = document.querySelector('.menu-grid');
+            if(menuGrid) menuGrid.parentNode.insertBefore(noResMsg, menuGrid);
+        }
+        noResMsg.style.display = 'block';
+    } else {
+        if (noResMsg) noResMsg.style.display = 'none';
     }
 }
 
-function showNoResultsMessage() {
-    const message = document.createElement('div');
-    message.className = 'no-results-message';
-    message.textContent = 'No results found';
-    message.style.cssText = `
-        text-align: center;
-        padding: 2rem;
-        color: white;
-        font-size: 1.2rem;
-        width: 100%;
-    `;
-    const menuGrid = document.querySelector('.menu-grid');
-    menuGrid?.parentNode.insertBefore(message, menuGrid);
+
+// ==========================================
+// 4. 3D CAKE SLIDESHOW (Powered by JSON)
+// ==========================================
+
+function initSlideshow() {
+    const wrapper = document.getElementById('hero-wrapper');
+    let heroSwiper;
+
+    if (wrapper && globalCakesData.length > 0) {
+        // Clear out loading skeletons if any
+        wrapper.innerHTML = '';
+
+        globalCakesData.forEach(img => {
+            // FIX: Exclude the fallback image from the slideshow
+            if (img.image && img.image.includes('images.png')) {
+                return; // Skips to the next cake in the loop
+            }
+
+            const slide = document.createElement('div');
+            slide.className = 'swiper-slide';
+            
+            const imageElement = document.createElement('img');
+            imageElement.src = img.image; // Uses JSON data
+            imageElement.alt = img.alt || 'Cake Image';
+            imageElement.loading = "lazy";
+
+            imageElement.onerror = function() {
+                slide.remove(); 
+                if (heroSwiper) heroSwiper.update();
+            };
+
+            slide.appendChild(imageElement);
+            wrapper.appendChild(slide);
+        });
+
+        heroSwiper = new Swiper(".swiper-hero", {
+            effect: "coverflow",
+            grabCursor: true,
+            centeredSlides: true,
+            loop: true,
+            breakpoints: {
+                320: {
+                    slidesPerView: "auto",
+                    coverflowEffect: { rotate: 30, stretch: -20, depth: 200, modifier: 1, slideShadows: true }
+                },
+                768: {
+                    slidesPerView: 5,
+                    coverflowEffect: { rotate: 30, stretch: 0, depth: 150, modifier: 1, slideShadows: true }
+                }
+            },
+            autoplay: {
+                delay: 2500,
+                disableOnInteraction: false,
+                pauseOnMouseEnter: true
+            }
+        });
+    }
 }
 
-// Initialize filter & search bar update
-document.addEventListener("DOMContentLoaded", () => {
-    filterCakes();
-    const params = new URLSearchParams(window.location.search);
-    const searchTerm = params.get("search");
-    if (searchTerm && searchBar) searchBar.value = searchTerm;
-});
 
-// Add buttons to cake cards + swiper init
-document.addEventListener('DOMContentLoaded', function () {
+// ==========================================
+// 5. CAKE CARDS (Buttons & Swiper)
+// ==========================================
+
+function initProductCardButtons() {
     document.querySelectorAll('.cake-card').forEach(card => {
         const cakeNameElem = card.querySelector('.cake-name');
         const buttonContainer = card.querySelector('.button-container');
@@ -220,9 +351,7 @@ document.addEventListener('DOMContentLoaded', function () {
         orderBtn.href = `https://wa.me/918301088697?text=I%20would%20like%20to%20order%20${encodeURIComponent(cakeName)}`;
         orderBtn.target = '_blank';
 
-        let searchQuery = cakeName.toLowerCase().includes('cake')
-            ? cakeName
-            : cakeName + ' cake';
+        let searchQuery = cakeName.toLowerCase().includes('cake') ? cakeName : cakeName + ' cake';
 
         const viewBtn = document.createElement('a');
         viewBtn.className = 'view-btn';
@@ -234,179 +363,18 @@ document.addEventListener('DOMContentLoaded', function () {
         buttonContainer.appendChild(viewBtn);
     });
 
-    new Swiper('.card-wrapper', {
-        loop: true,
-        spaceBetween: 30,
-        pagination: {
-            el: '.swiper-pagination',
-            clickable: true,
-            dynamicBullets: true
-        },
-        navigation: {
-            nextEl: '.swiper-button-next',
-            prevEl: '.swiper-button-prev'
-        },
-        breakpoints: {
-            0: { slidesPerView: 1 },
-            768: { slidesPerView: 2 },
-            1024: { slidesPerView: 3 }
-        }
-    });
-});
-
-// Boot animation remove
-// Prevent scrolling while splash screen is visible
-document.body.classList.add("loading");
-
-window.addEventListener("load", () => {
-    const boot = document.getElementById("boot-animation");
-
-    // Keep the splash for at least 1 second
-    setTimeout(() => {
-        boot.classList.add("hide");
-
-        boot.addEventListener("transitionend", () => {
-            boot.remove();
-            document.body.classList.remove("loading");
-        }, { once: true });
-
-    }, 1000);
-});
-
-// ================= 3D CAKE SLIDESHOW (ENHANCED) =================
-document.addEventListener('DOMContentLoaded', () => {
-    
-    // 1. Your Image List
-    const images = [
-        { file: "vanilla-cake.webp", alt: "Vanilla Cake" },
-        { file: "whiteforest-cake.webp", alt: "White Forest Cake" },
-        { file: "blackforest-cake.webp", alt: "Black Forest Cake" },
-        { file: "germanblackforest-cake.webp", alt: "German Black Forest Cake" },
-        { file: "chocolate-cake.webp", alt: "Chocolate Cake" },
-        { file: "chocolatetruffle-cake.webp", alt: "Chocolate Truffle Cake" },
-        { file: "whitechocotruffle-cake.webp", alt: "White Chocolate Truffle Cake" },
-        { file: "vancho-cake.webp", alt: "Vanilla Chocolate Cake" },
-        { file: "kitkat-cake.webp", alt: "KitKat Cake" },
-        { file: "ferrerorocher-cake.webp", alt: "Ferrero Rocher Cake" },
-        { file: "nutella-cake.webp", alt: "Nutella Cake" },
-        { file: "snickers-cake.webp", alt: "Snickers Cake" },
-        { file: "oreo-cake.webp", alt: "Oreo Cake" },
-        { file: "nuttybubble-cake.webp", alt: "Nutty Bubble Cake" },
-        { file: "redvelvet-cake.webp", alt: "Red Velvet Cake" },
-        { file: "redvelvetcreamcheese-cake.webp", alt: "Red Velvet Cream Cheese Cake" },
-        { file: "raffaello-cake.webp", alt: "Raffaello Cake" },
-        { file: "toffee-cake.webp", alt: "Toffee Cake" },
-        { file: "tendercoconut-cake.webp", alt: "Tender Coconut Cake" },
-        { file: "butterscotch-cake.webp", alt: "Butterscotch Cake" },
-        { file: "russianhoney-cake.webp", alt: "Russian Honey Cake" },
-        { file: "tresleches-cake.webp", alt: "Tres Leches Cake" },
-        { file: "milkynut-cake.webp", alt: "Milky Nut Cake" },
-        { file: "mexicantoffee-cake.webp", alt: "Mexican Toffee Cake" },
-        { file: "redbee-cake.webp", alt: "Red Bee Cake" },
-        { file: "goldenvancho-cake.webp", alt: "Golden Vanilla Chocolate Cake" },
-        { file: "kulfi-cake.webp", alt: "Kulfi Cake" },
-        { file: "chocovelvet-cake.webp", alt: "Chocolate Velvet Cake" },
-        { file: "choconuts-cake.webp", alt: "Chocolate Nuts Cake" },
-        { file: "loadedchocolate-cake.webp", alt: "Loaded Chocolate Cake" },
-        { file: "spanishdelight-cake.webp", alt: "Spanish Delight Cake" },
-        { file: "lotusbiscoff-cake.webp", alt: "Lotus Biscoff Cake" },
-        { file: "kifaya-cake.webp", alt: "Kifaya Cake" },
-        { file: "loadedcashew-cake.webp", alt: "Loaded Cashew Cake" },
-        { file: "rasmalai-cake.webp", alt: "Rasmalai Cake" },
-        { file: "honeyalmond-cake.webp", alt: "Honey Almond Cake" },
-        { file: "pineapple-cake.webp", alt: "Pineapple Cake" },
-        { file: "rainbow-cake.webp", alt: "Rainbow Cake" },
-        { file: "strawberry-cake.webp", alt: "Strawberry Cake" },
-        { file: "pista-cake.webp", alt: "Pista Cake" },
-        { file: "blueberry-cake.webp", alt: "Blueberry Cake" },
-        { file: "orangetruffle-cake.webp", alt: "Orange Truffle Cake" },
-        { file: "mangotruffle-cake.webp", alt: "Mango Truffle Cake" },
-        { file: "vanstrawberry-cake.webp", alt: "Vanilla Strawberry Cake" },
-        { file: "neapolitan-cake.webp", alt: "Neapolitan Cake" },
-        { file: "mangostrawberry-cake.webp", alt: "Mango Strawberry Cake" },
-        { file: "treslechespudding-cake.webp", alt: "Tres Leches Pudding Cake" },
-        { file: "pistatresleches-cake.webp", alt: "Pista Tres Leches Cake" },
-        { file: "dream-cake.webp", alt: "Dream Cake" }
-    ];
-
-    const wrapper = document.getElementById('hero-wrapper');
-    let heroSwiper; // Variable to store the swiper instance
-    
-    // 2. Inject Images with Error Handling
-    if (wrapper) {
-        images.forEach(img => {
-            const slide = document.createElement('div');
-            slide.className = 'swiper-slide';
-            
-            const imageElement = document.createElement('img');
-            imageElement.src = `images/${img.file}`;
-            imageElement.alt = img.alt;
-            imageElement.loading = "lazy";
-
-            // === ERROR HANDLING: If image not found, remove slide ===
-            imageElement.onerror = function() {
-                // Remove the parent slide div
-                slide.remove(); 
-                // Tell Swiper to recalculate layout if it's already running
-                if (heroSwiper) heroSwiper.update();
-            };
-
-            slide.appendChild(imageElement);
-            wrapper.appendChild(slide);
-        });
-
-        heroSwiper = new Swiper(".swiper-hero", {
-            effect: "coverflow",
-            grabCursor: true,
-            centeredSlides: true,
+    // Initialize regular card swipers (if they exist on the page)
+    if(document.querySelector('.card-wrapper')) {
+        new Swiper('.card-wrapper', {
             loop: true,
-            
+            spaceBetween: 30,
+            pagination: { el: '.swiper-pagination', clickable: true, dynamicBullets: true },
+            navigation: { nextEl: '.swiper-button-next', prevEl: '.swiper-button-prev' },
             breakpoints: {
-                // Mobile View
-                320: {
-                    slidesPerView: "auto", // Set to auto to respect the CSS width
-                    coverflowEffect: {
-                        rotate: 30,    // Less rotation for larger images
-                        stretch: -20,  // Pulls the side slides slightly away
-                        depth: 200,    // Pushes side slides further back
-                        modifier: 1,
-                        slideShadows: true 
-                    }
-                },
-                // Tablet/PC View
-                768: {
-                    slidesPerView: 5,
-                    coverflowEffect: {
-                        rotate: 30,
-                        stretch: 0,
-                        depth: 150,
-                        modifier: 1,
-                        slideShadows: true
-                    }
-                }
-            },
-            
-            autoplay: {
-                delay: 2500,
-                disableOnInteraction: false,
-                pauseOnMouseEnter: true
+                0: { slidesPerView: 1 },
+                768: { slidesPerView: 2 },
+                1024: { slidesPerView: 3 }
             }
         });
     }
-});
-
-const services = document.querySelectorAll(".reveal");
-
-const observer = new IntersectionObserver(
-  entries => {
-    entries.forEach(entry => {
-      if(entry.isIntersecting){
-        entry.target.classList.add("show");
-        observer.unobserve(entry.target);
-      }
-    });
-  },
-  { threshold: 0.15, rootMargin: "0px 0px -50px 0px" }
-);
-
-services.forEach(service => observer.observe(service));
+}
