@@ -43,6 +43,7 @@
           const safeId = getSafeId(product.name);
 
           return `
+            <li class="card-item swiper-slide">
             <div class="cake-card">
               <img src="${product.image}" alt="${product.alt}" class="cake-image">
               <div class="cake-info">
@@ -61,6 +62,7 @@
                 </div>
               </div>
             </div>
+            </li>
           `;
         };
 
