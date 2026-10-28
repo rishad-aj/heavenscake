@@ -91,7 +91,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initSearchLogic();
 
     // Fetch products dynamically instead of hardcoding
-    fetch('products.json')
+    fetch('data/products.json')
         .then(response => response.json())
         .then(data => {
             if (data) {
