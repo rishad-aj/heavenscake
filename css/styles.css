@@ -770,24 +770,6 @@ header {
   color: #fff;
   margin-top: auto;
 }
-.help-logo {
-  margin-bottom: 24px;
-  padding-bottom: 20px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.15);
-  display: flex;
-  align-items: center;
-}
-.help-logo-img {
-  width: 220px;
-  max-width: 75%;
-  height: auto;
-  display: block;
-  cursor: pointer;
-  transition: transform 0.3s ease;
-}
-.help-logo-img:hover {
-  transform: scale(1.03);
-}
 .help-content {
   display: flex;
   flex-direction: column;
