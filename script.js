@@ -35,7 +35,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Focus Input on search icon click
     document.querySelector('.search-icon')?.addEventListener('click', function () {
-        document.querySelector('.input')?.focus();
+        const searchInput = document.querySelector('#searchBar, .input');
+        if (searchInput) {
+            searchInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            searchInput.focus();
+        }
     });
 });
 
@@ -79,19 +83,34 @@ document.addEventListener('DOMContentLoaded', () => {
 // ==========================================
 
 let globalCakesData = [];
+let globalAllProducts = [];
 let globalCakeNames = [];
 
 document.addEventListener('DOMContentLoaded', () => {
+    // Initialize search listeners immediately so URL params and input work without delay
+    initSearchLogic();
+
     // Fetch products dynamically instead of hardcoding
     fetch('products.json')
         .then(response => response.json())
         .then(data => {
-            if (data && data.cakes) {
-                globalCakesData = data.cakes;
-                globalCakeNames = globalCakesData.map(cake => cake.name);
+            if (data) {
+                globalCakesData = data.cakes || [];
+                const dessertsData = data.desserts || [];
+                globalAllProducts = [
+                    ...globalCakesData.map(item => ({ ...item, category: 'cake' })),
+                    ...dessertsData.map(item => ({ ...item, category: 'dessert' }))
+                ];
+                globalCakeNames = globalAllProducts.map(item => item.name);
                 
+                // If user already typed in home search bar before JSON finished loading, refresh suggestions
+                const searchBar = document.getElementById('searchBar');
+                const suggestionsBox = document.getElementById('suggestions')?.querySelector('ul');
+                if (searchBar && suggestionsBox && searchBar.value.trim()) {
+                    searchBar.dispatchEvent(new Event('input'));
+                }
+
                 // Initialize features that depend on JSON data
-                initSearchLogic();
                 initSlideshow();
                 initProductCardButtons();
             }
@@ -104,28 +123,69 @@ document.addEventListener('DOMContentLoaded', () => {
 // 3. SEARCH CONTROLLER (Home vs Products)
 // ==========================================
 
+function getMatchingProductNames(rawQuery) {
+    const query = rawQuery.trim().toLowerCase();
+    if (!query) return [];
+
+    const queryCompact = query.replace(/\s+/g, '');
+    const queryTerms = query.split(/\s+/).filter(Boolean);
+
+    const startingMatches = [];
+    const nameContainsMatches = [];
+    const extendedMatches = [];
+
+    globalAllProducts.forEach(product => {
+        const name = (product.name || '').trim();
+        const nameLower = name.toLowerCase();
+        const nameCompact = nameLower.replace(/\s+/g, '');
+        const altLower = (product.alt || '').toLowerCase();
+        const descLower = (product.description || '').toLowerCase();
+        const categoryTag = product.category === 'cake' ? 'cake cakes' : 'dessert desserts';
+        const searchableText = `${nameLower} ${nameCompact} ${altLower} ${descLower} ${categoryTag}`;
+
+        if (nameLower.startsWith(query) || nameCompact.startsWith(queryCompact)) {
+            startingMatches.push(name);
+        } else if (
+            nameLower.includes(query) ||
+            nameCompact.includes(queryCompact) ||
+            queryTerms.every(term => `${nameLower} ${altLower} ${product.category === 'cake' ? 'cake' : ''}`.includes(term))
+        ) {
+            nameContainsMatches.push(name);
+        } else if (queryTerms.every(term => searchableText.includes(term))) {
+            extendedMatches.push(name);
+        }
+    });
+
+    startingMatches.sort((a, b) => a.localeCompare(b));
+    nameContainsMatches.sort((a, b) => a.localeCompare(b));
+    extendedMatches.sort((a, b) => a.localeCompare(b));
+
+    return [...new Set([...startingMatches, ...nameContainsMatches, ...extendedMatches])];
+}
+
+let searchInitialized = false;
+
 function initSearchLogic() {
+    if (searchInitialized) return;
     const searchBar = document.getElementById('searchBar');
+    if (!searchBar) return;
+    searchInitialized = true;
+
     const suggestionsContainer = document.getElementById('suggestions');
     const suggestionsBox = suggestionsContainer?.querySelector('ul');
-
-    if (!searchBar) return;
 
     // SCENARIO A: HOME PAGE (Suggestions Box Exists)
     if (suggestionsBox) {
         searchBar.addEventListener('input', () => {
-            const query = searchBar.value.trim().toLowerCase();
+            const query = searchBar.value.trim();
             suggestionsBox.innerHTML = '';
 
             if (!query) {
-                document.querySelector('.suggestions-box').style.display = 'none';
+                suggestionsContainer.style.display = 'none';
                 return;
             }
 
-            let startingMatches = globalCakeNames.filter(cake => cake.toLowerCase().startsWith(query)).sort((a, b) => a.localeCompare(b));
-            let containingMatches = globalCakeNames.filter(cake => !startingMatches.includes(cake) && cake.toLowerCase().includes(query)).sort((a, b) => a.localeCompare(b));
-            
-            const allMatches = [...startingMatches, ...containingMatches];
+            const allMatches = getMatchingProductNames(query);
             const matches = allMatches.slice(0, 5);
 
             if (matches.length === 0) {
@@ -144,23 +204,42 @@ function initSearchLogic() {
                 if (allMatches.length > 5) {
                     const moreResults = document.createElement('li');
                     moreResults.textContent = 'More results...';
-                    Object.assign(moreResults.style, { textAlign: 'center', cursor: 'pointer', color: 'white' });
-                    moreResults.addEventListener('click', () => displayAllResults(allMatches, suggestionsBox, searchBar));
+                    Object.assign(moreResults.style, { textAlign: 'center', cursor: 'pointer', color: 'white', fontWeight: 'bold' });
+                    moreResults.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        displayAllResults(allMatches, suggestionsBox, searchBar);
+                    });
                     suggestionsBox.appendChild(moreResults);
                 }
             }
-            document.querySelector('.suggestions-box').style.display = 'block';
+            suggestionsContainer.style.display = 'block';
         });
 
-        // Form submit + Enter support
+        // Re-open suggestions when focusing non-empty search input
+        searchBar.addEventListener('focus', () => {
+            if (searchBar.value.trim() && suggestionsBox.children.length > 0) {
+                suggestionsContainer.style.display = 'block';
+            }
+        });
+
+        // Close suggestions when clicking outside search container
+        document.addEventListener('click', (e) => {
+            if (!e.target.closest('.search-container')) {
+                suggestionsContainer.style.display = 'none';
+            }
+        });
+
+        // Form submit + Enter / Escape key support
         searchBar.closest('form')?.addEventListener('submit', (e) => {
             e.preventDefault();
             performSearchRedirect(searchBar.value.trim());
         });
-        searchBar.addEventListener('keypress', (e) => {
+        searchBar.addEventListener('keydown', (e) => {
             if (e.key === 'Enter') {
                 e.preventDefault();
                 performSearchRedirect(searchBar.value.trim());
+            } else if (e.key === 'Escape') {
+                suggestionsContainer.style.display = 'none';
             }
         });
     } 
@@ -175,18 +254,27 @@ function initSearchLogic() {
 
         if (urlSearchTerm) {
             searchBar.value = urlSearchTerm;
-            performLiveFilter(urlSearchTerm); // Filter immediately
+            performLiveFilter(urlSearchTerm); // Filter immediately if cards exist, or rating.js will re-trigger
         }
 
         // Live typing filter
         searchBar.addEventListener('input', (e) => {
             performLiveFilter(e.target.value);
             
-            // Optional: Update URL without reloading so sharing links works for current filter
-            const newUrl = e.target.value.trim() 
-                ? `${window.location.pathname}?search=${encodeURIComponent(e.target.value.trim())}` 
+            // Update URL without reloading so sharing links works for current filter
+            const trimmedVal = e.target.value.trim();
+            const newUrl = trimmedVal 
+                ? `${window.location.pathname}?search=${encodeURIComponent(trimmedVal)}` 
                 : window.location.pathname;
             window.history.replaceState({}, '', newUrl);
+        });
+
+        searchBar.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                performLiveFilter(searchBar.value);
+                searchBar.blur();
+            }
         });
     }
 }
@@ -210,8 +298,11 @@ function displayAllResults(matches, suggestionsBox, searchBar) {
 
     const closeResults = document.createElement('li');
     closeResults.textContent = 'Show less';
-    Object.assign(closeResults.style, { textAlign: 'center', cursor: 'pointer', color: 'white' });
-    closeResults.addEventListener('click', () => searchBar.dispatchEvent(new Event('input')));
+    Object.assign(closeResults.style, { textAlign: 'center', cursor: 'pointer', color: 'white', fontWeight: 'bold' });
+    closeResults.addEventListener('click', (e) => {
+        e.stopPropagation();
+        searchBar.dispatchEvent(new Event('input'));
+    });
     suggestionsBox.appendChild(closeResults);
 }
 
@@ -221,29 +312,55 @@ function displayAllResults(matches, suggestionsBox, searchBar) {
 
 function performLiveFilter(searchTerm) {
     const allProducts = document.querySelectorAll(".cake-card");
-    const searchTerms = searchTerm.toLowerCase().trim().split(' ').filter(term => term.length);
+    // If product cards haven't been rendered into the DOM yet by rating.js, wait for rating.js to call performLiveFilter
+    if (allProducts.length === 0) return;
+
+    const rawQuery = (searchTerm || "").toLowerCase().trim();
+    const queryCompact = rawQuery.replace(/\s+/g, '');
+    const searchTerms = rawQuery.split(/\s+/).filter(term => term.length > 0);
     let foundResults = false;
 
     allProducts.forEach(card => {
         const name = card.querySelector(".cake-name")?.textContent.toLowerCase() || "";
-        const matchesAll = searchTerms.every(term => name.includes(term));
+        const nameCompact = name.replace(/\s+/g, '');
+        const description = card.querySelector(".cake-description")?.textContent.toLowerCase() || "";
+        const imgAlt = card.querySelector(".cake-image")?.getAttribute("alt")?.toLowerCase() || "";
+        const isCakeSection = Boolean(card.closest('#cakes-grid'));
+        const sectionKeywords = isCakeSection ? "cake cakes" : "dessert desserts";
+        const searchableText = `${name} ${nameCompact} ${imgAlt} ${description} ${sectionKeywords}`;
 
-        // FIX: Find the closest layout wrapper. If your card is inside a column 
-        // div, a list item (li), or a swiper-slide, we must hide THAT parent wrapper 
-        // to prevent empty spaces in your grid layout.
+        const matchesAll = searchTerms.length === 0 ||
+            (queryCompact && nameCompact.includes(queryCompact)) ||
+            searchTerms.every(term => searchableText.includes(term));
+
         const swiperParent = card.closest('.swiper-slide');
         const listParent = card.closest('li');
-        const colParent = card.closest('.col'); // Assuming Bootstrap or similar grid classes
+        const colParent = card.closest('.col');
         
         // Target the layout wrapper if it exists, otherwise target the card itself
         const elementToHide = swiperParent || listParent || colParent || card;
 
         if (matchesAll) {
-            // Using "" instead of "block" restores the element's original CSS layout property
             elementToHide.style.display = ""; 
             foundResults = true;
         } else {
             elementToHide.style.display = "none";
+        }
+    });
+
+    // Hide/show section grids (#cakes-grid, #desserts-grid) and their section headers when empty
+    ['cakes-grid', 'desserts-grid'].forEach(gridId => {
+        const gridEl = document.getElementById(gridId);
+        if (!gridEl) return;
+        const cardsInGrid = gridEl.querySelectorAll('.cake-card');
+        const hasVisibleCard = Array.from(cardsInGrid).some(card => {
+            const wrapper = card.closest('.swiper-slide') || card.closest('li') || card.closest('.col') || card;
+            return wrapper.style.display !== 'none';
+        });
+        gridEl.style.display = hasVisibleCard ? '' : 'none';
+        const prevHeading = gridEl.previousElementSibling;
+        if (prevHeading && prevHeading.classList.contains('content')) {
+            prevHeading.style.display = hasVisibleCard ? '' : 'none';
         }
     });
 
@@ -270,6 +387,8 @@ function performLiveFilter(searchTerm) {
         if (noResMsg) noResMsg.style.display = 'none';
     }
 }
+
+window.performLiveFilter = performLiveFilter;
 
 
 // ==========================================

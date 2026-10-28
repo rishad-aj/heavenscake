@@ -73,6 +73,15 @@
         const dessertsGrid = document.getElementById('desserts-grid');
         if (dessertsGrid && data.desserts) dessertsGrid.innerHTML = data.desserts.map(createCard).join('');
 
+        // Re-apply search filter once product cards are in the DOM
+        const searchBar = document.getElementById('searchBar');
+        const urlSearchTerm = new URLSearchParams(window.location.search).get('search');
+        const activeQuery = (searchBar && searchBar.value.trim()) ? searchBar.value : (urlSearchTerm || '');
+        if (activeQuery && typeof window.performLiveFilter === 'function') {
+          if (searchBar && !searchBar.value) searchBar.value = activeQuery;
+          window.performLiveFilter(activeQuery);
+        }
+
         // Query database metrics and update system aggregate variables
         await loadAggregateRatings();
 
