@@ -1198,3 +1198,33 @@ header {
     #reviews-list::-webkit-scrollbar-thumb:hover {
       background: #734d40;
     }
+
+/* ================= ELFSIGHT INSTAGRAM WIDGET WATERMARK HIDE ================= */
+.feed-wrapper {
+  position: relative;
+  width: 100%;
+  margin-bottom: 45px;
+  padding-bottom: 15px;
+}
+
+.widget-cover {
+  display: none;
+}
+
+.feed-wrapper a[href*="elfsight.com"],
+div[class*="elfsight-app"] a[href*="elfsight.com"],
+a[href*="elfsight.com"][target="_blank"] {
+  clip-path: inset(100%) !important;
+  -webkit-clip-path: inset(100%) !important;
+  transform: scale(0) !important;
+  max-height: 0 !important;
+  max-width: 0 !important;
+  font-size: 0 !important;
+  line-height: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: 0 !important;
+  pointer-events: none !important;
+  overflow: hidden !important;
+  user-select: none !important;
+}

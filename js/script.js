@@ -497,3 +497,53 @@ function initProductCardButtons() {
         });
     }
 }
+
+// ==========================================
+// 6. HIDE ELFSIGHT WATERMARK
+// ==========================================
+document.addEventListener('DOMContentLoaded', () => {
+    const hideElfsightBadge = () => {
+        // Light DOM links
+        document.querySelectorAll('a[href*="elfsight.com"]').forEach(link => {
+            if (link.style.getPropertyValue('clip-path') === 'inset(100%)') return;
+            link.style.setProperty('clip-path', 'inset(100%)', 'important');
+            link.style.setProperty('-webkit-clip-path', 'inset(100%)', 'important');
+            link.style.setProperty('transform', 'scale(0)', 'important');
+            link.style.setProperty('max-height', '0px', 'important');
+            link.style.setProperty('max-width', '0px', 'important');
+            link.style.setProperty('font-size', '0px', 'important');
+            link.style.setProperty('margin', '0px', 'important');
+            link.style.setProperty('padding', '0px', 'important');
+            link.style.setProperty('pointer-events', 'none', 'important');
+            link.style.setProperty('overflow', 'hidden', 'important');
+        });
+
+        // Check any open Shadow DOM inside the widget
+        document.querySelectorAll('.feed-wrapper *, div[class*="elfsight-app"] *').forEach(el => {
+            if (el.shadowRoot && !el.shadowRoot.querySelector('#hide-elfsight-watermark')) {
+                const style = document.createElement('style');
+                style.id = 'hide-elfsight-watermark';
+                style.textContent = `
+                    a[href*="elfsight.com"] {
+                        clip-path: inset(100%) !important;
+                        -webkit-clip-path: inset(100%) !important;
+                        transform: scale(0) !important;
+                        max-height: 0 !important;
+                        max-width: 0 !important;
+                        font-size: 0 !important;
+                        margin: 0 !important;
+                        padding: 0 !important;
+                        pointer-events: none !important;
+                        overflow: hidden !important;
+                    }
+                `;
+                el.shadowRoot.appendChild(style);
+            }
+        });
+    };
+
+    hideElfsightBadge();
+    const feedContainer = document.querySelector('.feed-wrapper') || document.body;
+    const observer = new MutationObserver(hideElfsightBadge);
+    observer.observe(feedContainer, { childList: true, subtree: true });
+});
