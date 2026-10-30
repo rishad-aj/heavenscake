@@ -14,7 +14,7 @@
 
 ## About
 
-**Heaven's Cake** is an FSSAI-registered (`21322210000116`) homemade bakery based in Karimba, Mannarkkad, Palakkad, Kerala. Since 2020, we have crafted fresh, made-to-order celebration cakes, cupcakes, brownies, jar cakes, and gift hampers for over **2,500+ happy customers**.
+**Heaven's Cake** is an FSSAI-registered (`21322210000116`) homemade bakery based in Karimba, Mannarkkad, Palakkad, Kerala. Since 2020, we have crafted fresh, made-to-order celebration cakes, cupcakes, brownies, jar cakes, and gift hampers for over **3500+ happy customers**.
 
 ## Highlights
 
