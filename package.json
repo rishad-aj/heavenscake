@@ -1,7 +1,7 @@
 {
   "name": "heavens-cake",
   "version": "1.0.0",
-  "description": "Official website for Heaven's Cake – Homemade fresh custom cakes and desserts in Mannarkkad, Palakkad, Kerala.",
+  "description": "Heaven's Cake — Official web store for handcrafted homemade cakes & desserts in Mannarkkad, Kerala. Built with JavaScript, Firebase Auth, Firestore & Swiper.js.",
   "scripts": {
     "dev": "node -e \"const http=require('http'),fs=require('fs'),path=require('path');const mime={'.html':'text/html','.css':'text/css','.js':'application/javascript','.json':'application/json','.svg':'image/svg+xml','.png':'image/png','.webp':'image/webp','.ico':'image/x-icon','.xml':'application/xml'};http.createServer((req,res)=>{let u=req.url.split('?')[0];if(u==='/api/track'){res.writeHead(200,{'Content-Type':'application/json'});return res.end('{\\\"ok\\\":true}');}if(u==='/')u='/index.html';let fp=path.join(process.cwd(),u);if(!fs.existsSync(fp)&&fs.existsSync(fp+'.html'))fp+='.html';if(!fs.existsSync(fp)||fs.statSync(fp).isDirectory()){fp=path.join(process.cwd(),'404.html');res.statusCode=404;}const ext=path.extname(fp);res.setHeader('Content-Type',mime[ext]||'application/octet-stream');fs.createReadStream(fp).pipe(res);}).listen(3000,'0.0.0.0',()=>console.log('Serving on http://0.0.0.0:3000'));\"",
     "build": "echo 'Static site ready'"
