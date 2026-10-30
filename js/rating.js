@@ -140,8 +140,16 @@
     // Direct interface querying on the actual firebase auth instance ensures no variable sync latency
     function handleReviewWriteIntent(productName) {
       if (!auth.currentUser) {
-        const authModal = document.getElementById('auth-modal');
-        if (authModal) authModal.style.display = 'flex';
+        if (typeof window.openAuthModal === 'function') {
+          window.openAuthModal();
+        } else {
+          const authModal = document.getElementById('auth-modal');
+          if (authModal) {
+            authModal.style.display = 'flex';
+            document.body.classList.add('no-scroll', 'modal-open');
+            document.documentElement.classList.add('no-scroll');
+          }
+        }
       } else {
         openReviewModal(productName);
         document.getElementById('review-text-input').focus();
@@ -153,6 +161,8 @@
       activeProductName = productName;
       document.getElementById('review-modal-title').innerText = productName;
       document.getElementById('review-modal').style.display = 'flex';
+      document.body.classList.add('no-scroll', 'modal-open');
+      document.documentElement.classList.add('no-scroll');
       resetReviewFormInput();
       await fetchAndRenderModalReviews(productName);
     }
@@ -272,5 +282,11 @@
 
     window.closeReviewModal = () => {
       document.getElementById('review-modal').style.display = 'none';
+      const authModal = document.getElementById('auth-modal');
+      const isAuthOpen = authModal && authModal.style.display === 'flex';
+      if (!isAuthOpen) {
+        document.body.classList.remove('no-scroll', 'modal-open');
+        document.documentElement.classList.remove('no-scroll');
+      }
     };
     document.getElementById('close-review-modal').addEventListener('click', window.closeReviewModal);

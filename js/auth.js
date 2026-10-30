@@ -52,20 +52,54 @@ const logoutBtn = document.getElementById("logout-btn");
 // State
 let isLoginMode = true;
 
-// Modal Toggles
-openAuthBtn.addEventListener("click", () => { authModal.style.display = "flex"; });
-navLoginBtn.addEventListener("click", () => { authModal.style.display = "flex"; });
-closeAuthBtn.addEventListener("click", () => {
+function openAuthModal() {
+  if (!authModal) return;
+  // Close mobile hamburger sidebar if open
+  const sidebar = document.getElementById("sidebar");
+  const navIcon = document.getElementById("nav-icon");
+  sidebar?.classList.remove("active");
+  navIcon?.classList.remove("open");
+
+  authModal.style.display = "flex";
+  document.body.classList.add("no-scroll", "modal-open");
+  document.documentElement.classList.add("no-scroll");
+}
+
+function closeAuthModal() {
+  if (!authModal) return;
   authModal.style.display = "none";
-  authError.textContent = ""; 
-});
+  authError.textContent = "";
+
+  const reviewModal = document.getElementById("review-modal");
+  const isReviewOpen = reviewModal && reviewModal.style.display === "flex";
+  if (!isReviewOpen) {
+    document.body.classList.remove("no-scroll", "modal-open");
+    document.documentElement.classList.remove("no-scroll");
+  }
+}
+
+window.openAuthModal = openAuthModal;
+window.closeAuthModal = closeAuthModal;
+
+// Modal Toggles
+openAuthBtn?.addEventListener("click", openAuthModal);
+navLoginBtn?.addEventListener("click", openAuthModal);
+closeAuthBtn?.addEventListener("click", closeAuthModal);
 
 window.addEventListener("click", (e) => {
-  if (e.target === authModal) { authModal.style.display = "none"; }
+  if (e.target === authModal) {
+    closeAuthModal();
+  }
+});
+
+window.addEventListener("keydown", (e) => {
+  if (e.key === "Escape" && authModal?.style.display === "flex") {
+    closeAuthModal();
+  }
 });
 
 // Switch between Login and Signup modes
-authToggleText.addEventListener("click", () => {
+authToggleText?.addEventListener("click", () => {
   isLoginMode = !isLoginMode;
   authError.textContent = "";
   
@@ -85,7 +119,7 @@ authToggleText.addEventListener("click", () => {
 });
 
 // Email/Password Form Submission (Login/Signup)
-authForm.addEventListener("submit", (e) => {
+authForm?.addEventListener("submit", (e) => {
   e.preventDefault();
   const name = authNameInput.value.trim();
   const email = document.getElementById("auth-email").value.trim();
@@ -98,10 +132,12 @@ authForm.addEventListener("submit", (e) => {
   if (isLoginMode) {
     signInWithEmailAndPassword(auth, email, password)
       .then(() => {
-        authModal.style.display = "none";
+        closeAuthModal();
         authForm.reset();
       })
-      .catch((error) => { authError.textContent = getFriendlyErrorMessage(error.code); })
+      .catch((error) => {
+        authError.textContent = getFriendlyErrorMessage(error.code);
+      })
       .finally(() => {
         authSubmitBtn.disabled = false;
         authSubmitBtn.textContent = "Login";
@@ -109,16 +145,16 @@ authForm.addEventListener("submit", (e) => {
   } else {
     createUserWithEmailAndPassword(auth, email, password)
       .then((userCredential) => {
-        // Explicitly tie the typed name to the new user account[cite: 1]
         return updateProfile(userCredential.user, { displayName: name });
       })
       .then(() => {
-        // Force immediate rendering update to clear race conditions
         userNameDisplay.textContent = name; 
-        authModal.style.display = "none";
+        closeAuthModal();
         authForm.reset();
       })
-      .catch((error) => { authError.textContent = getFriendlyErrorMessage(error.code); })
+      .catch((error) => {
+        authError.textContent = getFriendlyErrorMessage(error.code);
+      })
       .finally(() => {
         authSubmitBtn.disabled = false;
         authSubmitBtn.textContent = "Sign Up";
@@ -126,16 +162,16 @@ authForm.addEventListener("submit", (e) => {
   }
 });
 
-// Google Login[cite: 1]
-googleLoginBtn.addEventListener("click", () => {
+// Google Login
+googleLoginBtn?.addEventListener("click", () => {
   authError.textContent = "";
   signInWithPopup(auth, googleProvider)
-    .then(() => { authModal.style.display = "none"; })
+    .then(() => { closeAuthModal(); })
     .catch((error) => { authError.textContent = getFriendlyErrorMessage(error.code); });
 });
 
 // Logout Handling
-logoutBtn.addEventListener("click", () => {
+logoutBtn?.addEventListener("click", () => {
   signOut(auth).catch((error) => { console.error("Sign out error", error); });
 });
 
@@ -149,11 +185,9 @@ onAuthStateChanged(auth, (user) => {
     navLoginBtn.style.display = "none"; 
     openAuthBtn.style.display = "block"; 
 
-    // Extract precise display info[cite: 1]
     userNameDisplay.textContent = user.displayName || "No Name Provided";
     userEmailDisplay.textContent = user.email;
 
-    // Handle profile visual state (Image vs Element Icon)[cite: 1]
     if (user.photoURL) {
       profileAvatarContainer.innerHTML = `
         <img src="${user.photoURL}" alt="Profile Picture" style="width: 60px; height: 60px; border-radius: 50%; border: 2px solid #fff; object-fit: cover;">
