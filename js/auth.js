@@ -1,5 +1,5 @@
 // Import the functions you need from the SDKs you need
-import { initializeApp } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-app.js";
+import { initializeApp, getApps } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-app.js";
 import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-analytics.js";
 import { 
   getAuth, 
@@ -7,6 +7,8 @@ import {
   signInWithEmailAndPassword, 
   GoogleAuthProvider,
   signInWithPopup,
+  signInWithRedirect,
+  getRedirectResult,
   reauthenticateWithPopup,
   updateProfile,
   onAuthStateChanged, 
@@ -26,10 +28,11 @@ const firebaseConfig = {
 };
 
 // Initialize Firebase
-const app = initializeApp(firebaseConfig);
+const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApps()[0];
 const analytics = getAnalytics(app);
 const auth = getAuth(app);
 const googleProvider = new GoogleAuthProvider();
+googleProvider.setCustomParameters({ prompt: "select_account" });
 
 // DOM Elements
 const authModal = document.getElementById("auth-modal");
@@ -100,6 +103,20 @@ function closeAuthModal() {
 
 window.openAuthModal = openAuthModal;
 window.closeAuthModal = closeAuthModal;
+
+// Handle Google Redirect Result if redirected back
+getRedirectResult(auth)
+  .then((result) => {
+    if (result?.user) {
+      closeAuthModal();
+    }
+  })
+  .catch((error) => {
+    if (error?.code && authError) {
+      openAuthModal();
+      authError.textContent = getFriendlyErrorMessage(error.code);
+    }
+  });
 
 // Modal Toggles
 openAuthBtn?.addEventListener("click", openAuthModal);
@@ -182,12 +199,31 @@ authForm?.addEventListener("submit", (e) => {
   }
 });
 
-// Google Login
-googleLoginBtn?.addEventListener("click", () => {
+// Google Login (Popup with Redirect fallback)
+googleLoginBtn?.addEventListener("click", async () => {
   authError.textContent = "";
-  signInWithPopup(auth, googleProvider)
-    .then(() => { closeAuthModal(); })
-    .catch((error) => { authError.textContent = getFriendlyErrorMessage(error.code); });
+  googleLoginBtn.disabled = true;
+
+  try {
+    await signInWithPopup(auth, googleProvider);
+    closeAuthModal();
+  } catch (error) {
+    if (
+      error.code === "auth/popup-blocked" ||
+      error.code === "auth/operation-not-supported-in-this-environment"
+    ) {
+      try {
+        await signInWithRedirect(auth, googleProvider);
+        return;
+      } catch (redirectError) {
+        authError.textContent = getFriendlyErrorMessage(redirectError.code);
+      }
+    } else {
+      authError.textContent = getFriendlyErrorMessage(error.code);
+    }
+  } finally {
+    googleLoginBtn.disabled = false;
+  }
 });
 
 // Logout Handling
@@ -268,9 +304,9 @@ onAuthStateChanged(auth, (user) => {
           <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
           <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
           <g id="SVGRepo_iconCarrier">
-            <path d="M12.12 12.78C12.05 12.77 11.96 12.77 11.88 12.78C10.12 12.72 8.71997 11.28 8.71997 9.50998C8.71997 7.69998 10.18 6.22998 12 6.22998C13.81 6.22998 15.28 7.69998 15.28 9.50998C15.27 11.28 13.88 12.72 12.12 12.78Z" stroke="#ffffff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
-            <path d="M18.74 19.3801C16.96 21.0101 14.6 22.0001 12 22.0001C9.40001 22.0001 7.04001 21.0101 5.26001 19.3801C5.36001 18.4401 5.96001 17.5201 7.03001 16.8001C9.77001 14.9801 14.25 14.9801 16.97 16.8001C18.04 17.5201 18.64 18.4401 18.74 19.3801Z" stroke="#ffffff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
-            <path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z" stroke="#ffffff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
+            <path d="M12.12 12.78C12.05 12.77 11.96 12.77 11.88 12.78C10.12 12.72 8.71997 11.28 8.71997 9.50998C8.71997 7.69998 10.18 6.22998 12 6.22998C13.81 6.22998 15.28 7.69998 15.28 9.50998C15.27 11.28 13.88 12.72 12.12 12.78Z" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
+            <path d="M18.74 19.3801C16.96 21.0101 14.6 22.0001 12 22.0001C9.40001 22.0001 7.04001 21.0101 5.26001 19.3801C5.36001 18.4401 5.96001 17.5201 7.03001 16.8001C9.77001 14.9801 14.25 14.9801 16.97 16.8001C18.04 17.5201 18.64 18.4401 18.74 19.3801Z" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
+            <path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
           </g>
         </svg>
       `;
@@ -299,7 +335,10 @@ function getFriendlyErrorMessage(errorCode) {
     case 'auth/invalid-email':
       return "Please enter a valid email address.";
     case 'auth/popup-closed-by-user':
+    case 'auth/cancelled-popup-request':
       return "Sign-in popup was canceled.";
+    case 'auth/unauthorized-domain':
+      return `Domain (${window.location.hostname}) must be added in Firebase Console → Authentication → Settings → Authorized domains.`;
     case 'auth/requires-recent-login':
       return "For security, please log out and log back in before deleting your account.";
     default:

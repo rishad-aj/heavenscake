@@ -546,15 +546,13 @@ header > div:last-child > a {
   transform: scale(1.1);
 }
 
-/* Bag Icon Fix - Make it outline */
-.bag-icon {
+/* Bag & User Icon Fix - Match outline and 2px thickness */
+.bag-icon,
+.user-icon,
+.user-icon path {
   fill: none !important;
   stroke: #ffffff !important;
   stroke-width: 2 !important;
-}
-
-.user-icon {
-  fill: none !important;
 }
 
 /* ================= CONTENT ================= */

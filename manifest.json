@@ -1,6 +1,6 @@
 {
-  "name": "Heaven’s Cake – Homemade Fresh Cakes",
-  "short_name": "Heaven’s Cake",
+  "name": "Heaven's Cake",
+  "short_name": "Heaven's Cake",
   "description": "Homemade fresh custom cakes in Mannarkkad. Order cakes for birthdays, weddings, and special occasions.",
   "start_url": "/?source=pwa",
   "scope": "/",
