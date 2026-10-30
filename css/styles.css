@@ -158,7 +158,7 @@
   background-color: #fff;
   color: #734d40;
   border: none;
-  padding: 12px;
+  padding: 12px 24px;
   font-size: 16px;
   font-weight: bold;
   border-radius: 100px;
@@ -170,6 +170,91 @@
 
 #auth-submit-btn:hover, #logout-btn:hover {
   background-color: #f8f8f8;
+  transform: scale(1.02);
+}
+
+.profile-actions-group {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.profile-actions-group #logout-btn {
+  width: 100%;
+  margin-top: 0;
+}
+
+.delete-account-btn {
+  width: 100%;
+  background-color: #734d40;
+  color: #ffe5e5;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  padding: 11px 20px;
+  font-size: 15px;
+  font-weight: 600;
+  border-radius: 100px;
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+
+.delete-account-btn:hover {
+  background-color: #a92323;
+  border-color: #ffcccc;
+  color: #ffffff;
+  transform: scale(1.02);
+}
+
+.delete-confirm-container {
+  margin-top: 12px;
+  padding: 14px;
+  background: rgba(115, 77, 64, 0.55);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-radius: 12px;
+}
+
+.delete-confirm-text {
+  margin: 0 0 12px 0;
+  font-size: 14px;
+  line-height: 1.4;
+  color: #fff;
+}
+
+.delete-confirm-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+}
+
+.confirm-delete-btn,
+.cancel-delete-btn {
+  flex: 1;
+  padding: 10px 14px;
+  font-size: 14px;
+  font-weight: bold;
+  border-radius: 100px;
+  cursor: pointer;
+  border: none;
+  transition: all 0.2s ease;
+}
+
+.confirm-delete-btn {
+  background-color: #b91c1c;
+  color: #ffffff;
+}
+
+.confirm-delete-btn:hover {
+  background-color: #991b1b;
+  transform: scale(1.02);
+}
+
+.cancel-delete-btn {
+  background-color: #ffffff;
+  color: #734d40;
+}
+
+.cancel-delete-btn:hover {
+  background-color: #f1f1f1;
   transform: scale(1.02);
 }
 
@@ -466,6 +551,10 @@ header > div:last-child > a {
   fill: none !important;
   stroke: #ffffff !important;
   stroke-width: 2 !important;
+}
+
+.user-icon {
+  fill: none !important;
 }
 
 /* ================= CONTENT ================= */

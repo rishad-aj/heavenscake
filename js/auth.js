@@ -7,9 +7,11 @@ import {
   signInWithEmailAndPassword, 
   GoogleAuthProvider,
   signInWithPopup,
+  reauthenticateWithPopup,
   updateProfile,
   onAuthStateChanged, 
-  signOut 
+  signOut,
+  deleteUser
 } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-auth.js";
 
 // Your web app's Firebase configuration
@@ -48,9 +50,25 @@ const profileAvatarContainer = document.getElementById("profile-avatar-container
 const userNameDisplay = document.getElementById("user-name-display");
 const userEmailDisplay = document.getElementById("user-email-display");
 const logoutBtn = document.getElementById("logout-btn");
+const deleteAccountBtn = document.getElementById("delete-account-btn");
+const profileActionsGroup = document.getElementById("profile-actions-group");
+const deleteConfirmContainer = document.getElementById("delete-confirm-container");
+const confirmDeleteBtn = document.getElementById("confirm-delete-btn");
+const cancelDeleteBtn = document.getElementById("cancel-delete-btn");
+const deleteAccountError = document.getElementById("delete-account-error");
 
 // State
 let isLoginMode = true;
+
+function resetDeleteConfirmUI() {
+  if (deleteAccountError) deleteAccountError.textContent = "";
+  if (deleteConfirmContainer) deleteConfirmContainer.style.display = "none";
+  if (profileActionsGroup) profileActionsGroup.style.display = "flex";
+  if (confirmDeleteBtn) {
+    confirmDeleteBtn.disabled = false;
+    confirmDeleteBtn.textContent = "Yes, Delete";
+  }
+}
 
 function openAuthModal() {
   if (!authModal) return;
@@ -60,6 +78,7 @@ function openAuthModal() {
   sidebar?.classList.remove("active");
   navIcon?.classList.remove("open");
 
+  resetDeleteConfirmUI();
   authModal.style.display = "flex";
   document.body.classList.add("no-scroll", "modal-open");
   document.documentElement.classList.add("no-scroll");
@@ -69,6 +88,7 @@ function closeAuthModal() {
   if (!authModal) return;
   authModal.style.display = "none";
   authError.textContent = "";
+  resetDeleteConfirmUI();
 
   const reviewModal = document.getElementById("review-modal");
   const isReviewOpen = reviewModal && reviewModal.style.display === "flex";
@@ -172,11 +192,61 @@ googleLoginBtn?.addEventListener("click", () => {
 
 // Logout Handling
 logoutBtn?.addEventListener("click", () => {
-  signOut(auth).catch((error) => { console.error("Sign out error", error); });
+  signOut(auth)
+    .then(() => { closeAuthModal(); })
+    .catch((error) => { console.error("Sign out error", error); });
+});
+
+// Delete Account Flow
+deleteAccountBtn?.addEventListener("click", () => {
+  if (deleteAccountError) deleteAccountError.textContent = "";
+  if (profileActionsGroup) profileActionsGroup.style.display = "none";
+  if (deleteConfirmContainer) deleteConfirmContainer.style.display = "block";
+});
+
+cancelDeleteBtn?.addEventListener("click", () => {
+  resetDeleteConfirmUI();
+});
+
+confirmDeleteBtn?.addEventListener("click", async () => {
+  const user = auth.currentUser;
+  if (!user) return;
+
+  if (deleteAccountError) deleteAccountError.textContent = "";
+  confirmDeleteBtn.disabled = true;
+  confirmDeleteBtn.textContent = "Deleting...";
+
+  try {
+    await deleteUser(user);
+    closeAuthModal();
+  } catch (error) {
+    if (error.code === "auth/requires-recent-login") {
+      const isGoogleUser = user.providerData?.some((p) => p.providerId === "google.com");
+      if (isGoogleUser) {
+        try {
+          await reauthenticateWithPopup(user, googleProvider);
+          await deleteUser(auth.currentUser);
+          closeAuthModal();
+          return;
+        } catch (reauthError) {
+          if (deleteAccountError) {
+            deleteAccountError.textContent = getFriendlyErrorMessage(reauthError.code);
+          }
+        }
+      } else if (deleteAccountError) {
+        deleteAccountError.textContent = "For security, please log out and log back in before deleting your account.";
+      }
+    } else if (deleteAccountError) {
+      deleteAccountError.textContent = getFriendlyErrorMessage(error.code);
+    }
+    confirmDeleteBtn.disabled = false;
+    confirmDeleteBtn.textContent = "Yes, Delete";
+  }
 });
 
 // Listen for Auth State Changes (Updates Header & Modal UI automatically)
 onAuthStateChanged(auth, (user) => {
+  resetDeleteConfirmUI();
   if (user) {
     authFormContainer.style.display = "none";
     loggedInContainer.style.display = "block";
@@ -194,8 +264,14 @@ onAuthStateChanged(auth, (user) => {
       `;
     } else {
       profileAvatarContainer.innerHTML = `
-        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="width: 50px; height: 50px;">
-          <path d="M20 21V19C20 17.8954 19.1046 17 18 17H6C4.89543 17 4 17.8954 4 19V21M16 7C16 9.20914 14.2091 11 12 11C9.79086 11 8 9.20914 8 7C8 4.79086 9.79086 3 12 3C14.2091 3 16 4.79086 16 7Z" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
+        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="width: 56px; height: 56px;">
+          <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
+          <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
+          <g id="SVGRepo_iconCarrier">
+            <path d="M12.12 12.78C12.05 12.77 11.96 12.77 11.88 12.78C10.12 12.72 8.71997 11.28 8.71997 9.50998C8.71997 7.69998 10.18 6.22998 12 6.22998C13.81 6.22998 15.28 7.69998 15.28 9.50998C15.27 11.28 13.88 12.72 12.12 12.78Z" stroke="#ffffff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
+            <path d="M18.74 19.3801C16.96 21.0101 14.6 22.0001 12 22.0001C9.40001 22.0001 7.04001 21.0101 5.26001 19.3801C5.36001 18.4401 5.96001 17.5201 7.03001 16.8001C9.77001 14.9801 14.25 14.9801 16.97 16.8001C18.04 17.5201 18.64 18.4401 18.74 19.3801Z" stroke="#ffffff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
+            <path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z" stroke="#ffffff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
+          </g>
         </svg>
       `;
     }
@@ -223,7 +299,9 @@ function getFriendlyErrorMessage(errorCode) {
     case 'auth/invalid-email':
       return "Please enter a valid email address.";
     case 'auth/popup-closed-by-user':
-      return "Google sign-in was canceled.";
+      return "Sign-in popup was canceled.";
+    case 'auth/requires-recent-login':
+      return "For security, please log out and log back in before deleting your account.";
     default:
       return "An error occurred. Please try again.";
   }
