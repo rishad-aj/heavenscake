@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="favicon.svg" alt="Heaven's Cake Logo" width="110" />
+  <img src="icons/favicon.svg" alt="Heaven's Cake Logo" width="110" />
   <h1>Heaven's Cake</h1>
   <p><strong>Handcrafted, Fresh Homemade Custom Cakes & Desserts in Mannarkkad, Palakkad, Kerala</strong></p>
   <p>
@@ -37,20 +37,25 @@
 ## Project Structure
 
 ```text
-├── data/
-│   └── products.json       # Cakes & desserts catalog data
+├── api/                    # Serverless tracking endpoint
 ├── css/
 │   ├── styles.css          # Main stylesheet & responsive layout
 │   └── swiper.css          # Carousel & card slider styles
+├── data/
+│   └── products.json       # Cakes & desserts catalog data
+├── icons/                  # Favicons & PWA app icons
+├── images/                 # Brand logos & product photography
 ├── js/
 │   ├── script.js           # UI navigation, live search & Swiper setup
 │   ├── auth.js             # Firebase Authentication (Email & Google)
 │   └── rating.js           # Firestore product ratings & review modal
-├── images/                 # Brand logos & product photography
+├── pages/
+│   ├── products.html       # Full catalog, custom pricing & reviews
+│   ├── about-us.html       # Bakery story, FSSAI info & values
+│   ├── terms-conditions.html # Terms, policies & ordering guidelines
+│   └── review.html         # Review portal
 ├── index.html              # Home page
-├── products.html           # Full catalog, custom pricing & reviews
-├── about-us.html           # Bakery story, FSSAI info & values
-└── terms-conditions.html   # Terms, policies & ordering guidelines
+└── 404.html                # Custom 404 page
 ```
 
 ## Contact & Location

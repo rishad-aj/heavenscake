@@ -9,10 +9,17 @@
     "rewrites": [
       { "source": "/", "destination": "/index.html" },
       { "source": "/index", "destination": "/index.html" },
-      { "source": "/about-us", "destination": "/about-us.html" },
-      { "source": "/products", "destination": "/products.html" },
-      { "source": "/review", "destination": "/review.html" },
-      { "source": "/terms-conditions", "destination": "/terms-conditions.html" }
+      { "source": "/about-us", "destination": "/pages/about-us.html" },
+      { "source": "/about-us.html", "destination": "/pages/about-us.html" },
+      { "source": "/products", "destination": "/pages/products.html" },
+      { "source": "/products.html", "destination": "/pages/products.html" },
+      { "source": "/review", "destination": "/pages/review.html" },
+      { "source": "/review.html", "destination": "/pages/review.html" },
+      { "source": "/terms-conditions", "destination": "/pages/terms-conditions.html" },
+      { "source": "/terms-conditions.html", "destination": "/pages/terms-conditions.html" },
+      { "source": "/favicon.ico", "destination": "/icons/favicon.ico" },
+      { "source": "/favicon.png", "destination": "/icons/favicon.png" },
+      { "source": "/favicon.svg", "destination": "/icons/favicon.svg" }
     ]
   }
 }
