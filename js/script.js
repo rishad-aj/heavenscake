@@ -62,7 +62,7 @@ window.addEventListener("load", () => {
 
 // Scroll Reveal Observer
 document.addEventListener('DOMContentLoaded', () => {
-    const services = document.querySelectorAll(".reveal");
+    const services = document.querySelectorAll(".reveal, .divider");
     const observer = new IntersectionObserver(
         entries => {
             entries.forEach(entry => {
@@ -72,7 +72,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             });
         },
-        { threshold: 0.15, rootMargin: "0px 0px -50px 0px" }
+        { threshold: 0.1, rootMargin: "0px 0px -50px 0px" }
     );
     services.forEach(service => observer.observe(service));
 });

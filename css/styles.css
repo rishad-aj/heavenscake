@@ -712,12 +712,14 @@ header > div:last-child > a {
   background: var(--bg);
   display: flex;
   align-items: center;
+  justify-content: center;
   padding: 28px 10px;
 }
 .service {
   flex: 1;
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 16px;
   padding: 0 22px;
   opacity: 0;
@@ -766,6 +768,14 @@ header > div:last-child > a {
   width: 1px;
   height: 55px;
   background: var(--divider);
+  flex-shrink: 0;
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity .6s ease, transform .6s ease;
+}
+.divider.show {
+  opacity: 1;
+  transform: none;
 }
 
 @media(max-width:768px) {
@@ -779,6 +789,7 @@ header > div:last-child > a {
   }
   .service {
     padding: 0 10px;
+    justify-content: flex-start;
   }
   .service.left {
     align-self: flex-start;
@@ -1269,7 +1280,7 @@ header > div:last-child > a {
 .content .shop-button {
   position: relative;
   z-index: 100;
-  margin-top: 10px;
+  margin-top: 40px;
 }
 
 /* 1. Ensure the container fills available space and centers content */
