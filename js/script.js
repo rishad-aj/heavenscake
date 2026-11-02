@@ -333,7 +333,7 @@ function initSearchLogic() {
 // Redirect Helper for Home Page
 function performSearchRedirect(searchQuery) {
     if (searchQuery && searchQuery.trim()) {
-        window.location.href = `products.html?search=${encodeURIComponent(searchQuery.trim())}`;
+        window.location.href = `products?search=${encodeURIComponent(searchQuery.trim())}`;
     }
 }
 
