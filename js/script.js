@@ -43,38 +43,89 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 });
 
-// Boot animation remove (Splash Screen)
+// ==========================================
+// Boot animation remove (Splash Screen) & Scroll Reveal
+// ==========================================
 document.body.classList.add("loading");
-window.addEventListener("load", () => {
-    const boot = document.getElementById("boot-animation");
-    if(boot) {
-        setTimeout(() => {
-            boot.classList.add("hide");
-            boot.addEventListener("transitionend", () => {
-                boot.remove();
-                document.body.classList.remove("loading");
-            }, { once: true });
-        }, 1000);
-    } else {
-        document.body.classList.remove("loading");
-    }
-});
 
-// Scroll Reveal Observer
-document.addEventListener('DOMContentLoaded', () => {
+let revealObserverInitialized = false;
+
+function initScrollReveal() {
+    if (revealObserverInitialized) return;
+    revealObserverInitialized = true;
+
     const services = document.querySelectorAll(".reveal, .divider");
+    if (!services.length) return;
+
     const observer = new IntersectionObserver(
         entries => {
             entries.forEach(entry => {
-                if(entry.isIntersecting){
+                if (entry.isIntersecting) {
                     entry.target.classList.add("show");
                     observer.unobserve(entry.target);
                 }
             });
         },
-        { threshold: 0.1, rootMargin: "0px 0px -50px 0px" }
+        { threshold: 0.1, rootMargin: "0px 0px -10px 0px" }
     );
     services.forEach(service => observer.observe(service));
+}
+
+function handleBootAnimation() {
+    const boot = document.getElementById("boot-animation");
+    if (!boot) {
+        document.body.classList.remove("loading");
+        initScrollReveal();
+        return;
+    }
+
+    let finished = false;
+    const finishBoot = () => {
+        if (finished) return;
+        finished = true;
+        boot.remove();
+        document.body.classList.remove("loading");
+        // Trigger reveal animations strictly after boot animation is finished
+        initScrollReveal();
+    };
+
+    let hideStarted = false;
+    const startHide = () => {
+        if (hideStarted) return;
+        hideStarted = true;
+        boot.classList.add("hide");
+        boot.addEventListener("transitionend", finishBoot, { once: true });
+        setTimeout(finishBoot, 850);
+    };
+
+    const safetyTimer = setTimeout(startHide, 3500);
+
+    if (document.readyState === "complete") {
+        setTimeout(() => {
+            clearTimeout(safetyTimer);
+            startHide();
+        }, 1000);
+    } else {
+        window.addEventListener("load", () => {
+            setTimeout(() => {
+                clearTimeout(safetyTimer);
+                startHide();
+            }, 1000);
+        });
+    }
+}
+
+if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", handleBootAnimation);
+} else {
+    handleBootAnimation();
+}
+
+window.addEventListener("pageshow", (e) => {
+    if (e.persisted) {
+        document.body.classList.remove("loading");
+        initScrollReveal();
+    }
 });
 
 

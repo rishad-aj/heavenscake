@@ -410,7 +410,8 @@ body {
 
 }
 html.no-scroll,
-body.no-scroll {
+body.no-scroll,
+body.loading {
   overflow: hidden !important;
   overscroll-behavior: none;
 }
